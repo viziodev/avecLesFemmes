@@ -67,4 +67,5 @@ jobs:
         with:
           name: manifeste-${{ github.ref_name }}
           path: .releases/*.registry.json
+          include-hidden-files: true
           if-no-files-found: error
