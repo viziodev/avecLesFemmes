@@ -18,6 +18,7 @@ function fixture(callback) {
       'CHANGELOG.md',
       'docker/api.Dockerfile',
       'docker/web.Dockerfile',
+      'docker/render.Dockerfile',
     ]) {
       mkdirSync(dirname(join(dir, file)), { recursive: true });
       cpSync(join(root, file), join(dir, file));

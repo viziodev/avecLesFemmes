@@ -23,7 +23,7 @@ export default defineConfig({
         ],
       },
       workbox: {
-        navigateFallbackDenylist: [/^\/api\//],
+        navigateFallbackDenylist: [/^\/api\//, /^\/admin(?:\/|$)/],
         runtimeCaching: [{ urlPattern: /\/api\//, handler: 'NetworkOnly' }],
       },
     }),

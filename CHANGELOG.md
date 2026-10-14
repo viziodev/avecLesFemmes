@@ -2,7 +2,8 @@
 
 ## 0.1.2 Recette Render gratuite
 
-- Proxy API HTTPS avec SNI et vérification du certificat pour les services web Render gratuits.
+- Image de test Render regroupant Nginx, API sur loopback, PWA à la racine et web super administrateur sous /admin/.
+- Provisionnement initial isolé du rôle PostgreSQL applicatif.
 - Exception ADR 014 : test temporaire gratuit avec base expirant après 30 jours.
 
 ## 0.1.1 Préparation du déploiement Render

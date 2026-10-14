@@ -98,7 +98,11 @@ function setVersion(version) {
     composeFile,
     readFileSync(composeFile, 'utf8').replace(/APP_VERSION:-[^}]+/g, `APP_VERSION:-${version}`),
   );
-  for (const file of ['docker/api.Dockerfile', 'docker/web.Dockerfile']) {
+  for (const file of [
+    'docker/api.Dockerfile',
+    'docker/web.Dockerfile',
+    'docker/render.Dockerfile',
+  ]) {
     const path = resolve(root, file);
     writeFileSync(
       path,

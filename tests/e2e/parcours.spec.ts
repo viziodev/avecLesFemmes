@@ -13,7 +13,7 @@ async function login(page: Page, url: string, user: string) {
   await page.locator('#group-select').selectOption({ label: 'Les Femmes de Grand Yoff' });
 }
 test('super administrateur consulte, crée et active une campagne', async ({ page }) => {
-  await login(page, '/', 'superadmin');
+  await login(page, './', 'superadmin');
   await expect(page.getByRole('button', { name: 'Enregistrer une cotisation' })).toHaveCount(0);
   await page.getByRole('button', { name: 'Campagnes', exact: true }).click();
   await expect(page.getByText('Épargne solidaire 2026', { exact: true }).first()).toBeVisible();
@@ -68,7 +68,7 @@ test('membre sur téléphone et manifest PWA', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Ma participation', exact: true })).toBeVisible();
 });
 test('connexion par code téléphone et déconnexion', async ({ page }) => {
-  await login(page, '/', 'superadmin');
+  await login(page, './', 'superadmin');
   const groups = await (await page.request.get('/api/v1/groupements')).json();
   const groupId = groups.items.find(
     (g: { name: string }) => g.name === 'Les Femmes de Grand Yoff',

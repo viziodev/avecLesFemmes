@@ -108,6 +108,25 @@ services:
     mem_limit: 128m
     cpus: 0.5
     security_opt: ['no-new-privileges:true']
+  render-test:
+    profiles: [render-test]
+    image: aveclesfemmes-render:${APP_VERSION:-0.1.2}
+    build:
+      context: .
+      dockerfile: docker/render.Dockerfile
+      args:
+        PRODUCT_VERSION: '${APP_VERSION:-0.1.2}'
+        VCS_REF: '${GIT_REVISION:-working-tree}'
+        SOURCE_URL: '${SOURCE_URL:-}'
+    environment:
+      DATABASE_URL: postgresql://aveclesfemmes_app:${APP_DATABASE_PASSWORD}@db:5432/aveclesfemmes
+      ALLOWED_ORIGINS: http://localhost:8087
+      SMS_MODE: disabled
+    ports: ['127.0.0.1:8087:8080']
+    depends_on: { migrate: { condition: service_completed_successfully } }
+    networks: [backend]
+    init: true
+    mem_limit: 512m
   seed:
     profiles: [demo]
     image: aveclesfemmes-api:${APP_VERSION:-0.1.2}
