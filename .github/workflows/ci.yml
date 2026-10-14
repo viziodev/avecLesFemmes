@@ -31,12 +31,17 @@ jobs:
       - run: docker compose --profile demo run --rm seed
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
+      - name: Vérifier le conteneur unique Render
+        run: |
+          docker compose --profile render-test build render-test
+          docker compose --profile render-test up -d --wait render-test
+          WEB_URL=http://localhost:8087/admin/ PWA_URL=http://localhost:8087 npm run test:e2e -- --grep-invert "connexion par code téléphone"
       - name: Logs si échec
         if: failure()
         run: docker compose logs --tail 100
       - name: Nettoyage des services CI
         if: always()
-        run: docker compose down
+        run: docker compose --profile render-test down
   publish:
     name: Publication des images versionnées
     needs: verify

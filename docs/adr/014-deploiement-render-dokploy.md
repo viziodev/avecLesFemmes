@@ -12,6 +12,10 @@ Les déploiements de recette sont déclenchés après réussite de la CI et publ
 
 ## Topologie retenue
 
+### Exception de test gratuite demandée le 14 octobre 2026
+
+Le porteur demande un déploiement Render entièrement gratuit et refuse une adresse API publique séparée. La démonstration utilise donc un seul service web gratuit et une image dédiée `aveclesfemmes-render`, contenant Nginx, le web super administrateur sous `/admin/`, la PWA à la racine et NestJS sur `127.0.0.1:3000`. Seul le port Nginx 8080 est exposé ; les routes protégées `/api/v1` restent accessibles sur le même domaine HTTPS. PostgreSQL reste séparé et son rôle applicatif conserve RLS. Les services peuvent être mis en veille et PostgreSQL gratuit expire après 30 jours. Aucune donnée réelle ni garantie de disponibilité dans cet environnement. Ce choix remplace la recette payante pour le premier test uniquement ; la production Dokploy reste inchangée. La PWA exclut `/admin/` du repli de navigation de son service worker.
+
 | Composant                       | Recette Render                                           | Production Dokploy                                           |
 | ------------------------------- | -------------------------------------------------------- | ------------------------------------------------------------ |
 | Web super administrateur        | Service web Docker, HTTPS, port interne 8080             | Service Compose, domaine HTTPS, Traefik vers 8080            |

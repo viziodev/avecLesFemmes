@@ -21,14 +21,14 @@ services:
     networks: [backend]
     restart: unless-stopped
   migrate:
-    image: aveclesfemmes-api:${APP_VERSION:-0.1.1}
+    image: aveclesfemmes-api:${APP_VERSION:-0.1.2}
     build:
       {
         context: .,
         dockerfile: docker/api.Dockerfile,
         args:
           {
-            PRODUCT_VERSION: '${APP_VERSION:-0.1.1}',
+            PRODUCT_VERSION: '${APP_VERSION:-0.1.2}',
             VCS_REF: '${GIT_REVISION:-working-tree}',
             SOURCE_URL: '${SOURCE_URL:-}',
           },
@@ -40,14 +40,14 @@ services:
     networks: [backend]
     restart: 'no'
   api:
-    image: aveclesfemmes-api:${APP_VERSION:-0.1.1}
+    image: aveclesfemmes-api:${APP_VERSION:-0.1.2}
     build:
       {
         context: .,
         dockerfile: docker/api.Dockerfile,
         args:
           {
-            PRODUCT_VERSION: '${APP_VERSION:-0.1.1}',
+            PRODUCT_VERSION: '${APP_VERSION:-0.1.2}',
             VCS_REF: '${GIT_REVISION:-working-tree}',
             SOURCE_URL: '${SOURCE_URL:-}',
           },
@@ -67,7 +67,7 @@ services:
     cpus: 1.0
     security_opt: ['no-new-privileges:true']
   super-admin-web:
-    image: aveclesfemmes-web:${APP_VERSION:-0.1.1}
+    image: aveclesfemmes-web:${APP_VERSION:-0.1.2}
     build:
       {
         context: .,
@@ -75,7 +75,7 @@ services:
         args:
           {
             APP_NAME: super-admin-web,
-            PRODUCT_VERSION: '${APP_VERSION:-0.1.1}',
+            PRODUCT_VERSION: '${APP_VERSION:-0.1.2}',
             VCS_REF: '${GIT_REVISION:-working-tree}',
             SOURCE_URL: '${SOURCE_URL:-}',
           },
@@ -88,7 +88,7 @@ services:
     cpus: 0.5
     security_opt: ['no-new-privileges:true']
   membres-pwa:
-    image: aveclesfemmes-pwa:${APP_VERSION:-0.1.1}
+    image: aveclesfemmes-pwa:${APP_VERSION:-0.1.2}
     build:
       {
         context: .,
@@ -96,7 +96,7 @@ services:
         args:
           {
             APP_NAME: membres-pwa,
-            PRODUCT_VERSION: '${APP_VERSION:-0.1.1}',
+            PRODUCT_VERSION: '${APP_VERSION:-0.1.2}',
             VCS_REF: '${GIT_REVISION:-working-tree}',
             SOURCE_URL: '${SOURCE_URL:-}',
           },
@@ -108,9 +108,28 @@ services:
     mem_limit: 128m
     cpus: 0.5
     security_opt: ['no-new-privileges:true']
+  render-test:
+    profiles: [render-test]
+    image: aveclesfemmes-render:${APP_VERSION:-0.1.2}
+    build:
+      context: .
+      dockerfile: docker/render.Dockerfile
+      args:
+        PRODUCT_VERSION: '${APP_VERSION:-0.1.2}'
+        VCS_REF: '${GIT_REVISION:-working-tree}'
+        SOURCE_URL: '${SOURCE_URL:-}'
+    environment:
+      DATABASE_URL: postgresql://aveclesfemmes_app:${APP_DATABASE_PASSWORD}@db:5432/aveclesfemmes
+      ALLOWED_ORIGINS: http://localhost:8087
+      SMS_MODE: disabled
+    ports: ['127.0.0.1:8087:8080']
+    depends_on: { migrate: { condition: service_completed_successfully } }
+    networks: [backend]
+    init: true
+    mem_limit: 512m
   seed:
     profiles: [demo]
-    image: aveclesfemmes-api:${APP_VERSION:-0.1.1}
+    image: aveclesfemmes-api:${APP_VERSION:-0.1.2}
     command: ['node', 'dist/database/seed.js']
     environment:
       NODE_ENV: development

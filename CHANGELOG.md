@@ -1,5 +1,11 @@
 # Journal des versions
 
+## 0.1.2 Recette Render gratuite
+
+- Image de test Render regroupant Nginx, API sur loopback, PWA à la racine et web super administrateur sous /admin/.
+- Provisionnement initial isolé du rôle PostgreSQL applicatif.
+- Exception ADR 014 : test temporaire gratuit avec base expirant après 30 jours.
+
 ## 0.1.1 Préparation du déploiement Render
 
 - Amont API configurable au lancement des images web et PWA, pour le réseau privé Render.

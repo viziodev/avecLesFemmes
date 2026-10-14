@@ -24,7 +24,7 @@ async function main() {
   app.enableShutdownHooks();
   await app.get(Database).assertRuntimeRole();
   if (!settings.production) SwaggerModule.setup('api/docs', app, openapi(app));
-  await app.listen(settings.port, '0.0.0.0');
+  await app.listen(settings.port, process.env.HOST || '0.0.0.0');
 }
 main().catch((e) => {
   console.error(e.message);

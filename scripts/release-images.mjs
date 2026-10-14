@@ -10,6 +10,7 @@ const version = checkVersion(),
   mode = process.argv[2] || 'check';
 const images = [
   { name: 'api', service: 'api', file: 'docker/api.Dockerfile' },
+  { name: 'render', service: 'render-test', file: 'docker/render.Dockerfile' },
   {
     name: 'web',
     service: 'super-admin-web',
