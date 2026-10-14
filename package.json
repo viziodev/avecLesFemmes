@@ -1,0 +1,39 @@
+{
+  "name": "aveclesfemmes",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "scripts": {
+    "build": "npm run build --workspace @aveclesfemmes/api && npm run build --workspace @aveclesfemmes/super-admin-web && npm run build --workspace @aveclesfemmes/membres-pwa",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspace @aveclesfemmes/api",
+    "test:e2e": "playwright test",
+    "dev:api": "npm run dev --workspace @aveclesfemmes/api",
+    "dev:web": "npm run dev --workspace @aveclesfemmes/super-admin-web",
+    "dev:pwa": "npm run dev --workspace @aveclesfemmes/membres-pwa",
+    "db:migrate": "npm run db:migrate --workspace @aveclesfemmes/api",
+    "db:seed": "npm run db:seed --workspace @aveclesfemmes/api",
+    "db:bootstrap": "npm run db:bootstrap --workspace @aveclesfemmes/api",
+    "setup": "node scripts/setup.mjs",
+    "contracts:generate": "openapi-typescript docs/openapi.json -o packages/api-client/src/schema.d.ts",
+    "format": "prettier --write . --ignore-unknown",
+    "format:check": "prettier --check . --ignore-unknown"
+  },
+  "overrides": {
+    "@nestjs/swagger": {
+      "js-yaml": "^5.4.3"
+    }
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56.0",
+    "openapi-typescript": "^7.10.1",
+    "typescript": "^5.9.3",
+    "prettier": "^3.6.2"
+  }
+}

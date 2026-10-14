@@ -1,0 +1,41 @@
+# Déploiement sur un hôte derrière une entrée HTTPS existante.
+# PostgreSQL managé externe. Images attendues sous la forme registre/image@sha256:empreinte.
+name: aveclesfemmes-production
+services:
+  migrate:
+    image: ${API_IMAGE:?Image API avec empreinte requise}
+    environment:
+      NODE_ENV: production
+      MIGRATION_DATABASE_URL: ${MIGRATION_DATABASE_URL:?Connexion propriétaire de migration requise}
+    command: ['node', 'dist/database/migrate.js']
+    restart: 'no'
+  api:
+    image: ${API_IMAGE:?Image API avec empreinte requise}
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: ${DATABASE_URL:?Connexion PostgreSQL du compte applicatif requise}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:?Origines HTTPS requises}
+      OTP_SECRET: ${OTP_SECRET:?Secret OTP requis}
+      SMS_MODE: ${SMS_MODE:-disabled}
+      SMS_WEBHOOK_URL: ${SMS_WEBHOOK_URL:-}
+      SMS_WEBHOOK_TOKEN: ${SMS_WEBHOOK_TOKEN:-}
+    depends_on: { migrate: { condition: service_completed_successfully } }
+    init: true
+    restart: unless-stopped
+    mem_limit: 512m
+    cpus: 1.0
+    security_opt: ['no-new-privileges:true']
+  super-admin-web:
+    image: ${WEB_IMAGE:?Image web avec empreinte requise}
+    ports: ['127.0.0.1:8080:8080']
+    depends_on: { api: { condition: service_healthy } }
+    restart: unless-stopped
+    mem_limit: 128m
+    security_opt: ['no-new-privileges:true']
+  membres-pwa:
+    image: ${PWA_IMAGE:?Image PWA avec empreinte requise}
+    ports: ['127.0.0.1:8081:8080']
+    depends_on: { api: { condition: service_healthy } }
+    restart: unless-stopped
+    mem_limit: 128m
+    security_opt: ['no-new-privileges:true']

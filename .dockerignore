@@ -1,0 +1,10 @@
+node_modules
+**/dist
+.git
+.env
+.env.*
+*.docx
+build_document.py
+test-results
+playwright-report
+coverage

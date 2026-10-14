@@ -1,0 +1,2 @@
+\getenv app_password APP_DATABASE_PASSWORD
+SELECT format('CREATE ROLE aveclesfemmes_app LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOBYPASSRLS PASSWORD %L', :'app_password') \gexec

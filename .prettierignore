@@ -1,0 +1,9 @@
+node_modules
+**/dist
+package-lock.json
+docs/openapi.json
+packages/api-client/src/schema.d.ts
+test-results
+playwright-report
+*.docx
+.env

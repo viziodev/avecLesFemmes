@@ -1,0 +1,37 @@
+name: Vérification du premier incrément
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npm run format:check
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      - run: npm run openapi --workspace @aveclesfemmes/api
+      - run: npm run contracts:generate
+      - run: git diff --exit-code -- docs/openapi.json packages/api-client/src/schema.d.ts
+      - run: npm audit --omit=dev --audit-level=moderate
+      - run: npm run setup
+      - run: docker compose build
+      - run: docker compose up -d --wait db api super-admin-web membres-pwa
+      - run: docker compose --profile demo run --rm seed
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+      - name: Logs si échec
+        if: failure()
+        run: docker compose logs --tail 100
+      - name: Nettoyage des services CI
+        if: always()
+        run: docker compose down

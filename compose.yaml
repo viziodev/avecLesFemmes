@@ -1,0 +1,83 @@
+name: aveclesfemmes
+services:
+  db:
+    image: postgres:18-bookworm@sha256:afc7e2d441324c0388fa80c3d24f733b4194a4eb7f47dd8ee2b08eb1a24a647c
+    environment:
+      POSTGRES_DB: aveclesfemmes
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Exécuter npm run setup}
+      APP_DATABASE_PASSWORD: ${APP_DATABASE_PASSWORD:?Exécuter npm run setup}
+    ports: ['127.0.0.1:5433:5432']
+    volumes:
+      [
+        'postgres_data:/var/lib/postgresql',
+        './docker/init-db.sql:/docker-entrypoint-initdb.d/01-role.sql:ro',
+      ]
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -h 127.0.0.1 -U postgres -d aveclesfemmes']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    networks: [backend]
+    restart: unless-stopped
+  migrate:
+    image: aveclesfemmes-api:${APP_VERSION:-0.1.0}
+    build: { context: ., dockerfile: docker/api.Dockerfile }
+    environment:
+      MIGRATION_DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@db:5432/aveclesfemmes
+    command: ['node', 'dist/database/migrate.js']
+    depends_on: { db: { condition: service_healthy } }
+    networks: [backend]
+    restart: 'no'
+  api:
+    image: aveclesfemmes-api:${APP_VERSION:-0.1.0}
+    build: { context: ., dockerfile: docker/api.Dockerfile }
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgresql://aveclesfemmes_app:${APP_DATABASE_PASSWORD}@db:5432/aveclesfemmes
+      OTP_SECRET: ${OTP_SECRET:?Exécuter npm run setup}
+      SMS_MODE: ${SMS_MODE:-disabled}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS}
+    ports: ['127.0.0.1:3005:3000']
+    depends_on: { migrate: { condition: service_completed_successfully } }
+    networks: [backend, frontend]
+    init: true
+    restart: unless-stopped
+    mem_limit: 512m
+    cpus: 1.0
+    security_opt: ['no-new-privileges:true']
+  super-admin-web:
+    image: aveclesfemmes-web:${APP_VERSION:-0.1.0}
+    build: { context: ., dockerfile: docker/web.Dockerfile, args: { APP_NAME: super-admin-web } }
+    ports: ['127.0.0.1:8085:8080']
+    depends_on: { api: { condition: service_healthy } }
+    networks: [frontend]
+    restart: unless-stopped
+    mem_limit: 128m
+    cpus: 0.5
+    security_opt: ['no-new-privileges:true']
+  membres-pwa:
+    image: aveclesfemmes-pwa:${APP_VERSION:-0.1.0}
+    build: { context: ., dockerfile: docker/web.Dockerfile, args: { APP_NAME: membres-pwa } }
+    ports: ['127.0.0.1:8086:8080']
+    depends_on: { api: { condition: service_healthy } }
+    networks: [frontend]
+    restart: unless-stopped
+    mem_limit: 128m
+    cpus: 0.5
+    security_opt: ['no-new-privileges:true']
+  seed:
+    profiles: [demo]
+    image: aveclesfemmes-api:${APP_VERSION:-0.1.0}
+    command: ['node', 'dist/database/seed.js']
+    environment:
+      NODE_ENV: development
+      MIGRATION_DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@db:5432/aveclesfemmes
+      DEMO_PASSWORD: ${DEMO_PASSWORD}
+    depends_on: { migrate: { condition: service_completed_successfully } }
+    networks: [backend]
+networks:
+  backend:
+  frontend:
+volumes:
+  postgres_data:

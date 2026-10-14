@@ -1,0 +1,42 @@
+{
+  "name": "@aveclesfemmes/api",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "dev": "node ../../scripts/dev-api.mjs",
+    "start": "node dist/main.js",
+    "test": "npm run build && tsx --test test/*.test.ts",
+    "db:migrate": "npm run build && node dist/database/migrate.js",
+    "db:seed": "npm run build && node dist/database/seed.js",
+    "db:bootstrap": "npm run build && node dist/database/bootstrap-admin.js",
+    "openapi": "npm run build && node dist/openapi.js"
+  },
+  "dependencies": {
+    "@nestjs/common": "^11.1.6",
+    "@nestjs/core": "^11.1.6",
+    "@nestjs/platform-express": "^11.1.6",
+    "@nestjs/swagger": "^11.2.0",
+    "@nestjs/throttler": "^6.4.0",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.2",
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^17.2.3",
+    "helmet": "^8.1.0",
+    "pg": "^8.16.3",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.2"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.3.14",
+    "@nestjs/testing": "^11.1.6",
+    "@types/cookie-parser": "^1.4.9",
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.9.1",
+    "@types/pg": "^8.15.5",
+    "@types/supertest": "^6.0.3",
+    "supertest": "^7.1.4",
+    "tsx": "^4.20.6"
+  }
+}
