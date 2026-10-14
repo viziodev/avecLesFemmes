@@ -2,6 +2,8 @@
 
 Premier socle de l’application d’épargne solidaire : web super administrateur, PWA membres et administratrices de groupement, API NestJS et PostgreSQL.
 
+La version commune du produit est contrôlée par `npm run version:check`. La procédure de branches, tags et livraison se trouve dans [VERSIONING.md](docs/VERSIONING.md).
+
 ## Démarrage local avec Docker
 
 Prérequis : Node.js 24, npm et Docker Desktop démarré.

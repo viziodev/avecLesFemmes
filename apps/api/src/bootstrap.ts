@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import { settings } from './config';
 import { ApiExceptionFilter } from './app.module';
+import { API_VERSION } from './version';
 export function configure(app: INestApplication) {
   app.setGlobalPrefix('api/v1');
   app.use(helmet());
@@ -32,7 +33,7 @@ export function openapi(app: INestApplication) {
     new DocumentBuilder()
       .setTitle('AvecLesFemmes')
       .setDescription('Premier incrément · API version 1')
-      .setVersion('1.0.0')
+      .setVersion(API_VERSION)
       .addCookieAuth('alf_session')
       .build(),
   );

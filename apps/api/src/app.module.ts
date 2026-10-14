@@ -17,6 +17,7 @@ import { AuthModule, Public } from './auth/auth.module';
 import { GroupementsModule } from './groupements/groupements.module';
 import { CampaignsModule } from './campaigns/campaigns.module';
 import { ContributionsModule } from './contributions/contributions.module';
+import { PRODUCT_VERSION } from './version';
 @Catch()
 export class ApiExceptionFilter implements ExceptionFilter {
   catch(error: unknown, host: ArgumentsHost) {
@@ -50,7 +51,7 @@ export class ApiExceptionFilter implements ExceptionFilter {
 class HealthController {
   constructor(private readonly db: Database) {}
   @Public() @Get('live') @ApiOperation({ operationId: 'liveness' }) live() {
-    return { status: 'ok', version: '0.1.0' };
+    return { status: 'ok', version: PRODUCT_VERSION };
   }
   @Public() @Get('ready') @ApiOperation({ operationId: 'readiness' }) async ready() {
     try {

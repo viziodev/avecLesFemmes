@@ -8,3 +8,4 @@ build_document.py
 test-results
 playwright-report
 coverage
+.releases

@@ -10,5 +10,6 @@
 - Isolation PostgreSQL par rôle applicatif et politiques de sécurité par ligne.
 - Images Docker, Compose local et exemple de déploiement avec base externe.
 - Contrat OpenAPI, client généré, CI, tests d’intégration et parcours navigateur.
+- Synchronisation des versions du monorepo, tags annotés, métadonnées OCI et manifestes de livraison immuables ; publication GHCR préparée pour les tags validés en CI.
 
 Cette version est un socle de développement, pas une validation de disponibilité ou de capacité à la cible. Voir docs/IMPLEMENTATION.md.

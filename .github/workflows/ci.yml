@@ -16,6 +16,8 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run format:check
+      - run: npm run version:check
+      - run: npm run test:version
       - run: npm run typecheck
       - run: npm test
       - run: npm run build
@@ -35,3 +37,34 @@ jobs:
       - name: Nettoyage des services CI
         if: always()
         run: docker compose down
+  publish:
+    name: Publication des images versionnées
+    needs: verify
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: npm run release:check
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Préparer le nom du registre
+        run: node -e "require('fs').appendFileSync(process.env.GITHUB_ENV, 'REGISTRY_NAMESPACE=ghcr.io/' + process.env.GITHUB_REPOSITORY.toLowerCase() + '\n')"
+      - run: npm run release:publish
+      - uses: actions/upload-artifact@v4
+        with:
+          name: manifeste-${{ github.ref_name }}
+          path: .releases/*.registry.json
+          if-no-files-found: error

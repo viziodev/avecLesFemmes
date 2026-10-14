@@ -11,6 +11,10 @@ COPY apps/api apps/api
 RUN npm run build --workspace @aveclesfemmes/api
 RUN npm prune --omit=dev
 FROM node:24-bookworm-slim@sha256:d6aa754f16b3197301076f047b5def2f02ea1dbbc2ca920407d46d7ec7f87b20
+ARG PRODUCT_VERSION=0.1.0
+ARG VCS_REF=working-tree
+ARG SOURCE_URL
+LABEL org.opencontainers.image.version=$PRODUCT_VERSION org.opencontainers.image.revision=$VCS_REF org.opencontainers.image.source=$SOURCE_URL
 ENV NODE_ENV=production PORT=3000
 WORKDIR /app/apps/api
 COPY --from=build --chown=node:node /app/node_modules /app/node_modules

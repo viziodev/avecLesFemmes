@@ -13,6 +13,10 @@ COPY apps/membres-pwa apps/membres-pwa
 ARG APP_NAME=super-admin-web
 RUN npm run build --workspace @aveclesfemmes/${APP_NAME} && cp -r apps/${APP_NAME}/dist /web-dist
 FROM nginxinc/nginx-unprivileged:stable-alpine@sha256:56b8272e43a0525f67aed68d1e0794a712d10e3e45a563e118e9a77c817e6f86
+ARG PRODUCT_VERSION=0.1.0
+ARG VCS_REF=working-tree
+ARG SOURCE_URL
+LABEL org.opencontainers.image.version=$PRODUCT_VERSION org.opencontainers.image.revision=$VCS_REF org.opencontainers.image.source=$SOURCE_URL
 COPY --from=build /web-dist /usr/share/nginx/html
 COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 8080
