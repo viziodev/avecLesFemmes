@@ -40,24 +40,25 @@ test('versions SemVer et préversions valides, valeurs ambiguës rejetées', () 
 test('une montée de version synchronise les six packages et les images sans changer l’API', () =>
   fixture((dir, run) => {
     assert.equal(run('check').status, 0);
-    assert.equal(run('set', '0.1.1').status, 0);
+    assert.equal(run('set', '9.8.7').status, 0);
     assert.notEqual(run('check').status, 0, 'le changelog doit être complété');
     const log = join(dir, 'CHANGELOG.md');
-    writeFileSync(log, readFileSync(log, 'utf8') + '\n## 0.1.1\n\nCorrectif de test.\n');
+    writeFileSync(log, readFileSync(log, 'utf8') + '\n## 9.8.7\n\nCorrectif de test.\n');
     assert.equal(run('check').status, 0);
     const version = readFileSync(join(dir, 'apps/api/src/version.ts'), 'utf8');
-    assert.match(version, /PRODUCT_VERSION = '0.1.1'/);
+    assert.match(version, /PRODUCT_VERSION = '9.8.7'/);
     assert.match(version, /API_VERSION = '1.0.0'/);
     const compose = readFileSync(join(dir, 'compose.yaml'), 'utf8');
-    assert.equal(compose.includes('APP_VERSION:-0.1.0'), false);
+    assert.equal(compose.includes('APP_VERSION:-9.8.7'), true);
   }));
 test('un package désynchronisé bloque la livraison', () =>
   fixture((dir, run) => {
+    const original = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8')).version;
     const file = join(dir, 'apps/membres-pwa/package.json');
     const value = JSON.parse(readFileSync(file, 'utf8'));
     value.version = '9.0.0';
     writeFileSync(file, JSON.stringify(value));
     assert.notEqual(run('check').status, 0);
-    assert.notEqual(run('set', '0.1.1').status, 0);
-    assert.equal(JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8')).version, '0.1.0');
+    assert.notEqual(run('set', '9.8.7').status, 0);
+    assert.equal(JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8')).version, original);
   }));

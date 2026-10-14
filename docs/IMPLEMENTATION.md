@@ -27,4 +27,4 @@ Le socle commence à la version produit 0.1.0. Il couvre le web super administra
 
 ## Avant un lancement réel
 
-Valider les hypothèses métier, la gestion et récupération des comptes, les indicateurs, la conservation des données et le périmètre des administratrices. Choisir le prestataire SMS, le registre et la plateforme de production. Effectuer les tests de charge à 200 000 adhésions et environ 10 millions de cotisations, tester sauvegarde et restauration, et mener le pilote. La présence d’un socle compilable ne valide pas ces critères d’exploitation.
+Valider les hypothèses métier, la gestion et récupération des comptes, les indicateurs, la conservation des données et le périmètre des administratrices. Choisir le prestataire SMS et mettre en œuvre la recette Render puis la production VPS Dokploy conformément à l’[ADR 014](adr/014-deploiement-render-dokploy.md), avec les images GHCR. Effectuer les tests de charge à 200 000 adhésions et environ 10 millions de cotisations, tester sauvegarde et restauration, et mener le pilote. La présence d’un socle compilable ne valide pas ces critères d’exploitation.

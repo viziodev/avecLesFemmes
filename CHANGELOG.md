@@ -1,5 +1,11 @@
 # Journal des versions
 
+## 0.1.1 Préparation du déploiement Render
+
+- Amont API configurable au lancement des images web et PWA, pour le réseau privé Render.
+- Conservation du protocole HTTPS transmis par la terminaison TLS.
+- ADR 014 : recette Render puis production VPS Dokploy avec promotion des images par empreinte.
+
 ## 0.1.0 Premier socle
 
 - Monorepo TypeScript et API NestJS modulaire.
