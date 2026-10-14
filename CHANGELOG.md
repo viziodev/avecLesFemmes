@@ -1,5 +1,10 @@
 # Journal des versions
 
+## 0.1.2 Recette Render gratuite
+
+- Proxy API HTTPS avec SNI et vérification du certificat pour les services web Render gratuits.
+- Exception ADR 014 : test temporaire gratuit avec base expirant après 30 jours.
+
 ## 0.1.1 Préparation du déploiement Render
 
 - Amont API configurable au lancement des images web et PWA, pour le réseau privé Render.
