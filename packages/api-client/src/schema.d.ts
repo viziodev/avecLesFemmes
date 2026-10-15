@@ -303,7 +303,7 @@ export interface components {
         CreateGroupDto: {
             name: string;
             address: string;
-            responsible: string;
+            responsible?: string;
             phone: string;
         };
         MemberView: {

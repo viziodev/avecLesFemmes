@@ -27,7 +27,7 @@ test('super administrateur consulte, crée et active une campagne', async ({ pag
   await page.getByRole('button', { name: 'Créer un groupement', exact: true }).click();
   await page.getByLabel('Nom du groupement').fill('Pilote navigateur ' + Date.now());
   await page.getByLabel('Adresse', { exact: true }).fill('Dakar');
-  await page.getByLabel('Responsable', { exact: true }).fill('Responsable test');
+  await expect(page.getByLabel('Responsable', { exact: true })).toHaveCount(0);
   await page.getByLabel('Téléphone', { exact: true }).fill('+221771234567');
   await page.getByRole('button', { name: 'Enregistrer', exact: true }).click();
   await expect(page.getByRole('status')).toContainText('Groupement créé');

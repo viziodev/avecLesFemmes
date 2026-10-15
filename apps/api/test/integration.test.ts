@@ -173,7 +173,6 @@ test('droits super administrateur en consultation sauf activation', async () => 
     .send({
       name: 'Nouveau groupement',
       address: 'Dakar',
-      responsible: 'Responsable',
       phone: '+221770000099',
     })
     .expect(201);

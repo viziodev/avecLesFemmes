@@ -579,7 +579,6 @@ export function App({
               body: {
                 name: v.name,
                 address: v.address,
-                responsible: v.responsible,
                 phone: v.phone,
               },
             })
@@ -1372,9 +1371,6 @@ export function App({
                   </Field>
                   <Field label="Adresse">
                     <input name="address" required minLength={2} maxLength={250} />
-                  </Field>
-                  <Field label="Responsable">
-                    <input name="responsible" required minLength={2} maxLength={120} />
                   </Field>
                   <Field label="Téléphone">
                     <input name="phone" type="tel" required />

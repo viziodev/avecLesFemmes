@@ -1030,7 +1030,6 @@
         "required": [
           "name",
           "address",
-          "responsible",
           "phone"
         ]
       },

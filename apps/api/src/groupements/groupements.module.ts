@@ -49,7 +49,7 @@ export class GroupementsService {
       const id = randomUUID();
       const r = await c.query(
         'INSERT INTO groupements(id,name,address,responsible,phone) VALUES($1,$2,$3,$4,$5) RETURNING *',
-        [id, input.name, input.address, input.responsible, input.phone],
+        [id, input.name, input.address, input.responsible ?? '', input.phone],
       );
       await audit(c, actor, id, 'GROUP_CREATED', id);
       return { ...r.rows[0], my_role: 'SUPER', member_count: '0', campaign_count: '0' };

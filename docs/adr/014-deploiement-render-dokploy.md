@@ -12,17 +12,21 @@ Les déploiements de recette sont déclenchés après réussite de la CI et publ
 
 ## Topologie retenue
 
-### Exception de test gratuite demandée le 14 octobre 2026
+### Stratégie par environnement actée le 15 octobre 2026
 
-Le porteur demande un déploiement Render entièrement gratuit et refuse une adresse API publique séparée. La démonstration utilise donc un seul service web gratuit et une image dédiée `aveclesfemmes-render`, contenant Nginx, le web super administrateur sous `/admin/`, la PWA à la racine et NestJS sur `127.0.0.1:3000`. Seul le port Nginx 8080 est exposé ; les routes protégées `/api/v1` restent accessibles sur le même domaine HTTPS. PostgreSQL reste séparé et son rôle applicatif conserve RLS. Les services peuvent être mis en veille et PostgreSQL gratuit expire après 30 jours. Aucune donnée réelle ni garantie de disponibilité dans cet environnement. Ce choix remplace la recette payante pour le premier test uniquement ; la production Dokploy reste inchangée. La PWA exclut `/admin/` du repli de navigation de son service worker.
+La répartition des bases de données est définie selon trois niveaux :
 
-| Composant                       | Recette Render                                           | Production Dokploy                                           |
-| ------------------------------- | -------------------------------------------------------- | ------------------------------------------------------------ |
-| Web super administrateur        | Service web Docker, HTTPS, port interne 8080             | Service Compose, domaine HTTPS, Traefik vers 8080            |
-| PWA membres et administratrices | Service web Docker, HTTPS, port interne 8080             | Service Compose, domaine HTTPS, Traefik vers 8080            |
-| API NestJS                      | Service privé, port 3000, même région que les interfaces | Service interne Compose nommé `api`, port 3000               |
-| PostgreSQL                      | Render Postgres payant, connexion interne                | PostgreSQL géré par Dokploy, volume persistant, réseau privé |
-| Migrations                      | Tâche ponctuelle avant activation de la livraison        | Tâche ponctuelle avant activation de la livraison            |
+1. **Local (Développement)** : PostgreSQL conteneurisé via le service `db` de `compose.yaml` (port 5433, volume `postgres_data`).
+2. **Recette (Render)** : PostgreSQL managé cloud **Neon.tech** (`veclesfemmes_app`), permanent sans expiration de 30 jours, connexion SSL obligatoire, avec RLS et rôle applicatif `aveclesfemmes_app`. Le service web gratuit Render `aveclesfemmes-render` s'y connecte directement.
+3. **Production (VPS avec Dokploy)** : Base de données à définir lors du cadrage du serveur (PostgreSQL géré par Dokploy avec volume persistant sur réseau privé ou instance managée dédiée externe).
+
+| Composant                       | Local (Développement)                                     | Recette Render                                         | Production VPS (Dokploy)                                      |
+| ------------------------------- | --------------------------------------------------------- | ------------------------------------------------------ | ------------------------------------------------------------- |
+| Web super administrateur        | Service Compose, port local 8085                          | Service web Docker, HTTPS, sous `/admin/`              | Service Compose, domaine HTTPS, Traefik vers 8080             |
+| PWA membres et administratrices | Service Compose, port local 8086                          | Service web Docker, HTTPS, à la racine `/`             | Service Compose, domaine HTTPS, Traefik vers 8080             |
+| API NestJS                      | Service Compose, port local 3005                          | Loopback interne sur `127.0.0.1:3000`                  | Service interne Compose nommé `api`, port 3000                |
+| PostgreSQL                      | **Service `db` local `compose.yaml`** (volume persistant) | **Neon.tech cloud** (permanent, SSL requis, RLS actif) | **À définir** (Dokploy interne avec volume ou managé externe) |
+| Migrations                      | Job `migrate` ou `npm run db:migrate`                     | Tâche ponctuelle préalable avec empreinte de version   | Tâche ponctuelle avant activation de la livraison             |
 
 Les navigateurs appellent `/api/v1` sur leur propre domaine ; Nginx relaie `/api/` vers l’API interne. Cela conserve les cookies de session sur la même origine. Seules les interfaces sont exposées publiquement ; la base et l’API ne reçoivent aucun port public. L’accès administratif à Dokploy et au VPS est restreint aux exploitants.
 

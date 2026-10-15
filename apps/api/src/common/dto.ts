@@ -44,7 +44,12 @@ export class ScopedPageDto extends PageDto {
 export class CreateGroupDto {
   @ApiProperty() @IsString() @MinLength(2) @MaxLength(120) name!: string;
   @ApiProperty() @IsString() @MinLength(2) @MaxLength(250) address!: string;
-  @ApiProperty() @IsString() @MinLength(2) @MaxLength(120) responsible!: string;
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  @MinLength(2)
+  @MaxLength(120)
+  responsible?: string;
   @ApiProperty() @IsString() @Matches(/^\+?[\d ()-]{7,25}$/) phone!: string;
 }
 export class CreateMemberDto {

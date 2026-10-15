@@ -1,5 +1,10 @@
 # Journal des versions
 
+## 0.1.3 Création de groupement et livraison automatique
+
+- Suppression du champ Responsable dans le formulaire ; création possible sans ce champ, avec compatibilité des anciens clients.
+- Préparation de la livraison automatique après fusion et du déploiement Render par empreinte.
+
 ## 0.1.2 Recette Render gratuite
 
 - Image de test Render regroupant Nginx, API sur loopback, PWA à la racine et web super administrateur sous /admin/.
