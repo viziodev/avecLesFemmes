@@ -1,22 +1,35 @@
 import { useCallback, useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
+import QRCode from 'qrcode';
 import {
+  AlertTriangle,
   ArrowLeft,
   ArrowRight,
+  Calendar,
+  CalendarCheck,
   Check,
   ChevronDown,
   ChevronRight,
   Coins,
   Download,
+  Filter,
   FolderHeart,
+  KeyRound,
   LayoutDashboard,
   Leaf,
+  Lock,
   LogOut,
   Plus,
+  QrCode,
   ShieldCheck,
+  Shuffle,
+  Sparkles,
+  Unlock,
   Users,
+  Wallet,
   X,
 } from 'lucide-react';
 import { api, type components } from '@aveclesfemmes/api-client';
+
 type S = components['schemas'];
 type Actor = S['ActorView'];
 type Group = S['GroupView'];
@@ -24,6 +37,14 @@ type Campaign = S['CampaignView'];
 type Member = S['MemberView'];
 type Participant = S['ParticipationView'];
 type Contribution = S['ContributionView'];
+type GroupFunction = S['GroupFunctionView'];
+type CampaignEvent = S['CampaignEventView'];
+type TontineRound = S['TontineRoundView'];
+type GracePeriod = S['GracePeriodView'];
+type CampaignSession = S['CampaignSessionView'];
+type CashboxState = S['CashboxStateView'];
+type SuperDashboard = S['SuperDashboardView'];
+
 const days = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
 const money = (amount: string | number) =>
   `${new Intl.NumberFormat('fr-SN').format(Number(amount))} FCFA`;
@@ -33,6 +54,7 @@ const date = (value: string) =>
     month: 'short',
     year: 'numeric',
   });
+
 async function unwrap<T>(result: { data?: T; error?: unknown; response: Response }): Promise<T> {
   if (!result.response.ok) {
     const e = result.error as { message?: string | string[] } | undefined;
@@ -44,10 +66,12 @@ async function unwrap<T>(result: { data?: T; error?: unknown; response: Response
   }
   return result.data as T;
 }
+
 function values(e: FormEvent<HTMLFormElement>) {
   e.preventDefault();
   return Object.fromEntries(new FormData(e.currentTarget)) as Record<string, string>;
 }
+
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
     <label className="field">
@@ -56,6 +80,7 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
     </label>
   );
 }
+
 function Pager({
   page,
   total,
@@ -91,6 +116,7 @@ function Pager({
     </div>
   );
 }
+
 function Dialog({
   title,
   onClose,
@@ -100,57 +126,130 @@ function Dialog({
   title: string;
   onClose: () => void;
   children: ReactNode;
-  busy: boolean;
+  busy?: boolean;
 }) {
-  const ref = useRef<HTMLDialogElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    ref.current?.showModal();
-    return () => ref.current?.close();
-  }, []);
+    function esc(e: KeyboardEvent) {
+      if (e.key === 'Escape' && !busy) onClose();
+    }
+    window.addEventListener('keydown', esc);
+    return () => window.removeEventListener('keydown', esc);
+  }, [onClose, busy]);
   return (
-    <dialog
-      ref={ref}
-      onCancel={(e) => {
-        e.preventDefault();
-        if (!busy) onClose();
+    <div
+      className="dialog-backdrop"
+      onClick={(e) => {
+        if (e.target === e.currentTarget && !busy) onClose();
       }}
     >
-      <div className="dialog-heading">
-        <h2>{title}</h2>
-        <button className="icon-button" onClick={onClose} disabled={busy} aria-label="Fermer">
-          <X size={20} />
-        </button>
+      <div
+        className="dialog-card"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="dialog-title"
+        ref={ref}
+      >
+        <div className="dialog-header">
+          <h2 id="dialog-title">{title}</h2>
+          <button
+            className="icon-button"
+            aria-label="Fermer"
+            disabled={busy}
+            onClick={() => onClose()}
+          >
+            <X size={18} />
+          </button>
+        </div>
+        {children}
       </div>
-      {children}
-    </dialog>
+    </div>
   );
 }
+
+function QrModal({
+  title,
+  subtitle,
+  data,
+  onClose,
+}: {
+  title: string;
+  subtitle?: string;
+  data: string;
+  onClose: () => void;
+}) {
+  const [svg, setSvg] = useState('');
+  useEffect(() => {
+    QRCode.toString(data, { type: 'svg', margin: 1, width: 220 })
+      .then(setSvg)
+      .catch(() => {});
+  }, [data]);
+
+  const downloadSvg = () => {
+    const blob = new Blob([svg], { type: 'image/svg+xml' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `qrcode-${title.toLowerCase().replace(/\s+/g, '-')}.svg`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  return (
+    <Dialog title={title} onClose={onClose}>
+      <div className="qr-container">
+        {subtitle && <p className="muted">{subtitle}</p>}
+        <div className="qr-box" dangerouslySetInnerHTML={{ __html: svg }} />
+        <div className="qr-code-raw">{data}</div>
+        <div style={{ marginTop: 16, display: 'flex', gap: 8 }}>
+          <button type="button" className="primary" onClick={downloadSvg}>
+            <Download size={16} />
+            Télécharger le QR Code
+          </button>
+        </div>
+      </div>
+    </Dialog>
+  );
+}
+
 function Brand() {
   return (
     <div className="brand">
-      <span className="brand-mark">
-        <Leaf size={23} />
+      <span className="brand-mark" aria-hidden="true">
+        <Leaf size={22} />
       </span>
       <span>
-        AvecLes<span className="brand-emphasis">Femmes</span>
-        <small>L’épargne qui nous rassemble</small>
+        AvecLesFemmes
+        <span className="badge brand-tag">Épargne solidaire</span>
       </span>
     </div>
   );
 }
+
 function Login({ portal, onLogin }: { portal: 'super' | 'member'; onLogin: (a: Actor) => void }) {
-  const [mode, setMode] = useState<'password' | 'phone'>('password');
+  const [mode, setMode] = useState<'pin' | 'password' | 'phone'>(
+    portal === 'member' ? 'pin' : 'password',
+  );
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [phone, setPhone] = useState('');
   const [sent, setSent] = useState(false);
   const [localCode, setLocalCode] = useState('');
+
   async function submit(e: FormEvent<HTMLFormElement>) {
     const v = values(e);
     setError('');
     setBusy(true);
     try {
-      if (mode === 'password') {
+      if (mode === 'pin') {
+        onLogin(
+          await unwrap(
+            await api.POST('/api/v1/auth/login/pin', {
+              body: { phone: v.phone, pin: v.pin },
+            }),
+          ),
+        );
+      } else if (mode === 'password') {
         onLogin(
           await unwrap(
             await api.POST('/api/v1/auth/login', {
@@ -179,6 +278,7 @@ function Login({ portal, onLogin }: { portal: 'super' | 'member'; onLogin: (a: A
       setBusy(false);
     }
   }
+
   return (
     <div className="login-page">
       <section className="login-story">
@@ -215,7 +315,20 @@ function Login({ portal, onLogin }: { portal: 'super' | 'member'; onLogin: (a: A
         <h2>Bienvenue dans votre espace</h2>
         <p className="muted">Connectez-vous pour retrouver vos campagnes.</p>
         <div className="segmented">
+          {portal === 'member' && (
+            <button
+              type="button"
+              className={mode === 'pin' ? 'selected' : ''}
+              onClick={() => {
+                setMode('pin');
+                setError('');
+              }}
+            >
+              Code PIN
+            </button>
+          )}
           <button
+            type="button"
             className={mode === 'password' ? 'selected' : ''}
             onClick={() => {
               setMode('password');
@@ -225,6 +338,7 @@ function Login({ portal, onLogin }: { portal: 'super' | 'member'; onLogin: (a: A
             Identifiant
           </button>
           <button
+            type="button"
             className={mode === 'phone' ? 'selected' : ''}
             onClick={() => {
               setMode('phone');
@@ -236,7 +350,31 @@ function Login({ portal, onLogin }: { portal: 'super' | 'member'; onLogin: (a: A
         </div>
         <form onSubmit={submit}>
           <fieldset disabled={busy}>
-            {mode === 'password' ? (
+            {mode === 'pin' ? (
+              <>
+                <Field label="Téléphone avec indicatif">
+                  <input
+                    name="phone"
+                    type="tel"
+                    autoComplete="tel"
+                    placeholder="+221771234567"
+                    pattern="\+[1-9][0-9]{7,14}"
+                    required
+                  />
+                </Field>
+                <Field label="Code secret (4 chiffres)">
+                  <input
+                    name="pin"
+                    type="password"
+                    inputMode="numeric"
+                    pattern="[0-9]{4}"
+                    maxLength={4}
+                    placeholder="••••"
+                    required
+                  />
+                </Field>
+              </>
+            ) : mode === 'password' ? (
               <>
                 <Field label="Identifiant">
                   <input
@@ -323,6 +461,7 @@ function Login({ portal, onLogin }: { portal: 'super' | 'member'; onLogin: (a: A
     </div>
   );
 }
+
 export function App({
   portal,
   onUpdate,
@@ -351,6 +490,20 @@ export function App({
   const [contributionTotal, setContributionTotal] = useState(0);
   const [dashboard, setDashboard] = useState<S['DashboardView'] | null>(null);
   const [types, setTypes] = useState<S['TypeView'][]>([]);
+  const [functions, setFunctions] = useState<GroupFunction[]>([]);
+  const [events, setEvents] = useState<CampaignEvent[]>([]);
+  const [cashbox, setCashbox] = useState<CashboxState | null>(null);
+  const [sessions, setSessions] = useState<CampaignSession[]>([]);
+  const [tontineRounds, setTontineRounds] = useState<TontineRound[]>([]);
+  const [gracePeriods, setGracePeriods] = useState<GracePeriod[]>([]);
+  const [superCockpit, setSuperCockpit] = useState<SuperDashboard | null>(null);
+  const [historyFilter, setHistoryFilter] = useState('ALL');
+  const [qrModal, setQrModal] = useState<{ title: string; subtitle?: string; data: string } | null>(
+    null,
+  );
+  const [resetPinMember, setResetPinMember] = useState<{ id: string; name: string } | null>(null);
+  const [graceMemberId, setGraceMemberId] = useState('');
+
   const [page, setPage] = useState(1);
   const [participantPage, setParticipantPage] = useState(1);
   const [campaignPage, setCampaignPage] = useState(1);
@@ -365,11 +518,13 @@ export function App({
   const [update, setUpdate] = useState(false);
   const idempotency = useRef(crypto.randomUUID());
   const [personalMode, setPersonalMode] = useState(false);
+
   const group = groups.find((g) => g.id === groupId);
   const admin = group?.my_role === 'ADMIN';
   const superAdmin = actor?.isSuper && portal === 'super';
   const campaign = campaigns.find((c) => c.id === campaignId);
   const canManage = admin && !personalMode;
+
   useEffect(() => {
     api
       .GET('/api/v1/auth/me')
@@ -389,11 +544,13 @@ export function App({
       window.removeEventListener('pwa-update', u);
     };
   }, []);
+
   useEffect(() => {
     if (!notice) return;
     const timer = setTimeout(() => setNotice(''), 6500);
     return () => clearTimeout(timer);
   }, [notice]);
+
   useEffect(() => {
     if (!actor) return;
     let active = true;
@@ -404,12 +561,29 @@ export function App({
         .GET('/api/v1/groupements', { params: { query: { page: groupPage, limit: 25 } } })
         .then(unwrap),
       api.GET('/api/v1/campaign-types').then(unwrap),
+      api
+        .GET('/api/v1/group-functions')
+        .then(unwrap)
+        .catch(() => []),
+      api
+        .GET('/api/v1/campaign-events')
+        .then(unwrap)
+        .catch(() => []),
+      superAdmin
+        ? api
+            .GET('/api/v1/super-admin/dashboard')
+            .then(unwrap)
+            .catch(() => null)
+        : Promise.resolve(null),
     ])
-      .then(([g, t]) => {
+      .then(([g, t, fn, ev, sc]) => {
         if (active) {
           setGroups(g.items);
           setGroupTotal(g.total);
           setTypes(t);
+          setFunctions(fn);
+          setEvents(ev);
+          if (sc) setSuperCockpit(sc);
           setGroupId((id) => (g.items.some((x) => x.id === id) ? id : g.items[0]?.id || ''));
         }
       })
@@ -418,7 +592,8 @@ export function App({
     return () => {
       active = false;
     };
-  }, [actor, refresh, groupPage]);
+  }, [actor, refresh, groupPage, superAdmin]);
+
   useEffect(() => {
     if (!actor || !groupId) return;
     let active = true;
@@ -440,6 +615,7 @@ export function App({
       active = false;
     };
   }, [actor, groupId, refresh, campaignPage]);
+
   useEffect(() => {
     if (!actor || !groupId) return;
     let active = true;
@@ -462,6 +638,7 @@ export function App({
       active = false;
     };
   }, [actor, groupId, page, refresh, personalMode]);
+
   useEffect(() => {
     if (dialog !== 'participant' || !groupId) return;
     let active = true;
@@ -481,11 +658,16 @@ export function App({
       active = false;
     };
   }, [dialog, groupId, optionPage]);
+
   useEffect(() => {
     if (!actor || !groupId || !campaignId) {
       setDashboard(null);
       setParticipants([]);
       setContributions([]);
+      setCashbox(null);
+      setSessions([]);
+      setTontineRounds([]);
+      setGracePeriods([]);
       return;
     }
     let active = true;
@@ -517,14 +699,34 @@ export function App({
           },
         })
         .then(unwrap),
+      api
+        .GET('/api/v1/groupements/{groupId}/campaigns/{id}/cashbox', { params: { path } })
+        .then(unwrap)
+        .catch(() => null),
+      api
+        .GET('/api/v1/groupements/{groupId}/campaigns/{id}/sessions', { params: { path } })
+        .then(unwrap)
+        .catch(() => []),
+      api
+        .GET('/api/v1/groupements/{groupId}/campaigns/{id}/tontine/rounds', { params: { path } })
+        .then(unwrap)
+        .catch(() => []),
+      api
+        .GET('/api/v1/groupements/{groupId}/campaigns/{id}/grace-periods', { params: { path } })
+        .then(unwrap)
+        .catch(() => []),
     ])
-      .then(([d, p, c]) => {
+      .then(([d, p, c, cb, sess, tr, gp]) => {
         if (active) {
           setDashboard(d);
           setParticipants(p.items);
           setParticipantTotal(p.total);
           setContributions(c.items);
           setContributionTotal(c.total);
+          if (cb) setCashbox(cb);
+          if (sess) setSessions(sess);
+          if (tr) setTontineRounds(tr);
+          if (gp) setGracePeriods(gp);
         }
       })
       .catch((e) => active && setLoadError(e.message));
@@ -532,6 +734,7 @@ export function App({
       active = false;
     };
   }, [actor, groupId, campaignId, page, participantPage, refresh, personalMode]);
+
   const selectGroup = useCallback(
     (id: string) => {
       if (id === groupId) return;
@@ -549,11 +752,13 @@ export function App({
     },
     [groupId],
   );
+
   function open(name: string) {
     idempotency.current = crypto.randomUUID();
     setOptionPage(1);
     setDialog(name);
   }
+
   async function action(task: () => Promise<unknown>, message: string) {
     if (busy) return;
     setBusy(true);
@@ -561,6 +766,7 @@ export function App({
       await task();
       setNotice(message);
       setDialog('');
+      setResetPinMember(null);
       setRefresh((n) => n + 1);
     } catch (e) {
       setNotice((e as Error).message);
@@ -568,9 +774,11 @@ export function App({
       setBusy(false);
     }
   }
+
   async function submit(e: FormEvent<HTMLFormElement>) {
     const v = values(e);
     const campaignPath = { groupId, id: campaignId };
+
     if (dialog === 'group')
       await action(
         () =>
@@ -585,6 +793,7 @@ export function App({
             .then(unwrap),
         'Groupement créé.',
       );
+
     if (dialog === 'member')
       await action(
         () =>
@@ -593,6 +802,10 @@ export function App({
               params: { path: { groupId } },
               body: {
                 name: v.name,
+                gender: (v.gender as 'F' | 'M') || 'F',
+                address: v.address || undefined,
+                functionId: v.functionId || undefined,
+                pin: v.pin || undefined,
                 ...(v.phone ? { phone: v.phone } : {}),
                 ...(v.login ? { login: v.login } : {}),
                 ...(v.password ? { password: v.password } : {}),
@@ -602,12 +815,29 @@ export function App({
             .then(unwrap),
         'Membre ajoutée.',
       );
+
     if (dialog === 'type')
       await action(
         () =>
           api.POST('/api/v1/campaign-types', { body: { name: v.name, code: v.code } }).then(unwrap),
         'Type de campagne créé.',
       );
+
+    if (dialog === 'event')
+      await action(
+        () =>
+          api
+            .POST('/api/v1/campaign-events', {
+              body: {
+                name: v.name,
+                code: v.code.toUpperCase(),
+                description: v.description || undefined,
+              },
+            })
+            .then(unwrap),
+        'Événement ajouté au catalogue.',
+      );
+
     if (dialog === 'campaign')
       await action(
         () =>
@@ -621,22 +851,34 @@ export function App({
                 endDate: v.endDate,
                 weekday: Number(v.weekday),
                 intervalWeeks: Number(v.intervalWeeks),
+                isMandatory: v.isMandatory === 'on',
+                eventId: v.eventId || undefined,
+                standardAmount: v.standardAmount ? Number(v.standardAmount) : undefined,
+                rotationInterval:
+                  (v.rotationInterval as 'WEEKLY' | 'BIWEEKLY' | 'MONTHLY') || undefined,
+                dueDay: v.dueDay ? Number(v.dueDay) : undefined,
               },
             })
             .then(unwrap),
         'Campagne créée. Ajoutez maintenant ses participantes.',
       );
+
     if (dialog === 'participant')
       await action(
         () =>
           api
             .POST('/api/v1/groupements/{groupId}/campaigns/{id}/participants', {
               params: { path: campaignPath },
-              body: { membershipId: v.membershipId, forfait: v.forfait ? Number(v.forfait) : null },
+              body: {
+                membershipId: v.membershipId,
+                forfait: v.forfait ? Number(v.forfait) : null,
+                isRandom: v.isRandom === 'on',
+              },
             })
             .then(unwrap),
         'Participation et forfait enregistrés.',
       );
+
     if (dialog === 'contribution')
       await action(
         () =>
@@ -653,6 +895,36 @@ export function App({
             .then(unwrap),
         'Cotisation enregistrée.',
       );
+
+    if (dialog === 'grace')
+      await action(
+        () =>
+          api
+            .POST('/api/v1/groupements/{groupId}/campaigns/{id}/grace-periods', {
+              params: { path: campaignPath },
+              body: {
+                membershipId: v.membershipId || graceMemberId,
+                periodDate: v.periodDate,
+                extendedDeadline: v.extendedDeadline,
+                reason: v.reason || undefined,
+              },
+            })
+            .then(unwrap),
+        'Délai de grâce accordé.',
+      );
+
+    if (dialog === 'reset-pin')
+      await action(
+        () =>
+          api
+            .POST('/api/v1/groupements/{groupId}/members/{memberId}/reset-pin', {
+              params: { path: { groupId, memberId: resetPinMember!.id } },
+              body: { pin: v.pin },
+            })
+            .then(unwrap),
+        'Code PIN réinitialisé avec succès.',
+      );
+
     if (dialog === 'void')
       await action(
         () =>
@@ -665,6 +937,7 @@ export function App({
         'Cotisation annulée. L’historique est conservé.',
       );
   }
+
   if (checking)
     return (
       <div className="splash">
@@ -672,6 +945,7 @@ export function App({
         <p>Chargement de votre espace…</p>
       </div>
     );
+
   if (!actor)
     return (
       <Login
@@ -690,6 +964,7 @@ export function App({
         }}
       />
     );
+
   if ((portal === 'super' && !actor.isSuper) || (portal === 'member' && actor.isSuper))
     return (
       <div className="splash">
@@ -709,6 +984,7 @@ export function App({
         </button>
       </div>
     );
+
   const title =
     tab === 'members'
       ? 'Les membres'
@@ -716,7 +992,10 @@ export function App({
         ? 'Les campagnes'
         : tab === 'types'
           ? 'Types de campagne'
-          : 'Vue d’ensemble';
+          : tab === 'cockpit'
+            ? 'Cockpit Plateforme 360°'
+            : 'Vue d’ensemble';
+
   return (
     <div className="app-shell">
       <aside className="sidebar">
@@ -729,7 +1008,12 @@ export function App({
             ['overview', 'Vue d’ensemble', LayoutDashboard],
             ['campaigns', 'Campagnes', FolderHeart],
             ['members', 'Membres', Users],
-            ...(superAdmin ? [['types', 'Types de campagne', Coins]] : []),
+            ...(superAdmin
+              ? [
+                  ['cockpit', 'Cockpit 360°', Sparkles],
+                  ['types', 'Types & Événements', Coins],
+                ]
+              : []),
           ].map(([key, label, Icon]) => {
             const I = Icon as typeof Users;
             return (
@@ -780,6 +1064,29 @@ export function App({
             {online ? 'Espace connecté' : 'Hors connexion'}
           </span>
           <span className="topbar-right">
+            {!superAdmin && (
+              <button
+                type="button"
+                className="secondary"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  padding: '6px 12px',
+                  fontSize: 12,
+                }}
+                onClick={() =>
+                  setQrModal({
+                    title: `Carte Membre · ${actor.name}`,
+                    subtitle: `${group?.name || 'Groupement'} · ${actor.login}`,
+                    data: `ALF:MEMBER:${groupId}:${actor.id}:${actor.login}`,
+                  })
+                }
+              >
+                <QrCode size={15} />
+                Mon Code QR
+              </button>
+            )}
             <span>Épargne solidaire</span>
             <button
               className="icon-button mobile-logout"
@@ -811,17 +1118,23 @@ export function App({
                   : 'Retrouvez votre groupement et faites grandir vos projets.'}
               </p>
             </div>
-            {superAdmin && tab !== 'types' && (
+            {superAdmin && tab !== 'types' && tab !== 'cockpit' && (
               <button className="primary" onClick={() => open('group')}>
                 <Plus size={18} />
                 Créer un groupement
               </button>
             )}
             {superAdmin && tab === 'types' && (
-              <button className="primary" onClick={() => open('type')}>
-                <Plus size={18} />
-                Créer un type
-              </button>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button className="secondary" onClick={() => open('event')}>
+                  <Plus size={18} />
+                  Créer un événement
+                </button>
+                <button className="primary" onClick={() => open('type')}>
+                  <Plus size={18} />
+                  Créer un type
+                </button>
+              </div>
             )}
           </div>
           {!online && (
@@ -879,7 +1192,7 @@ export function App({
               </button>
             </div>
           )}
-          {tab !== 'types' && (
+          {tab !== 'types' && tab !== 'cockpit' && (
             <div className="group-selector">
               <span className="group-symbol">
                 <Users size={22} />
@@ -904,13 +1217,29 @@ export function App({
                 </select>
               </div>
               <span className="group-address">{group?.address}</span>
+              {group && (
+                <button
+                  type="button"
+                  className="icon-button"
+                  title="QR Code du Groupement"
+                  onClick={() =>
+                    setQrModal({
+                      title: `Groupement · ${group.name}`,
+                      subtitle: `${group.address} · Tél: ${group.phone}`,
+                      data: `ALF:GROUP:${group.id}`,
+                    })
+                  }
+                >
+                  <QrCode size={18} />
+                </button>
+              )}
               {groupTotal > 25 && (
                 <Pager page={groupPage} total={groupTotal} onChange={setGroupPage} />
               )}
               <ChevronDown size={17} />
             </div>
           )}
-          {!groupId && tab !== 'types' && !loading ? (
+          {!groupId && tab !== 'types' && tab !== 'cockpit' && !loading ? (
             <div className="empty big">
               <Users size={40} />
               <h2>{superAdmin ? 'Votre premier groupement' : 'Votre espace est prêt'}</h2>
@@ -957,6 +1286,25 @@ export function App({
                       <span className="art-spark">✦</span>
                     </div>
                   </section>
+
+                  {/* État de la caisse pour l'administration du groupement */}
+                  {canManage && cashbox && (
+                    <div className="cashbox-grid">
+                      <div className="cashbox-card highlight">
+                        <div className="cashbox-label">Solde en caisse disponible</div>
+                        <div className="cashbox-value">{money(cashbox.balance)}</div>
+                      </div>
+                      <div className="cashbox-card">
+                        <div className="cashbox-label">Total encaissé</div>
+                        <div className="cashbox-value">{money(cashbox.total_collected)}</div>
+                      </div>
+                      <div className="cashbox-card">
+                        <div className="cashbox-label">Total cagnottes reversées</div>
+                        <div className="cashbox-value">{money(cashbox.total_paid_out)}</div>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="section-heading">
                     <h2>{dashboard?.personal ? 'Mon épargne' : 'Suivi de campagne'}</h2>
                     <select
@@ -970,7 +1318,7 @@ export function App({
                       {!campaigns.length && <option value="">Aucune campagne</option>}
                       {campaigns.map((c) => (
                         <option key={c.id} value={c.id}>
-                          {c.name}
+                          {c.name} {c.event_name ? `(${c.event_name})` : ''}
                         </option>
                       ))}
                     </select>
@@ -1019,7 +1367,140 @@ export function App({
                       Actualisé le {new Date(dashboard.updatedAt).toLocaleString('fr-SN')}
                     </p>
                   )}
-                  <section className="panel">
+
+                  {/* Tontine rotative - tours et tirage au sort */}
+                  {campaign?.type_name?.toLowerCase().includes('tontine') && (
+                    <section className="panel" style={{ marginTop: 20 }}>
+                      <div className="section-heading">
+                        <div>
+                          <h2>Tontine Rotative · Tirage au sort</h2>
+                          <p className="muted">
+                            Attribution des cagnottes ({campaign.rotation_interval || 'Mensuel'})
+                          </p>
+                        </div>
+                        {canManage && (
+                          <button
+                            type="button"
+                            className="secondary"
+                            disabled={busy || participants.length < 2}
+                            onClick={() =>
+                              action(
+                                () =>
+                                  api
+                                    .POST(
+                                      '/api/v1/groupements/{groupId}/campaigns/{id}/tontine/draw',
+                                      {
+                                        params: { path: { groupId, id: campaignId } },
+                                      },
+                                    )
+                                    .then(unwrap),
+                                'Tirage au sort effectué.',
+                              )
+                            }
+                          >
+                            <Shuffle size={16} />
+                            Tirage au sort
+                          </button>
+                        )}
+                      </div>
+                      <div className="tontine-rounds-grid">
+                        {tontineRounds.map((tr) => (
+                          <div
+                            key={tr.id}
+                            className={tr.paid ? 'tontine-card paid' : 'tontine-card'}
+                          >
+                            <div className="tontine-card-header">
+                              <span>Tour n°{tr.round_number}</span>
+                              <span className={tr.paid ? 'badge' : 'badge neutral'}>
+                                {tr.paid ? 'Cagnotte versée' : 'En attente'}
+                              </span>
+                            </div>
+                            <div>
+                              Bénéficiaire : <strong>{tr.beneficiary_name}</strong>
+                            </div>
+                            <div className="muted">Date prévue : {date(tr.expected_date)}</div>
+                            <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--green)' }}>
+                              {money(tr.payout_amount)}
+                            </div>
+                            {canManage && !tr.paid && (
+                              <button
+                                type="button"
+                                className="primary"
+                                style={{ marginTop: 6 }}
+                                disabled={busy}
+                                onClick={() =>
+                                  action(
+                                    () =>
+                                      api
+                                        .PATCH(
+                                          '/api/v1/groupements/{groupId}/campaigns/{id}/tontine/rounds/{roundNumber}/pay',
+                                          {
+                                            params: {
+                                              path: {
+                                                groupId,
+                                                id: campaignId,
+                                                roundNumber: tr.round_number,
+                                              },
+                                            },
+                                          },
+                                        )
+                                        .then(unwrap),
+                                    `Cagnotte du tour ${tr.round_number} marquée comme versée.`,
+                                  )
+                                }
+                              >
+                                <Check size={16} />
+                                Marquer comme versée
+                              </button>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                      {!tontineRounds.length && (
+                        <div className="empty">
+                          <p>Aucun tour de tontine généré pour le moment.</p>
+                        </div>
+                      )}
+                    </section>
+                  )}
+
+                  {/* Cahier de séance pour l'administratrice */}
+                  {canManage && sessions.length > 0 && (
+                    <section className="panel" style={{ marginTop: 20 }}>
+                      <div className="section-heading">
+                        <div>
+                          <h2>Cahier de séance</h2>
+                          <p className="muted">
+                            Total encaissé et détail des cotisations par séance
+                          </p>
+                        </div>
+                      </div>
+                      <div className="session-ledger">
+                        {sessions.map((s) => (
+                          <div key={s.session_date} className="session-card">
+                            <div className="session-header">
+                              <span className="session-date">Séance du {date(s.session_date)}</span>
+                              <span className="session-total">
+                                Total séance : {money(s.total_amount)} ({s.count} versement
+                                {s.count > 1 ? 's' : ''})
+                              </span>
+                            </div>
+                            <div className="session-breakdown">
+                              {s.contributions.map((cb) => (
+                                <div key={cb.contribution_id} className="session-member-entry">
+                                  <span>{cb.member_name}</span>
+                                  <strong>{money(cb.amount)}</strong>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </section>
+                  )}
+
+                  {/* Historique des cotisations */}
+                  <section className="panel" style={{ marginTop: 20 }}>
                     <div className="section-heading">
                       <div>
                         <h2>
@@ -1038,55 +1519,117 @@ export function App({
                         </button>
                       )}
                     </div>
-                    {contributions.length ? (
-                      <div className="table-scroll">
-                        <table className="contribution-table">
-                          <thead>
-                            <tr>
-                              <th>Membre</th>
-                              <th>Date</th>
-                              <th>Montant</th>
-                              <th>État</th>
-                              {canManage && <th>Action</th>}
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {contributions.map((c) => (
-                              <tr key={c.id}>
-                                <td>
-                                  <span className="member-cell">
-                                    <span className="round-avatar small">{c.name.slice(0, 1)}</span>
-                                    {c.name}
-                                  </span>
-                                  <small className="reference">{c.reference}</small>
-                                </td>
-                                <td>{date(c.paid_on)}</td>
-                                <td className="amount">{money(c.amount)}</td>
-                                <td>
-                                  <span className={c.voided_at ? 'badge neutral' : 'badge'}>
-                                    {c.voided_at ? 'Annulée' : 'Enregistrée'}
-                                  </span>
-                                </td>
-                                {canManage && (
-                                  <td>
-                                    {!c.voided_at && campaign?.active && (
-                                      <button
-                                        className="text-button"
-                                        onClick={() => {
-                                          setVoidId(c.id);
-                                          open('void');
-                                        }}
-                                      >
-                                        Annuler
-                                      </button>
-                                    )}
-                                  </td>
-                                )}
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
+
+                    {/* Filtres de style Mobile Money pour la vue membre */}
+                    {dashboard?.personal && (
+                      <div className="mm-filters">
+                        {['ALL', 'AVEC', 'RAMADAN', 'TABASKI', 'SOLIDARITE', 'RENTREE'].map((f) => (
+                          <button
+                            key={f}
+                            type="button"
+                            className={
+                              historyFilter === f ? 'mm-filter-btn active' : 'mm-filter-btn'
+                            }
+                            onClick={() => setHistoryFilter(f)}
+                          >
+                            {f === 'ALL'
+                              ? 'Toutes les cotisations'
+                              : f === 'AVEC'
+                                ? 'Calabasse AVEC'
+                                : f === 'RAMADAN'
+                                  ? 'Épargne Ramadan'
+                                  : f === 'TABASKI'
+                                    ? 'Épargne Tabaski'
+                                    : f === 'SOLIDARITE'
+                                      ? 'Solidarité'
+                                      : 'Rentrée scolaire'}
+                          </button>
+                        ))}
                       </div>
+                    )}
+
+                    {contributions.length ? (
+                      dashboard?.personal ? (
+                        <div className="mm-list">
+                          {contributions.map((c) => (
+                            <div key={c.id} className="mm-item">
+                              <div className="mm-left">
+                                <div className="mm-icon">
+                                  <Leaf size={20} />
+                                </div>
+                                <div className="mm-details">
+                                  <span className="mm-title">
+                                    {campaign?.name || 'Cotisation solidaire'}
+                                  </span>
+                                  <span className="mm-meta">
+                                    {date(c.paid_on)} · Réf : {c.reference}
+                                  </span>
+                                  {campaign?.event_name && (
+                                    <span className="mm-badge">{campaign.event_name}</span>
+                                  )}
+                                </div>
+                              </div>
+                              <div>
+                                <div className="mm-amount">+ {money(c.amount)}</div>
+                                <span className={c.voided_at ? 'badge neutral' : 'badge'}>
+                                  {c.voided_at ? 'Annulée' : 'Validée'}
+                                </span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="table-scroll">
+                          <table className="contribution-table">
+                            <thead>
+                              <tr>
+                                <th>Membre</th>
+                                <th>Date</th>
+                                <th>Montant</th>
+                                <th>État</th>
+                                {canManage && <th>Action</th>}
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {contributions.map((c) => (
+                                <tr key={c.id}>
+                                  <td>
+                                    <span className="member-cell">
+                                      <span className="round-avatar small">
+                                        {c.name.slice(0, 1)}
+                                      </span>
+                                      {c.name}
+                                    </span>
+                                    <small className="reference">{c.reference}</small>
+                                  </td>
+                                  <td>{date(c.paid_on)}</td>
+                                  <td className="amount">{money(c.amount)}</td>
+                                  <td>
+                                    <span className={c.voided_at ? 'badge neutral' : 'badge'}>
+                                      {c.voided_at ? 'Annulée' : 'Enregistrée'}
+                                    </span>
+                                  </td>
+                                  {canManage && (
+                                    <td>
+                                      {!c.voided_at && campaign?.active && (
+                                        <button
+                                          className="text-button"
+                                          onClick={() => {
+                                            setVoidId(c.id);
+                                            open('void');
+                                          }}
+                                        >
+                                          Annuler
+                                        </button>
+                                      )}
+                                    </td>
+                                  )}
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      )
                     ) : (
                       <div className="empty">
                         <Coins size={29} />
@@ -1098,6 +1641,68 @@ export function App({
                   </section>
                 </>
               )}
+
+              {/* Cockpit 360° Plateforme Super Admin */}
+              {tab === 'cockpit' && superCockpit && (
+                <>
+                  <div className="cockpit-grid">
+                    <div className="cockpit-card">
+                      <span className="cockpit-number">{superCockpit.total_groups}</span>
+                      <span className="cockpit-title">Groupements actifs</span>
+                    </div>
+                    <div className="cockpit-card">
+                      <span className="cockpit-number">{superCockpit.total_members}</span>
+                      <span className="cockpit-title">Membres inscrites</span>
+                    </div>
+                    <div className="cockpit-card">
+                      <span className="cockpit-number">{superCockpit.total_campaigns}</span>
+                      <span className="cockpit-title">Campagnes créées</span>
+                    </div>
+                    <div className="cockpit-card">
+                      <span className="cockpit-number">{money(superCockpit.total_collected)}</span>
+                      <span className="cockpit-title">Total épargne consolidée</span>
+                    </div>
+                  </div>
+
+                  <section className="panel">
+                    <div className="section-heading">
+                      <div>
+                        <h2>État consolidé des caisses</h2>
+                        <p className="muted">Vue financière consolidée de toutes les campagnes</p>
+                      </div>
+                    </div>
+                    <div className="table-scroll">
+                      <table>
+                        <thead>
+                          <tr>
+                            <th>Campagne</th>
+                            <th>Total collecté</th>
+                            <th>Total versé / sorties</th>
+                            <th>Solde en caisse</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {superCockpit.cashboxes.map((b: CashboxState) => (
+                            <tr key={b.campaign_id}>
+                              <td>
+                                <strong>{b.campaign_name}</strong>
+                              </td>
+                              <td>{money(b.total_collected)}</td>
+                              <td>{money(b.total_paid_out)}</td>
+                              <td>
+                                <strong style={{ color: 'var(--green)' }}>
+                                  {money(b.balance)}
+                                </strong>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </section>
+                </>
+              )}
+
               {tab === 'campaigns' && (
                 <>
                   <section className="panel">
@@ -1130,12 +1735,28 @@ export function App({
                             </span>
                           </div>
                           <h3>{c.name}</h3>
-                          <p>{c.type_name}</p>
+                          <div
+                            style={{ display: 'flex', gap: 6, flexWrap: 'wrap', margin: '4px 0' }}
+                          >
+                            <span className="badge">{c.type_name}</span>
+                            {c.event_name && (
+                              <span
+                                className="badge"
+                                style={{ background: '#e0f2fe', color: '#0369a1' }}
+                              >
+                                {c.event_name}
+                              </span>
+                            )}
+                            {c.due_day && (
+                              <span className="badge-amber">Échéance le {c.due_day} du mois</span>
+                            )}
+                          </div>
                           <div className="card-period">
                             {date(c.start_date)} → {date(c.end_date)}
                           </div>
                           <small>
                             {days[c.weekday]} · toutes les {c.interval_weeks} semaine(s)
+                            {c.standard_amount && ` · Standard : ${money(c.standard_amount)}`}
                           </small>
                           <div className="card-actions">
                             <button
@@ -1149,6 +1770,17 @@ export function App({
                               Sélectionner
                               <ChevronRight size={15} />
                             </button>
+                            {canManage && (
+                              <button
+                                className="text-button"
+                                onClick={() => {
+                                  setCampaignId(c.id);
+                                  open('grace');
+                                }}
+                              >
+                                Délai de grâce
+                              </button>
+                            )}
                             {superAdmin && (
                               <button
                                 className="text-button"
@@ -1250,6 +1882,7 @@ export function App({
                   )}
                 </>
               )}
+
               {tab === 'members' && (
                 <section className="panel">
                   <div className="section-heading">
@@ -1259,7 +1892,7 @@ export function App({
                       </h2>
                       <p className="muted">
                         {canManage || superAdmin
-                          ? 'Gérez les membres et leurs accès.'
+                          ? 'Gérez les membres, fonctions et accès sécurisés.'
                           : 'Vos informations dans ce groupement.'}
                       </p>
                     </div>
@@ -1276,8 +1909,10 @@ export function App({
                         <tr>
                           <th>Nom</th>
                           <th>Téléphone</th>
-                          <th>Rôle</th>
+                          <th>Fonction</th>
+                          <th>Adresse</th>
                           <th>État</th>
+                          {(canManage || superAdmin) && <th>Actions</th>}
                         </tr>
                       </thead>
                       <tbody>
@@ -1285,13 +1920,86 @@ export function App({
                           <tr key={m.id}>
                             <td className="member-cell">
                               <span className="round-avatar small">{m.name.slice(0, 1)}</span>
-                              {m.name}
+                              <div>
+                                <strong>{m.name}</strong>
+                                <small style={{ display: 'block', color: 'var(--muted)' }}>
+                                  Sexe : {m.gender === 'F' ? 'Femme' : 'Homme'}
+                                </small>
+                              </div>
                             </td>
                             <td>{m.phone || 'Non renseigné'}</td>
-                            <td>{m.role === 'ADMIN' ? 'Administratrice et membre' : 'Membre'}</td>
                             <td>
-                              <span className="badge">{m.active ? 'Active' : 'Inactive'}</span>
+                              <span
+                                className={
+                                  m.role === 'ADMIN' ? 'badge-function bureau' : 'badge-function'
+                                }
+                              >
+                                {m.function_name ||
+                                  (m.role === 'ADMIN' ? 'Administratrice' : 'Membre simple')}
+                              </span>
                             </td>
+                            <td>{m.address || '—'}</td>
+                            <td>
+                              {m.is_blocked ? (
+                                <span className="badge-blocked">Bloquée</span>
+                              ) : (
+                                <span className="badge">{m.active ? 'Active' : 'Inactive'}</span>
+                              )}
+                            </td>
+                            {(canManage || superAdmin) && (
+                              <td>
+                                <div style={{ display: 'flex', gap: 6 }}>
+                                  <button
+                                    type="button"
+                                    className="text-button"
+                                    title="Code QR de la membre"
+                                    onClick={() =>
+                                      setQrModal({
+                                        title: `Carte Membre · ${m.name}`,
+                                        subtitle: `${group?.name || ''} · ${m.phone || 'Sans téléphone'}`,
+                                        data: `ALF:MEMBER:${groupId}:${m.id}:${m.phone || ''}`,
+                                      })
+                                    }
+                                  >
+                                    <QrCode size={15} />
+                                    QR
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="text-button"
+                                    title="Réinitialiser code PIN"
+                                    onClick={() => {
+                                      setResetPinMember({ id: m.id, name: m.name });
+                                      open('reset-pin');
+                                    }}
+                                  >
+                                    <KeyRound size={15} />
+                                    PIN
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="text-button"
+                                    onClick={() =>
+                                      action(
+                                        () =>
+                                          api
+                                            .PATCH(
+                                              '/api/v1/groupements/{groupId}/members/{memberId}/block',
+                                              {
+                                                params: { path: { groupId, memberId: m.id } },
+                                                body: { blocked: !m.is_blocked },
+                                              },
+                                            )
+                                            .then(unwrap),
+                                        m.is_blocked ? 'Membre débloquée.' : 'Membre bloquée.',
+                                      )
+                                    }
+                                  >
+                                    {m.is_blocked ? 'Débloquer' : 'Bloquer'}
+                                  </button>
+                                </div>
+                              </td>
+                            )}
                           </tr>
                         ))}
                       </tbody>
@@ -1306,37 +2014,77 @@ export function App({
                   <Pager page={page} total={memberTotal} onChange={setPage} />
                 </section>
               )}
+
               {tab === 'types' && (
-                <section className="panel">
-                  <div className="section-heading">
-                    <div>
-                      <h2>Catalogue des types</h2>
-                      <p className="muted">
-                        Le premier incrément prend en charge les règles Avec Épargne.
-                      </p>
+                <>
+                  <section className="panel">
+                    <div className="section-heading">
+                      <div>
+                        <h2>Catalogue des événements</h2>
+                        <p className="muted">
+                          Événements gérés par l’administration (Ramadan, Tabaski, Rentrée,
+                          Solidarité…)
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                  <div className="table-scroll">
-                    <table>
-                      <thead>
-                        <tr>
-                          <th>Nom</th>
-                          <th>Code</th>
-                          <th>Version des règles</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {types.map((t) => (
-                          <tr key={t.id}>
-                            <td>{t.name}</td>
-                            <td>{t.code}</td>
-                            <td>{t.rule_version}</td>
+                    <div className="table-scroll">
+                      <table>
+                        <thead>
+                          <tr>
+                            <th>Nom</th>
+                            <th>Code</th>
+                            <th>Description</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </section>
+                        </thead>
+                        <tbody>
+                          {events.map((e) => (
+                            <tr key={e.id}>
+                              <td>{e.name}</td>
+                              <td>
+                                <code>{e.code}</code>
+                              </td>
+                              <td>{e.description || '—'}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </section>
+
+                  <section className="panel" style={{ marginTop: 24 }}>
+                    <div className="section-heading">
+                      <div>
+                        <h2>Catalogue des types de campagne</h2>
+                        <p className="muted">
+                          Le premier incrément prend en charge Avec Épargne, Tontine rotative et
+                          Caisse de solidarité.
+                        </p>
+                      </div>
+                    </div>
+                    <div className="table-scroll">
+                      <table>
+                        <thead>
+                          <tr>
+                            <th>Nom</th>
+                            <th>Code</th>
+                            <th>Version des règles</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {types.map((t) => (
+                            <tr key={t.id}>
+                              <td>{t.name}</td>
+                              <td>
+                                <code>{t.code}</code>
+                              </td>
+                              <td>{t.rule_version}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </section>
+                </>
               )}
             </>
           )}
@@ -1346,6 +2094,17 @@ export function App({
           </footer>
         </div>
       </main>
+
+      {/* Modal QR Code */}
+      {qrModal && (
+        <QrModal
+          title={qrModal.title}
+          subtitle={qrModal.subtitle}
+          data={qrModal.data}
+          onClose={() => setQrModal(null)}
+        />
+      )}
+
       {dialog && (
         <Dialog
           title={
@@ -1353,9 +2112,12 @@ export function App({
               group: 'Créer un groupement',
               member: 'Ajouter une membre',
               type: 'Créer un type Avec',
+              event: 'Créer un événement',
               campaign: 'Créer une campagne',
               participant: 'Configurer une participation',
               contribution: 'Enregistrer une cotisation',
+              grace: 'Accorder un délai de grâce',
+              'reset-pin': `Réinitialiser le PIN de ${resetPinMember?.name || 'la membre'}`,
               void: 'Annuler une cotisation',
             }[dialog] || ''
           }
@@ -1385,29 +2147,93 @@ export function App({
                   <Field label="Téléphone avec indicatif">
                     <input name="phone" type="tel" placeholder="+221771234567" />
                   </Field>
-                  <h3>Accès à l’espace membre</h3>
+                  <Field label="Adresse">
+                    <input name="address" placeholder="Quartier, Ville" maxLength={250} />
+                  </Field>
+                  <Field label="Sexe">
+                    <select name="gender" defaultValue="F">
+                      <option value="F">Femme (F)</option>
+                      <option value="M">Homme (M)</option>
+                    </select>
+                  </Field>
+                  <Field label="Fonction dans le groupement">
+                    <select name="functionId">
+                      {functions.map((fn) => (
+                        <option key={fn.id} value={fn.id}>
+                          {fn.name} {fn.can_be_admin ? '★ (Bureau)' : ''}
+                        </option>
+                      ))}
+                    </select>
+                  </Field>
+                  <Field label="Code PIN secret (4 chiffres)">
+                    <input
+                      name="pin"
+                      type="password"
+                      inputMode="numeric"
+                      pattern="[0-9]{4}"
+                      maxLength={4}
+                      placeholder="Ex: 1234"
+                    />
+                  </Field>
+                  <h3>Accès optionnel par identifiant classique</h3>
                   <p className="muted">
-                    Facultatif. Pour créer un compte, renseignez un identifiant et un mot de passe
-                    ou un téléphone.
+                    Pour une connexion par identifiant au lieu du téléphone + PIN.
                   </p>
-                  <Field label="Identifiant">
+                  <Field label="Identifiant (optionnel)">
                     <input name="login" pattern="[a-zA-Z0-9._-]{3,80}" autoComplete="off" />
                   </Field>
-                  <Field label="Mot de passe initial">
+                  <Field label="Mot de passe initial (optionnel)">
                     <input
                       name="password"
                       type="password"
-                      minLength={12}
+                      minLength={4}
                       maxLength={128}
                       autoComplete="new-password"
                     />
                   </Field>
-                  {superAdmin && (
+                  {(superAdmin || admin) && (
                     <label className="checkbox">
                       <input type="checkbox" name="admin" />
-                      Attribuer l’administration du groupement
+                      Attribuer l’administration du groupement (Rôle ADMIN)
                     </label>
                   )}
+                </>
+              )}
+              {dialog === 'reset-pin' && (
+                <>
+                  <Field label="Nouveau Code PIN à 4 chiffres">
+                    <input
+                      name="pin"
+                      type="password"
+                      inputMode="numeric"
+                      pattern="[0-9]{4}"
+                      maxLength={4}
+                      placeholder="••••"
+                      required
+                    />
+                  </Field>
+                  <p className="muted">
+                    Ce code PIN permettra à la membre de se connecter immédiatement avec son numéro
+                    de téléphone.
+                  </p>
+                </>
+              )}
+              {dialog === 'event' && (
+                <>
+                  <Field label="Nom de l’événement">
+                    <input name="name" required minLength={2} placeholder="Ex: Rentrée scolaire" />
+                  </Field>
+                  <Field label="Code unique en majuscules">
+                    <input
+                      name="code"
+                      required
+                      pattern="[A-Z][A-Z0-9_]{1,39}"
+                      placeholder="Ex: RENTREE"
+                    />
+                  </Field>
+                  <Field label="Description">
+                    <input name="description" placeholder="Courte description" maxLength={250} />
+                  </Field>
                 </>
               )}
               {dialog === 'type' && (
@@ -1435,6 +2261,18 @@ export function App({
                       ))}
                     </select>
                   </Field>
+                  <Field label="Événement associé">
+                    <select name="eventId">
+                      {events.map((ev) => (
+                        <option key={ev.id} value={ev.id}>
+                          {ev.name} ({ev.code})
+                        </option>
+                      ))}
+                    </select>
+                  </Field>
+                  <Field label="Montant standard / forfait (FCFA)">
+                    <input type="number" name="standardAmount" min="1" placeholder="Ex: 5000" />
+                  </Field>
                   <div className="form-grid">
                     <Field label="Date de début">
                       <input type="date" name="startDate" required />
@@ -1443,7 +2281,7 @@ export function App({
                       <input type="date" name="endDate" required />
                     </Field>
                   </div>
-                  <Field label="Jour de cotisation">
+                  <Field label="Jour de cotisation hebdomadaire">
                     <select name="weekday" defaultValue="2">
                       {days.map((d, i) => (
                         <option key={d} value={i}>
@@ -1452,14 +2290,69 @@ export function App({
                       ))}
                     </select>
                   </Field>
-                  <Field label="Intervalle en semaines">
+                  <div className="form-grid">
+                    <Field label="Intervalle en semaines">
+                      <input
+                        type="number"
+                        name="intervalWeeks"
+                        min="1"
+                        max="52"
+                        defaultValue="1"
+                        required
+                      />
+                    </Field>
+                    <Field label="Jour d'échéance du mois (Option C)">
+                      <input
+                        type="number"
+                        name="dueDay"
+                        min="1"
+                        max="31"
+                        placeholder="Ex: 5 pour le 5 du mois"
+                      />
+                    </Field>
+                  </div>
+                  <Field label="Intervalle de rotation (si Tontine rotative)">
+                    <select name="rotationInterval" defaultValue="MONTHLY">
+                      <option value="WEEKLY">Hebdomadaire (7 jours)</option>
+                      <option value="BIWEEKLY">Bimensuel (14 jours)</option>
+                      <option value="MONTHLY">Mensuel (Par défaut)</option>
+                    </select>
+                  </Field>
+                  <label className="checkbox">
+                    <input type="checkbox" name="isMandatory" />
+                    Souscription obligatoire pour les membres du groupement
+                  </label>
+                </>
+              )}
+              {dialog === 'grace' && (
+                <>
+                  <Field label="Membre bénéficiaire">
+                    <select name="membershipId" required defaultValue={graceMemberId}>
+                      {participants.map((p) => (
+                        <option key={p.membership_id} value={p.membership_id}>
+                          {p.name}
+                        </option>
+                      ))}
+                    </select>
+                  </Field>
+                  <div className="form-grid">
+                    <Field label="Date d’échéance normale">
+                      <input
+                        type="date"
+                        name="periodDate"
+                        defaultValue={new Date().toISOString().slice(0, 10)}
+                        required
+                      />
+                    </Field>
+                    <Field label="Nouvelle date limite accordée">
+                      <input type="date" name="extendedDeadline" required />
+                    </Field>
+                  </div>
+                  <Field label="Motif du délai de grâce">
                     <input
-                      type="number"
-                      name="intervalWeeks"
-                      min="1"
-                      max="52"
-                      defaultValue="1"
-                      required
+                      name="reason"
+                      placeholder="Ex: Déplacement, imprévu familial..."
+                      maxLength={250}
                     />
                   </Field>
                 </>
@@ -1470,7 +2363,7 @@ export function App({
                     <select name="membershipId" required>
                       {memberOptions.map((m) => (
                         <option key={m.id} value={m.id}>
-                          {m.name}
+                          {m.name} {m.phone ? `(${m.phone})` : ''}
                         </option>
                       ))}
                     </select>
@@ -1483,20 +2376,22 @@ export function App({
                       onChange={setOptionPage}
                     />
                   )}
-                  <Field label="Forfait par échéance en FCFA">
+                  <Field label="Montant forfaitaire par échéance (FCFA)">
                     <input
-                      name="forfait"
                       type="number"
+                      name="forfait"
                       min="1"
-                      max="1000000000000"
-                      step="1"
-                      placeholder="Laisser vide pour un montant libre"
+                      placeholder={
+                        campaign?.standard_amount
+                          ? `Standard : ${money(campaign.standard_amount)}`
+                          : 'Montant libre si vide'
+                      }
                     />
                   </Field>
-                  <p className="muted">
-                    Une participation existante sera mise à jour. L’historique des modifications est
-                    conservé.
-                  </p>
+                  <label className="checkbox">
+                    <input type="checkbox" name="isRandom" />
+                    Cotisation aléatoire (Montant libre à chaque séance)
+                  </label>
                 </>
               )}
               {dialog === 'contribution' && (
@@ -1505,60 +2400,38 @@ export function App({
                     <select name="participationId" required>
                       {participants.map((p) => (
                         <option key={p.id} value={p.id}>
-                          {p.name} · {p.forfait ? money(p.forfait) : 'montant libre'}
+                          {p.name} · {p.forfait ? money(p.forfait) : 'Libre'}
                         </option>
                       ))}
                     </select>
                   </Field>
-                  {participantTotal > 100 && (
-                    <Pager
-                      page={participantPage}
-                      total={participantTotal}
-                      limit={100}
-                      onChange={setParticipantPage}
-                    />
-                  )}
                   <Field label="Montant réellement versé en FCFA">
-                    <input
-                      name="amount"
-                      type="number"
-                      min="1"
-                      max="1000000000000"
-                      step="1"
-                      required
-                    />
+                    <input type="number" name="amount" min="1" required />
                   </Field>
                   <Field label="Date du versement">
                     <input
-                      name="paidOn"
                       type="date"
-                      min={campaign?.start_date}
-                      max={new Date().toISOString().slice(0, 10)}
+                      name="paidOn"
                       defaultValue={new Date().toISOString().slice(0, 10)}
                       required
                     />
                   </Field>
-                  {!participants.length && (
-                    <p role="alert">
-                      Configurez d’abord une participation dans l’onglet Campagnes.
-                    </p>
-                  )}
                 </>
               )}
               {dialog === 'void' && (
-                <>
-                  <p>
-                    L’annulation conserve la trace du versement. Vous pourrez ensuite saisir une
-                    nouvelle cotisation.
-                  </p>
-                  <Field label="Motif de l’annulation">
-                    <textarea name="reason" required minLength={5} maxLength={250} />
-                  </Field>
-                </>
+                <Field label="Motif de l’annulation">
+                  <textarea
+                    name="reason"
+                    required
+                    minLength={5}
+                    maxLength={250}
+                    placeholder="Erreur de saisie, doublon…"
+                  />
+                </Field>
               )}
               <div className="dialog-actions">
                 <button type="button" className="secondary" onClick={() => setDialog('')}>
-                  Fermer
+                  Annuler
                 </button>
                 <button
                   className="primary"
@@ -1570,7 +2443,6 @@ export function App({
                     : dialog === 'void'
                       ? 'Confirmer l’annulation'
                       : 'Enregistrer'}
-                  <Check size={17} />
                 </button>
               </div>
             </fieldset>

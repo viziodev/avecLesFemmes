@@ -63,6 +63,38 @@
         ]
       }
     },
+    "/api/v1/auth/login/pin": {
+      "post": {
+        "operationId": "loginPin",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PinLoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActorView"
+                }
+              }
+            }
+          }
+        },
+        "summary": "",
+        "tags": [
+          "Authentification"
+        ]
+      }
+    },
     "/api/v1/auth/otp/request": {
       "post": {
         "operationId": "requestOtp",
@@ -332,6 +364,351 @@
         "summary": "",
         "tags": [
           "Groupements"
+        ]
+      }
+    },
+    "/api/v1/groupements/{groupId}/members/{memberId}": {
+      "patch": {
+        "operationId": "updateMember",
+        "parameters": [
+          {
+            "name": "groupId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "memberId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateMemberDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemberView"
+                }
+              }
+            }
+          }
+        },
+        "summary": "",
+        "tags": [
+          "Groupements"
+        ]
+      }
+    },
+    "/api/v1/groupements/{groupId}/members/{memberId}/block": {
+      "patch": {
+        "operationId": "blockMember",
+        "parameters": [
+          {
+            "name": "groupId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "memberId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BlockMemberDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Statut de blocage du membre mis à jour"
+          }
+        },
+        "summary": "",
+        "tags": [
+          "Groupements"
+        ]
+      }
+    },
+    "/api/v1/groupements/{groupId}/members/{memberId}/reset-pin": {
+      "post": {
+        "operationId": "resetMemberPin",
+        "parameters": [
+          {
+            "name": "groupId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "memberId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPinDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Code PIN réinitialisé avec succès"
+          }
+        },
+        "summary": "",
+        "tags": [
+          "Groupements"
+        ]
+      }
+    },
+    "/api/v1/groupements/{groupId}/functions": {
+      "get": {
+        "operationId": "listGroupFunctions",
+        "parameters": [
+          {
+            "name": "groupId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GroupFunctionView"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "",
+        "tags": [
+          "Groupements"
+        ]
+      },
+      "put": {
+        "operationId": "configureGroupFunctions",
+        "parameters": [
+          {
+            "name": "groupId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfigureGroupFunctionsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "",
+        "tags": [
+          "Groupements"
+        ]
+      }
+    },
+    "/api/v1/groupements/{groupId}/events": {
+      "get": {
+        "operationId": "listGroupEvents",
+        "parameters": [
+          {
+            "name": "groupId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GroupEventView"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "",
+        "tags": [
+          "Groupements"
+        ]
+      },
+      "put": {
+        "operationId": "configureGroupEvents",
+        "parameters": [
+          {
+            "name": "groupId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfigureGroupEventsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "",
+        "tags": [
+          "Groupements"
+        ]
+      }
+    },
+    "/api/v1/group-functions": {
+      "get": {
+        "operationId": "listPlatformFunctions",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GroupFunctionView"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "",
+        "tags": [
+          "Fonctions"
+        ]
+      }
+    },
+    "/api/v1/campaign-events": {
+      "get": {
+        "operationId": "listPlatformEvents",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CampaignEventView"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "",
+        "tags": [
+          "Événements"
+        ]
+      },
+      "post": {
+        "operationId": "createCampaignEvent",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCampaignEventDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CampaignEventView"
+                }
+              }
+            }
+          }
+        },
+        "summary": "",
+        "tags": [
+          "Événements"
         ]
       }
     },
@@ -687,6 +1064,372 @@
         ]
       }
     },
+    "/api/v1/groupements/{groupId}/campaigns/{id}/tontine/draw": {
+      "post": {
+        "operationId": "generateTontineDraw",
+        "parameters": [
+          {
+            "name": "groupId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TontineRoundView"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "",
+        "tags": [
+          "Campagnes"
+        ]
+      }
+    },
+    "/api/v1/groupements/{groupId}/campaigns/{id}/tontine/rounds": {
+      "get": {
+        "operationId": "listTontineRounds",
+        "parameters": [
+          {
+            "name": "groupId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TontineRoundView"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "",
+        "tags": [
+          "Campagnes"
+        ]
+      },
+      "put": {
+        "operationId": "reorderTontineRounds",
+        "parameters": [
+          {
+            "name": "groupId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TontineReorderDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TontineRoundView"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "",
+        "tags": [
+          "Campagnes"
+        ]
+      }
+    },
+    "/api/v1/groupements/{groupId}/campaigns/{id}/tontine/rounds/{roundNumber}/pay": {
+      "patch": {
+        "operationId": "payTontineRound",
+        "parameters": [
+          {
+            "name": "groupId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "roundNumber",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Cagnotte marquée comme versée"
+          }
+        },
+        "summary": "",
+        "tags": [
+          "Campagnes"
+        ]
+      }
+    },
+    "/api/v1/groupements/{groupId}/campaigns/{id}/grace-periods": {
+      "post": {
+        "operationId": "createGracePeriod",
+        "parameters": [
+          {
+            "name": "groupId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateGracePeriodDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GracePeriodView"
+                }
+              }
+            }
+          }
+        },
+        "summary": "",
+        "tags": [
+          "Campagnes"
+        ]
+      },
+      "get": {
+        "operationId": "listGracePeriods",
+        "parameters": [
+          {
+            "name": "groupId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GracePeriodView"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "",
+        "tags": [
+          "Campagnes"
+        ]
+      }
+    },
+    "/api/v1/groupements/{groupId}/campaigns/{id}/sessions": {
+      "get": {
+        "operationId": "listCampaignSessions",
+        "parameters": [
+          {
+            "name": "groupId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CampaignSessionView"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "",
+        "tags": [
+          "Campagnes"
+        ]
+      }
+    },
+    "/api/v1/groupements/{groupId}/campaigns/{id}/cashbox": {
+      "get": {
+        "operationId": "campaignCashbox",
+        "parameters": [
+          {
+            "name": "groupId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CashboxStateView"
+                }
+              }
+            }
+          }
+        },
+        "summary": "",
+        "tags": [
+          "Campagnes"
+        ]
+      }
+    },
+    "/api/v1/super-admin/dashboard": {
+      "get": {
+        "operationId": "superAdminDashboard",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuperDashboardView"
+                }
+              }
+            }
+          }
+        },
+        "summary": "",
+        "tags": [
+          "Super Administration"
+        ]
+      }
+    },
     "/api/v1/groupements/{groupId}/campaigns/{campaignId}/contributions": {
       "get": {
         "operationId": "listContributions",
@@ -909,6 +1652,21 @@
           "isSuper"
         ]
       },
+      "PinLoginDto": {
+        "type": "object",
+        "properties": {
+          "phone": {
+            "type": "string"
+          },
+          "pin": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "phone",
+          "pin"
+        ]
+      },
       "PhoneDto": {
         "type": "object",
         "properties": {
@@ -1055,6 +1813,28 @@
           },
           "active": {
             "type": "boolean"
+          },
+          "address": {
+            "type": "string",
+            "nullable": true
+          },
+          "gender": {
+            "type": "string",
+            "enum": [
+              "F",
+              "M"
+            ]
+          },
+          "function_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "function_name": {
+            "type": "string",
+            "nullable": true
+          },
+          "is_blocked": {
+            "type": "boolean"
           }
         },
         "required": [
@@ -1062,7 +1842,9 @@
           "name",
           "phone",
           "role",
-          "active"
+          "active",
+          "gender",
+          "is_blocked"
         ]
       },
       "MemberPage": {
@@ -1098,6 +1880,24 @@
           "password": {
             "type": "string"
           },
+          "pin": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "gender": {
+            "type": "string",
+            "enum": [
+              "F",
+              "M"
+            ],
+            "default": "F"
+          },
+          "functionId": {
+            "type": "string",
+            "format": "uuid"
+          },
           "admin": {
             "type": "boolean",
             "default": false
@@ -1105,6 +1905,205 @@
         },
         "required": [
           "name"
+        ]
+      },
+      "UpdateMemberDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "gender": {
+            "type": "string",
+            "enum": [
+              "F",
+              "M"
+            ]
+          },
+          "functionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "admin": {
+            "type": "boolean"
+          }
+        }
+      },
+      "BlockMemberDto": {
+        "type": "object",
+        "properties": {
+          "blocked": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "blocked"
+        ]
+      },
+      "ResetPinDto": {
+        "type": "object",
+        "properties": {
+          "pin": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "pin"
+        ]
+      },
+      "GroupFunctionView": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "can_be_admin": {
+            "type": "boolean"
+          },
+          "is_default": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "name",
+          "can_be_admin",
+          "is_default"
+        ]
+      },
+      "ConfigureGroupFunctionsDto": {
+        "type": "object",
+        "properties": {
+          "functionIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "functionIds"
+        ]
+      },
+      "GroupEventView": {
+        "type": "object",
+        "properties": {
+          "event_id": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "is_mandatory": {
+            "type": "boolean"
+          },
+          "default_amount": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "event_id",
+          "code",
+          "name",
+          "is_mandatory"
+        ]
+      },
+      "GroupEventItemDto": {
+        "type": "object",
+        "properties": {
+          "eventId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "isMandatory": {
+            "type": "boolean",
+            "default": false
+          },
+          "defaultAmount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "eventId",
+          "isMandatory"
+        ]
+      },
+      "ConfigureGroupEventsDto": {
+        "type": "object",
+        "properties": {
+          "events": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GroupEventItemDto"
+            }
+          }
+        },
+        "required": [
+          "events"
+        ]
+      },
+      "CampaignEventView": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "active": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "name",
+          "active"
+        ]
+      },
+      "CreateCampaignEventDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "code"
         ]
       },
       "TypeView": {
@@ -1171,6 +2170,33 @@
           },
           "type_name": {
             "type": "string"
+          },
+          "event_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "event_name": {
+            "type": "string",
+            "nullable": true
+          },
+          "event_code": {
+            "type": "string",
+            "nullable": true
+          },
+          "is_mandatory": {
+            "type": "boolean"
+          },
+          "standard_amount": {
+            "type": "string",
+            "nullable": true
+          },
+          "rotation_interval": {
+            "type": "string",
+            "nullable": true
+          },
+          "due_day": {
+            "type": "number",
+            "nullable": true
           }
         },
         "required": [
@@ -1181,7 +2207,8 @@
           "weekday",
           "interval_weeks",
           "active",
-          "type_name"
+          "type_name",
+          "is_mandatory"
         ]
       },
       "CampaignPage": {
@@ -1226,6 +2253,30 @@
           "intervalWeeks": {
             "type": "number",
             "default": 1
+          },
+          "eventId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "isMandatory": {
+            "type": "boolean",
+            "default": false
+          },
+          "standardAmount": {
+            "type": "number"
+          },
+          "rotationInterval": {
+            "type": "string",
+            "enum": [
+              "WEEKLY",
+              "BIWEEKLY",
+              "MONTHLY"
+            ]
+          },
+          "dueDay": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 31
           }
         },
         "required": [
@@ -1263,13 +2314,21 @@
           "forfait": {
             "type": "string",
             "nullable": true
+          },
+          "is_random": {
+            "type": "boolean"
+          },
+          "round_number": {
+            "type": "number",
+            "nullable": true
           }
         },
         "required": [
           "id",
           "membership_id",
           "name",
-          "forfait"
+          "forfait",
+          "is_random"
         ]
       },
       "ParticipationPage": {
@@ -1300,6 +2359,13 @@
           "forfait": {
             "type": "number",
             "nullable": true
+          },
+          "isRandom": {
+            "type": "boolean",
+            "default": false
+          },
+          "roundNumber": {
+            "type": "number"
           }
         },
         "required": [
@@ -1331,6 +2397,252 @@
           "participants",
           "personal",
           "updatedAt"
+        ]
+      },
+      "TontineRoundView": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "round_number": {
+            "type": "number"
+          },
+          "beneficiary_id": {
+            "type": "string"
+          },
+          "beneficiary_name": {
+            "type": "string"
+          },
+          "expected_date": {
+            "type": "string"
+          },
+          "payout_amount": {
+            "type": "string"
+          },
+          "paid": {
+            "type": "boolean"
+          },
+          "paid_at": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "round_number",
+          "beneficiary_id",
+          "beneficiary_name",
+          "expected_date",
+          "payout_amount",
+          "paid",
+          "paid_at"
+        ]
+      },
+      "TontineRoundOrderDto": {
+        "type": "object",
+        "properties": {
+          "roundNumber": {
+            "type": "number",
+            "minimum": 1
+          },
+          "beneficiaryId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "expectedDate": {
+            "type": "string"
+          },
+          "payoutAmount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "roundNumber",
+          "beneficiaryId",
+          "expectedDate",
+          "payoutAmount"
+        ]
+      },
+      "TontineReorderDto": {
+        "type": "object",
+        "properties": {
+          "rounds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TontineRoundOrderDto"
+            }
+          }
+        },
+        "required": [
+          "rounds"
+        ]
+      },
+      "CreateGracePeriodDto": {
+        "type": "object",
+        "properties": {
+          "membershipId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "periodDate": {
+            "type": "string"
+          },
+          "extendedDeadline": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "membershipId",
+          "periodDate",
+          "extendedDeadline"
+        ]
+      },
+      "GracePeriodView": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "membership_id": {
+            "type": "string"
+          },
+          "member_name": {
+            "type": "string"
+          },
+          "period_date": {
+            "type": "string"
+          },
+          "extended_deadline": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "membership_id",
+          "member_name",
+          "period_date",
+          "extended_deadline",
+          "created_at"
+        ]
+      },
+      "SessionMemberContributionView": {
+        "type": "object",
+        "properties": {
+          "contribution_id": {
+            "type": "string"
+          },
+          "member_id": {
+            "type": "string"
+          },
+          "member_name": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "string"
+          },
+          "reference": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "contribution_id",
+          "member_id",
+          "member_name",
+          "amount",
+          "reference"
+        ]
+      },
+      "CampaignSessionView": {
+        "type": "object",
+        "properties": {
+          "session_date": {
+            "type": "string"
+          },
+          "total_amount": {
+            "type": "string"
+          },
+          "count": {
+            "type": "number"
+          },
+          "contributions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SessionMemberContributionView"
+            }
+          }
+        },
+        "required": [
+          "session_date",
+          "total_amount",
+          "count",
+          "contributions"
+        ]
+      },
+      "CashboxStateView": {
+        "type": "object",
+        "properties": {
+          "campaign_id": {
+            "type": "string"
+          },
+          "campaign_name": {
+            "type": "string"
+          },
+          "total_collected": {
+            "type": "string"
+          },
+          "total_paid_out": {
+            "type": "string"
+          },
+          "balance": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "campaign_id",
+          "campaign_name",
+          "total_collected",
+          "total_paid_out",
+          "balance"
+        ]
+      },
+      "SuperDashboardView": {
+        "type": "object",
+        "properties": {
+          "total_groups": {
+            "type": "number"
+          },
+          "total_members": {
+            "type": "number"
+          },
+          "total_campaigns": {
+            "type": "number"
+          },
+          "total_collected": {
+            "type": "string"
+          },
+          "cashboxes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CashboxStateView"
+            }
+          }
+        },
+        "required": [
+          "total_groups",
+          "total_members",
+          "total_campaigns",
+          "total_collected",
+          "cashboxes"
         ]
       },
       "ContributionView": {

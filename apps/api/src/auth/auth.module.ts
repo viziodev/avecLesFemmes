@@ -29,7 +29,7 @@ import type { Request, Response } from 'express';
 import { Actor, Database } from '../database/database.module';
 import { settings } from '../config';
 import { digest, hashPassword, verifyPassword } from './password';
-import { ActorView } from '../common/dto';
+import { ActorView, PinLoginDto } from '../common/dto';
 export const Public = () => SetMetadata('public', true);
 export type AuthRequest = Request & { actor: Actor };
 export class LoginDto {
@@ -58,6 +58,43 @@ export class AuthService {
     const matches = verifyPassword(input.password, u?.password_hash || this.dummy);
     if (!u || !u.password_hash || !matches)
       throw new UnauthorizedException('Identifiants incorrects.');
+    return this.session(u);
+  }
+  async loginPin(input: PinLoginDto) {
+    const r = await this.db.query('SELECT * FROM app_users WHERE phone=$1 AND active', [
+      input.phone,
+    ]);
+    const u = r.rows[0];
+    if (!u) {
+      verifyPassword(input.pin, this.dummy);
+      throw new UnauthorizedException('Identifiants incorrects.');
+    }
+    if (u.locked_until && new Date(u.locked_until).getTime() > Date.now()) {
+      throw new UnauthorizedException(
+        'Compte temporairement bloqué suite à trop de tentatives. Réessayez plus tard.',
+      );
+    }
+    const matches = verifyPassword(input.pin, u.password_hash || this.dummy);
+    if (!matches) {
+      const attempts = (u.failed_attempts || 0) + 1;
+      if (attempts >= 5) {
+        await this.db.query(
+          "UPDATE app_users SET failed_attempts=0, locked_until=now() + interval '15 minutes' WHERE id=$1",
+          [u.id],
+        );
+      } else {
+        await this.db.query('UPDATE app_users SET failed_attempts=$1 WHERE id=$2', [
+          attempts,
+          u.id,
+        ]);
+      }
+      throw new UnauthorizedException('Identifiants incorrects.');
+    }
+    if (u.failed_attempts > 0 || u.locked_until) {
+      await this.db.query('UPDATE app_users SET failed_attempts=0, locked_until=NULL WHERE id=$1', [
+        u.id,
+      ]);
+    }
     return this.session(u);
   }
   async session(u: any) {
@@ -172,6 +209,16 @@ export class AuthController {
   @ApiCreatedResponse({ type: ActorView })
   async login(@Body() input: LoginDto, @Res({ passthrough: true }) res: Response) {
     const s = await this.auth.login(input);
+    this.cookie(res, s.token);
+    return s.actor;
+  }
+  @Public()
+  @Post('login/pin')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
+  @ApiOperation({ operationId: 'loginPin' })
+  @ApiCreatedResponse({ type: ActorView })
+  async loginPin(@Body() input: PinLoginDto, @Res({ passthrough: true }) res: Response) {
+    const s = await this.auth.loginPin(input);
     this.cookie(res, s.token);
     return s.actor;
   }

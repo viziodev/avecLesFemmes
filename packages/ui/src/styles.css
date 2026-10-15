@@ -1159,3 +1159,290 @@ textarea {
     order: 4;
   }
 }
+
+/* --- Styles pour les évolutions v0.2.0 (QR, Mobile Money, Séances, Caisse, Cockpit) --- */
+.qr-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 24px 16px;
+  background: #ffffff;
+  border-radius: 16px;
+}
+.qr-box {
+  background: #ffffff;
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  margin: 16px 0;
+  display: inline-block;
+}
+.qr-box svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+.qr-code-raw {
+  font-family: monospace;
+  font-size: 11px;
+  color: var(--muted);
+  background: #f4f6f3;
+  padding: 6px 12px;
+  border-radius: 6px;
+  word-break: break-all;
+  max-width: 100%;
+}
+
+.badge-function {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  background: #e8f3ef;
+  color: var(--green);
+}
+.badge-function.bureau {
+  background: #fdf3e7;
+  color: #b45309;
+}
+.badge-amber {
+  background: #fef3c7;
+  color: #92400e;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.badge-blocked {
+  background: #fee2e2;
+  color: #991b1b;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* Style Mobile Money pour l'historique membre */
+.mm-filters {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  margin-bottom: 16px;
+}
+.mm-filter-btn {
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 6px 14px;
+  background: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.mm-filter-btn.active {
+  background: var(--green);
+  color: #fff;
+  border-color: var(--green);
+}
+.mm-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.mm-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+}
+.mm-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.mm-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: #e8f5e9;
+  color: #2e7d32;
+  display: grid;
+  place-items: center;
+}
+.mm-details {
+  display: flex;
+  flex-direction: column;
+}
+.mm-title {
+  font-weight: 600;
+  font-size: 14px;
+  color: #1e293b;
+}
+.mm-meta {
+  font-size: 12px;
+  color: var(--muted);
+}
+.mm-amount {
+  font-weight: 700;
+  font-size: 15px;
+  color: #155d50;
+  text-align: right;
+}
+.mm-badge {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: #e2e8f0;
+  color: #475569;
+  display: inline-block;
+  margin-top: 4px;
+}
+
+/* État de la caisse et cahier de séance */
+.cashbox-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.cashbox-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px 20px;
+}
+.cashbox-card.highlight {
+  background: linear-gradient(135deg, #155d50 0%, #0d3e35 100%);
+  color: #fff;
+  border: 0;
+}
+.cashbox-card.highlight .cashbox-label {
+  color: rgba(255, 255, 255, 0.8);
+}
+.cashbox-card.highlight .cashbox-value {
+  color: #fff;
+}
+.cashbox-label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.cashbox-value {
+  font-size: 24px;
+  font-weight: 800;
+  font-family: 'Manrope', sans-serif;
+  color: #1e293b;
+}
+
+.session-ledger {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.session-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+}
+.session-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+}
+.session-date {
+  font-weight: 700;
+  font-size: 14px;
+  color: #0f172a;
+}
+.session-total {
+  font-weight: 800;
+  font-size: 15px;
+  color: var(--green);
+}
+.session-breakdown {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 8px;
+}
+.session-member-entry {
+  background: #f8fafc;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Cockpit 360° Super Admin */
+.cockpit-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.cockpit-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.cockpit-number {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--green);
+  font-family: 'Manrope', sans-serif;
+}
+.cockpit-title {
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+/* Tontine rounds */
+.tontine-rounds-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+  margin-top: 16px;
+}
+.tontine-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.tontine-card.paid {
+  border-color: #86efac;
+  background: #f0fdf4;
+}
+.tontine-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 700;
+}

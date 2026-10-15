@@ -11,6 +11,7 @@ import {
   Req,
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   NotFoundException,
 } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -78,10 +79,12 @@ export class ContributionsService {
       if (input.paidOn < start || input.paidOn > end)
         throw new BadRequestException('Le versement doit appartenir à la période de campagne.');
       const participant = await c.query(
-        'SELECT p.id,m.name FROM participations p JOIN memberships m ON m.id=p.membership_id WHERE p.id=$1 AND p.campaign_id=$2 AND p.group_id=$3 AND m.active',
+        'SELECT p.id,m.name,m.is_blocked FROM participations p JOIN memberships m ON m.id=p.membership_id WHERE p.id=$1 AND p.campaign_id=$2 AND p.group_id=$3 AND m.active',
         [input.participationId, campaignId, groupId],
       );
       if (!participant.rows[0]) throw new NotFoundException('Participation introuvable.');
+      if (participant.rows[0].is_blocked)
+        throw new ForbiddenException('Ce membre est actuellement bloqué.');
       const id = randomUUID();
       const r = await c.query(
         'INSERT INTO contributions(id,group_id,campaign_id,participation_id,amount,paid_on,created_by,reference,idempotency_key,request_hash) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING id,participation_id,amount::text,paid_on::text,reference,voided_at::text',

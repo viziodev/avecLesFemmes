@@ -28,6 +28,9 @@ before(async () => {
   pg = new PGlite();
   await pg.exec('CREATE ROLE aveclesfemmes_app;');
   await pg.exec(await readFile(resolve('../../database/migrations/001_initial.sql'), 'utf8'));
+  await pg.exec(
+    await readFile(resolve('../../database/migrations/002_fonctions_tontines_qr.sql'), 'utf8'),
+  );
   const users = ['super', 'admin', 'member', 'other'].map((login, i) => ({
     id: randomUUID(),
     login,
@@ -380,4 +383,208 @@ test('déconnexion invalide la session', async () => {
     .set('Cookie', otherCookie)
     .expect(201);
   await request(app.getHttpServer()).get('/api/v1/auth/me').set('Cookie', otherCookie).expect(401);
+});
+
+test('authentification membre par code PIN à 4 chiffres et verrouillage anti-bruteforce', async () => {
+  const pinPhone = '+221770000099';
+  const pinUser = randomUUID();
+  const { hashPassword } = await import('../dist/auth/password.js');
+  await pg.query(
+    'INSERT INTO app_users(id,login,name,phone,password_hash) VALUES($1,$2,$2,$2,$3)',
+    [pinUser, pinPhone, hashPassword('1234')],
+  );
+
+  // Échec avec mauvais code PIN
+  await request(app.getHttpServer())
+    .post('/api/v1/auth/login/pin')
+    .set(headers)
+    .send({ phone: pinPhone, pin: '0000' })
+    .expect(401);
+
+  // Succès avec le bon PIN
+  const success = await request(app.getHttpServer())
+    .post('/api/v1/auth/login/pin')
+    .set(headers)
+    .send({ phone: pinPhone, pin: '1234' })
+    .expect(201);
+  assert.equal(success.body.id, pinUser);
+
+  // 5 tentatives erronées successives
+  for (let i = 0; i < 5; i++) {
+    await request(app.getHttpServer())
+      .post('/api/v1/auth/login/pin')
+      .set(headers)
+      .send({ phone: pinPhone, pin: '9999' })
+      .expect(401);
+  }
+
+  // 6ème tentative : compte temporairement bloqué même avec le bon PIN
+  const blocked = await request(app.getHttpServer())
+    .post('/api/v1/auth/login/pin')
+    .set(headers)
+    .send({ phone: pinPhone, pin: '1234' })
+    .expect(401);
+  assert.ok(blocked.body.message.includes('bloqué'));
+});
+
+test('gestion membre : adresse, sexe, fonction, blocage et déblocage', async () => {
+  // 1. Consultation des fonctions
+  const fns = await request(app.getHttpServer())
+    .get('/api/v1/group-functions')
+    .set('Cookie', adminCookie)
+    .expect(200);
+  assert.ok(fns.body.length >= 4);
+
+  // 2. Création membre avec adresse, sexe, fonction
+  const created = await request(app.getHttpServer())
+    .post(`/api/v1/groupements/${g}/members`)
+    .set(headers)
+    .set('Cookie', adminCookie)
+    .send({
+      name: 'Fatou Sow',
+      phone: '+221770000055',
+      address: 'Grand Yoff, Villa 42',
+      gender: 'F',
+      functionId: fns.body[0].id,
+      pin: '5678',
+    })
+    .expect(201);
+  assert.equal(created.body.name, 'Fatou Sow');
+  assert.equal(created.body.is_blocked, false);
+
+  // 3. Blocage du membre
+  await request(app.getHttpServer())
+    .patch(`/api/v1/groupements/${g}/members/${created.body.id}/block`)
+    .set(headers)
+    .set('Cookie', adminCookie)
+    .send({ blocked: true })
+    .expect(200);
+
+  // 4. Inscription à la campagne refusée car bloquée
+  await request(app.getHttpServer())
+    .post(`/api/v1/groupements/${g}/campaigns/${camp}/participants`)
+    .set(headers)
+    .set('Cookie', adminCookie)
+    .send({ membershipId: created.body.id })
+    .expect(403);
+
+  // 5. Déblocage du membre
+  await request(app.getHttpServer())
+    .patch(`/api/v1/groupements/${g}/members/${created.body.id}/block`)
+    .set(headers)
+    .set('Cookie', adminCookie)
+    .send({ blocked: false })
+    .expect(200);
+
+  // Inscription réussit maintenant
+  const partOk = await request(app.getHttpServer())
+    .post(`/api/v1/groupements/${g}/campaigns/${camp}/participants`)
+    .set(headers)
+    .set('Cookie', adminCookie)
+    .send({ membershipId: created.body.id, forfait: 5000 })
+    .expect(201);
+
+  // Cotisation réussit
+  await request(app.getHttpServer())
+    .post(`/api/v1/groupements/${g}/campaigns/${camp}/contributions`)
+    .set(headers)
+    .set('Cookie', adminCookie)
+    .send({
+      participationId: partOk.body.id,
+      amount: 5000,
+      paidOn: '2026-06-03',
+      idempotencyKey: randomUUID(),
+    })
+    .expect(201);
+});
+
+test('tontine rotative, tirage au sort, séances et état de la caisse', async () => {
+  // Créer une campagne tontine
+  const types = await request(app.getHttpServer())
+    .get('/api/v1/campaign-types')
+    .set('Cookie', adminCookie)
+    .expect(200);
+  const tontineType = types.body.find((t: any) => t.code === 'TONTINE') || types.body[0];
+
+  const tontineCamp = await request(app.getHttpServer())
+    .post(`/api/v1/groupements/${g}/campaigns`)
+    .set(headers)
+    .set('Cookie', adminCookie)
+    .send({
+      name: 'Tontine Mensuelle Solidarité',
+      typeId: tontineType.id,
+      startDate: '2026-01-01',
+      endDate: '2026-12-31',
+      weekday: 3,
+      intervalWeeks: 4,
+      standardAmount: 10000,
+      rotationInterval: 'MONTHLY',
+      dueDay: 5,
+    })
+    .expect(201);
+
+  // Inscrire 2 participantes
+  await request(app.getHttpServer())
+    .post(`/api/v1/groupements/${g}/campaigns/${tontineCamp.body.id}/participants`)
+    .set(headers)
+    .set('Cookie', adminCookie)
+    .send({ membershipId: adminId })
+    .expect(201);
+
+  await request(app.getHttpServer())
+    .post(`/api/v1/groupements/${g}/campaigns/${tontineCamp.body.id}/participants`)
+    .set(headers)
+    .set('Cookie', adminCookie)
+    .send({ membershipId: memberId })
+    .expect(201);
+
+  // Tirage au sort de la tontine
+  const rounds = await request(app.getHttpServer())
+    .post(`/api/v1/groupements/${g}/campaigns/${tontineCamp.body.id}/tontine/draw`)
+    .set(headers)
+    .set('Cookie', adminCookie)
+    .expect(201);
+  assert.equal(rounds.body.length, 2);
+  assert.equal(rounds.body[0].payout_amount, '20000');
+
+  // Marquer le tour 1 comme versé
+  await request(app.getHttpServer())
+    .patch(`/api/v1/groupements/${g}/campaigns/${tontineCamp.body.id}/tontine/rounds/1/pay`)
+    .set(headers)
+    .set('Cookie', adminCookie)
+    .expect(200);
+
+  // Délai de grâce individuel
+  const grace = await request(app.getHttpServer())
+    .post(`/api/v1/groupements/${g}/campaigns/${tontineCamp.body.id}/grace-periods`)
+    .set(headers)
+    .set('Cookie', adminCookie)
+    .send({
+      membershipId: memberId,
+      periodDate: '2026-06-05',
+      extendedDeadline: '2026-06-15',
+      reason: 'Déplacement familial',
+    })
+    .expect(201);
+  assert.equal(grace.body.extended_deadline, '2026-06-15');
+
+  // Consultation séances et état de la caisse
+  await request(app.getHttpServer())
+    .get(`/api/v1/groupements/${g}/campaigns/${tontineCamp.body.id}/sessions`)
+    .set('Cookie', adminCookie)
+    .expect(200);
+
+  const cashbox = await request(app.getHttpServer())
+    .get(`/api/v1/groupements/${g}/campaigns/${tontineCamp.body.id}/cashbox`)
+    .set('Cookie', adminCookie)
+    .expect(200);
+  assert.equal(cashbox.body.campaign_id, tontineCamp.body.id);
+
+  // Cockpit 360° Super Admin
+  const superCockpit = await request(app.getHttpServer())
+    .get('/api/v1/super-admin/dashboard')
+    .set('Cookie', superCookie)
+    .expect(200);
+  assert.ok(superCockpit.body.total_groups >= 2);
+  assert.ok(superCockpit.body.cashboxes.length >= 1);
 });

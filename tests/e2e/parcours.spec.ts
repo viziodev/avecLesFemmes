@@ -6,6 +6,7 @@ const password = process.env.DEMO_PASSWORD!;
 const pwa = process.env.PWA_URL || 'http://localhost:8086';
 async function login(page: Page, url: string, user: string) {
   await page.goto(url);
+  await page.getByRole('button', { name: 'Identifiant', exact: true }).click();
   await page.getByLabel('Identifiant', { exact: true }).fill(user);
   await page.getByLabel('Mot de passe', { exact: true }).fill(password);
   await page.getByRole('button', { name: 'Se connecter', exact: true }).click();
@@ -124,4 +125,41 @@ test('un double envoi concurrent produit un seul versement', async ({ page }) =>
   expect(new Set(records.map((r) => r.id)).size).toBe(1);
   const after = await (await page.request.get(base + '/dashboard')).json();
   expect(BigInt(after.total) - BigInt(before.total)).toBe(100n);
+});
+test('membre se connecte par code PIN et affiche son QR code vectoriel', async ({ page }) => {
+  await login(page, './', 'superadmin');
+  const groups = await (await page.request.get('/api/v1/groupements')).json();
+  const groupId = groups.items[0].id;
+  const phone = '+2217' + Date.now().toString().slice(-8);
+  const pin = '5678';
+  const created = await page.request.post(`/api/v1/groupements/${groupId}/members`, {
+    headers: { 'X-Requested-With': 'AvecLesFemmes' },
+    data: {
+      name: 'Fatou Ndiaye Test PIN',
+      login: 'pin.' + randomUUID().slice(0, 8),
+      phone,
+      pin,
+      gender: 'F',
+      address: 'Medina Rue 6',
+    },
+  });
+  expect(created.status()).toBe(201);
+  await page.getByRole('button', { name: 'Se déconnecter', exact: true }).click();
+
+  await page.goto(pwa);
+  await page.getByLabel('Téléphone avec indicatif', { exact: true }).fill(phone);
+  await page.getByLabel('Code secret (4 chiffres)', { exact: true }).fill(pin);
+  await page.getByRole('button', { name: 'Se connecter', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Vue d’ensemble', exact: true })).toBeVisible();
+
+  // Test affichage de la carte QR vectorielle
+  await page.getByRole('button', { name: 'Mon Code QR' }).first().click();
+  await expect(page.getByRole('dialog')).toBeVisible();
+  await expect(page.locator('.qr-box svg')).toBeVisible();
+  await page.getByRole('button', { name: 'Fermer', exact: true }).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+
+  // Déconnexion
+  await page.getByRole('button', { name: 'Se déconnecter', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Bienvenue dans votre espace' })).toBeVisible();
 });

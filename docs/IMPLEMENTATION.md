@@ -6,6 +6,44 @@ Le premier incrément a été initialisé à la version produit **0.1.0** et a �
 
 Les deux modes de connexion sont fonctionnels : mot de passe et code téléphone avec OTP (5 minutes de validité, 5 tentatives maximum). L’envoi SMS réel attend un fournisseur et son contrat d’intégration ; le mode local et la recette utilisent la simulation locale ou le mode désactivé.
 
+## Incrément 2 : Fonctions, tontines rotatives, QR codes, délais de grâce et dashboards (v0.2.0)
+
+L'incrément 2 porte le produit à la version **0.2.0** (SemVer monorepo). Il introduit des évolutions majeures validées pour la gouvernance des groupements, l'expérience utilisateur et les règles financières :
+
+1. **Catalogue des fonctions de groupement :**
+   - Fonctions de bureau et statutaires : _Membre simple_, _Présidente_, _Trésorière_, _Secrétaire_, _Commissaire aux comptes_.
+   - Paramétrage par le Super Administrateur des fonctions autorisées par groupement (`group_allowed_functions`).
+   - Seules les fonctions de bureau autorisent l'élévation au rôle `ADMIN` (`can_be_admin = true`).
+2. **Référentiel des événements & cotisations modulaires (Option B) :**
+   - Événements catalogués : _AVEC_, _RAMADAN_, _TABASKI_, _SOLIDARITE_, _RENTREE_.
+   - Affectation par groupement avec montant par défaut indicatif et drapeau obligatoire/optionnel (`is_mandatory`). Les montants versés en séance restent libres et aléatoires selon la décision du membre.
+3. **Authentification membre simplifiée & Sécurité :**
+   - Connexion rapide par Numéro de téléphone + Code PIN à 4 chiffres (`^\d{4}$`).
+   - Hachage cryptographique sécurisé via `scrypt` (`scryptSync`).
+   - Protection anti-bruteforce automatique : verrouillage temporaire du compte (`locked_until` 15 min) après 5 échecs consécutifs.
+4. **Gestion enrichie des membres :**
+   - Nouveaux champs d'état civil : `address` (texte libre) et `gender` ('F' ou 'M').
+   - Affectation de la fonction statutaire (`function_id`).
+   - Blocage / Déblocage d'un membre avec motif d'audit obligatoire (`is_blocked`, `blocked_at`, `block_reason`). Tout versement ou saisie est immédiatement rejeté pour un membre bloqué.
+   - Réinitialisation sécurisée du code PIN par l'administratrice ou le super administrateur.
+5. **Cartes et QR Codes SVG légers :**
+   - Génération vectorielle SVG pure (aucun asset lourd, téléchargement instantané) pour le membre (émargement rapide en séance) et pour le groupement.
+6. **Campagnes & Tontines rotatives (ROSCA) :**
+   - Prise en charge des tontines où le montant forfaitaire est identique pour toutes les membres souscrites.
+   - Périodicité de récupération paramétrable (mensuelle par défaut, hebdomadaire, etc.).
+   - Calcul automatique de la date de fin : $\text{Date début} + (N \text{ souscrites} \times \text{intervalle})$.
+   - Proposition de tirage au sort aléatoire (`/tontine/draw`) avec possibilité de réordonnancement manuel par l'administratrice.
+   - Suivi des levées et marquage des bénéficiaires ayant perçu leur cagnotte (`/tontine/payout`).
+7. **Délais de grâce flexibles (Option C) :**
+   - Accord d'un délai de grâce individuel à une membre sur une période donnée, avec motif d'audit consigné.
+   - Badge d'avertissement visuel dans l'interface sans bloquer l'historique financier.
+8. **Expérience utilisateur (UX) & Dashboards dédiés :**
+   - **Administratrice de groupement :** Vue épurée restreinte aux seules campagnes en cours. État de la caisse en temps réel (`solde en caisse = total collecté - total reversé`), et cahier de séance détaillé (`/sessions`) session par session avec le total et les versements par membre.
+   - **Membre :** Expérience simplifiée pour utilisatrices à faible littératie numérique. Bouton QR Code proéminent, tableau de bord restreint aux seules campagnes auxquelles elle souscrit, et historique style Mobile Money (Wave / Orange Money) avec filtres par type d'événement.
+   - **Super Administrateur :** Cockpit 360° consolidé de toutes les caisses des groupements de la plateforme, gestion des catalogues et paramétrages avancés.
+
+> **Consigne de déploiement stricte :** Aucun déploiement sur Render ni sur la recette distante ne doit être déclenché avant la validation intégrale des tests locaux et l'autorisation explicite via le mot de passe de commande **`VIZIODEPLOIE`**.
+
 ## Correction fonctionnelle de l'incrément 1 (v0.1.3)
 
 - **Formulaire de création de groupement :**
