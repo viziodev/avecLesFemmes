@@ -16,10 +16,10 @@ async function login(page: Page, url: string, user: string) {
   await page.getByLabel('Mot de passe', { exact: true }).fill(password);
   await page.getByRole('button', { name: 'Se connecter', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Vue d’ensemble', exact: true })).toBeVisible();
-  await page.locator('#group-select').selectOption({ label: 'Les Femmes de Grand Yoff' });
 }
 test('super administrateur consulte, crée et active une campagne', async ({ page }) => {
   await login(page, './', 'superadmin');
+  await page.locator('#group-select').selectOption({ label: 'Les Femmes de Grand Yoff' });
   await expect(page.getByRole('button', { name: 'Enregistrer une cotisation' })).toHaveCount(0);
   await page.getByRole('button', { name: 'Campagnes', exact: true }).click();
   await expect(page.getByText('Épargne solidaire 2026', { exact: true }).first()).toBeVisible();
@@ -86,7 +86,7 @@ test('membre sur téléphone et manifest PWA', async ({ page }) => {
 });
 test('connexion par code téléphone et déconnexion', async ({ page }) => {
   await login(page, './', 'superadmin');
-  const groups = await (await page.request.get('/api/v1/groupements')).json();
+  const groups = await (await page.request.get('/api/v1/groupements?limit=100')).json();
   const groupId = groups.items.find(
     (g: { name: string }) => g.name === 'Les Femmes de Grand Yoff',
   ).id;
@@ -296,3 +296,54 @@ test('bouton Créer une campagne sur l’onglet Campagnes à la sélection d’u
   await page.getByRole('button', { name: 'Se déconnecter', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Bienvenue dans votre espace' })).toBeVisible();
 });
+
+test('champs conditionnels du modal création de campagne selon Type Épargne vs Tontine rotative', async ({
+  page,
+}) => {
+  await login(page, './', 'superadmin');
+  await page.locator('#group-select').selectOption({ label: 'Les Femmes de Grand Yoff' });
+  await page.getByRole('button', { name: 'Campagnes', exact: true }).click();
+
+  const createButton = page
+    .getByRole('button', { name: 'Créer une campagne', exact: true })
+    .first();
+  await createButton.click();
+  await expect(page.getByRole('dialog')).toBeVisible();
+
+  // Par défaut : Type Épargne (ex: Avec Épargne)
+  await expect(page.getByLabel('Montant standard / forfait (FCFA)')).toBeVisible();
+  await expect(page.getByLabel('Date de début')).toBeVisible();
+  await expect(page.getByLabel('Date de fin')).toBeVisible();
+  await expect(page.getByLabel('Jour de cotisation hebdomadaire')).toBeVisible();
+  await expect(page.getByLabel('Intervalle en semaines')).toBeVisible();
+  await expect(page.getByLabel("Jour d'échéance du mois (Option C)")).toHaveCount(0);
+  await expect(page.getByLabel('Intervalle de rotation (si Tontine rotative)')).toHaveCount(0);
+  await page.screenshot({ path: 'test-results/modal-epargne.png' });
+
+  // Changement vers Tontine rotative
+  const typeSelect = page.locator('select[name="typeId"]');
+  const tontineOption = await typeSelect.locator('option').filter({ hasText: /tontine/i }).first();
+  const tontineVal = await tontineOption.getAttribute('value');
+  if (tontineVal) {
+    await typeSelect.selectOption(tontineVal);
+
+    // Vérification des champs Tontine
+    await expect(page.getByLabel("Jour d'échéance du mois (Option C)")).toBeVisible();
+    await expect(page.getByLabel('Intervalle de rotation (si Tontine rotative)')).toBeVisible();
+    // Les champs Épargne ne doivent plus être affichés
+    await expect(page.getByLabel('Montant standard / forfait (FCFA)')).toHaveCount(0);
+    await expect(page.getByLabel('Date de début')).toHaveCount(0);
+    await expect(page.getByLabel('Date de fin')).toHaveCount(0);
+    await expect(page.getByLabel('Jour de cotisation hebdomadaire')).toHaveCount(0);
+    await expect(page.getByLabel('Intervalle en semaines')).toHaveCount(0);
+    await page.screenshot({ path: 'test-results/modal-tontine.png' });
+  }
+
+  await page.getByRole('button', { name: 'Fermer', exact: true }).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+
+  // Déconnexion
+  await page.getByRole('button', { name: 'Se déconnecter', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Bienvenue dans votre espace' })).toBeVisible();
+});
+

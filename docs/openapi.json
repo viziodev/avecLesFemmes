@@ -2526,11 +2526,7 @@
         },
         "required": [
           "name",
-          "typeId",
-          "startDate",
-          "endDate",
-          "weekday",
-          "intervalWeeks"
+          "typeId"
         ]
       },
       "ActivationDto": {

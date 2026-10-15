@@ -520,6 +520,7 @@ export function App({
   const [editType, setEditType] = useState<S['TypeView'] | null>(null);
   const [groupSearch, setGroupSearch] = useState('');
   const [groupDropdownOpen, setGroupDropdownOpen] = useState(false);
+  const [campaignTypeId, setCampaignTypeId] = useState('');
 
   const [page, setPage] = useState(1);
   const [participantPage, setParticipantPage] = useState(1);
@@ -575,7 +576,7 @@ export function App({
     setLoadError('');
     Promise.all([
       api
-        .GET('/api/v1/groupements', { params: { query: { page: groupPage, limit: 25 } } })
+        .GET('/api/v1/groupements', { params: { query: { page: groupPage, limit: 100 } } })
         .then(unwrap),
       api.GET('/api/v1/campaign-types').then(unwrap),
       api
@@ -814,6 +815,9 @@ export function App({
   function open(name: string) {
     idempotency.current = crypto.randomUUID();
     setOptionPage(1);
+    if (name === 'campaign') {
+      setCampaignTypeId(types[0]?.id || '');
+    }
     setDialog(name);
   }
 
@@ -943,7 +947,17 @@ export function App({
         'Événement mis à jour.',
       );
 
-    if (dialog === 'campaign')
+    if (dialog === 'campaign') {
+      const typeObj = types.find((t) => t.id === v.typeId);
+      const isRotative =
+        typeObj?.code === 'TONTINE' || (typeObj?.name || '').toLowerCase().includes('tontine');
+
+      const today = new Date();
+      const todayStr = today.toISOString().slice(0, 10);
+      const nextYear = new Date(today);
+      nextYear.setFullYear(today.getFullYear() + 1);
+      const nextYearStr = nextYear.toISOString().slice(0, 10);
+
       await action(
         () =>
           api
@@ -952,21 +966,25 @@ export function App({
               body: {
                 name: v.name,
                 typeId: v.typeId,
-                startDate: v.startDate,
-                endDate: v.endDate,
-                weekday: Number(v.weekday),
-                intervalWeeks: Number(v.intervalWeeks),
+                startDate: isRotative ? (v.startDate || todayStr) : v.startDate,
+                endDate: isRotative ? (v.endDate || nextYearStr) : v.endDate,
+                weekday: isRotative ? (v.weekday ? Number(v.weekday) : 2) : Number(v.weekday || 2),
+                intervalWeeks: isRotative
+                  ? (v.intervalWeeks ? Number(v.intervalWeeks) : 1)
+                  : Number(v.intervalWeeks || 1),
                 isMandatory: v.isMandatory === 'on',
                 eventId: v.eventId || undefined,
-                standardAmount: v.standardAmount ? Number(v.standardAmount) : undefined,
-                rotationInterval:
-                  (v.rotationInterval as 'WEEKLY' | 'BIWEEKLY' | 'MONTHLY') || undefined,
-                dueDay: v.dueDay ? Number(v.dueDay) : undefined,
+                standardAmount: !isRotative && v.standardAmount ? Number(v.standardAmount) : undefined,
+                rotationInterval: isRotative
+                  ? ((v.rotationInterval as 'WEEKLY' | 'BIWEEKLY' | 'MONTHLY') || 'MONTHLY')
+                  : undefined,
+                dueDay: isRotative && v.dueDay ? Number(v.dueDay) : undefined,
               },
             })
             .then(unwrap),
         'Campagne créée. Ajoutez maintenant ses participantes.',
       );
+    }
 
     if (dialog === 'participant')
       await action(
@@ -2771,94 +2789,129 @@ export function App({
                   </div>
                 </>
               )}
-              {dialog === 'campaign' && (
-                <>
-                  <div className="form-grid">
-                    <Field label="Nom de la campagne">
-                      <input
-                        name="name"
-                        required
-                        minLength={2}
-                        placeholder="Ex: Épargne solidaire 2026"
-                      />
-                    </Field>
-                    <Field label="Type de campagne">
-                      <select name="typeId" required>
-                        {types.map((t) => (
-                          <option key={t.id} value={t.id}>
-                            {t.name}
-                          </option>
-                        ))}
-                      </select>
-                    </Field>
-                  </div>
-                  <div className="form-grid">
-                    <Field label="Événement associé">
-                      <select name="eventId">
-                        {events.map((ev) => (
-                          <option key={ev.id} value={ev.id}>
-                            {ev.name} ({ev.code})
-                          </option>
-                        ))}
-                      </select>
-                    </Field>
-                    <Field label="Montant standard / forfait (FCFA)">
-                      <input type="number" name="standardAmount" min="1" placeholder="Ex: 5000" />
-                    </Field>
-                  </div>
-                  <div className="form-grid">
-                    <Field label="Date de début">
-                      <input type="date" name="startDate" required />
-                    </Field>
-                    <Field label="Date de fin">
-                      <input type="date" name="endDate" required />
-                    </Field>
-                  </div>
-                  <div className="form-grid">
-                    <Field label="Jour de cotisation hebdomadaire">
-                      <select name="weekday" defaultValue="2">
-                        {days.map((d, i) => (
-                          <option key={d} value={i}>
-                            {d}
-                          </option>
-                        ))}
-                      </select>
-                    </Field>
-                    <Field label="Intervalle en semaines">
-                      <input
-                        type="number"
-                        name="intervalWeeks"
-                        min="1"
-                        max="52"
-                        defaultValue="1"
-                        required
-                      />
-                    </Field>
-                  </div>
-                  <div className="form-grid">
-                    <Field label="Jour d'échéance du mois (Option C)">
-                      <input
-                        type="number"
-                        name="dueDay"
-                        min="1"
-                        max="31"
-                        placeholder="Ex: 5 pour le 5 du mois"
-                      />
-                    </Field>
-                    <Field label="Intervalle de rotation (si Tontine rotative)">
-                      <select name="rotationInterval" defaultValue="MONTHLY">
-                        <option value="WEEKLY">Hebdomadaire (7 jours)</option>
-                        <option value="BIWEEKLY">Bimensuel (14 jours)</option>
-                        <option value="MONTHLY">Mensuel (Par défaut)</option>
-                      </select>
-                    </Field>
-                  </div>
-                  <label className="checkbox" style={{ marginTop: 8 }}>
-                    <input type="checkbox" name="isMandatory" />
-                    Souscription obligatoire pour les membres du groupement
-                  </label>
-                </>
-              )}
+              {dialog === 'campaign' && (() => {
+                const activeType =
+                  types.find((t) => t.id === (campaignTypeId || types[0]?.id)) || types[0];
+                const isTontine =
+                  activeType?.code === 'TONTINE' ||
+                  (activeType?.name || '').toLowerCase().includes('tontine');
+
+                return (
+                  <>
+                    <div className="form-grid">
+                      <Field label="Nom de la campagne">
+                        <input
+                          name="name"
+                          required
+                          minLength={2}
+                          placeholder="Ex: Épargne solidaire 2026"
+                        />
+                      </Field>
+                      <Field label="Type de campagne">
+                        <select
+                          name="typeId"
+                          required
+                          value={campaignTypeId || types[0]?.id || ''}
+                          onChange={(e) => setCampaignTypeId(e.target.value)}
+                        >
+                          {types.map((t) => (
+                            <option key={t.id} value={t.id}>
+                              {t.name}
+                            </option>
+                          ))}
+                        </select>
+                      </Field>
+                    </div>
+
+                    <div className="dialog-info-pill" style={{ marginBottom: 14 }}>
+                      <Sparkles size={16} />
+                      <span>
+                        {isTontine
+                          ? 'Type Tontine Rotative : Paramétrez les échéances mensuelles et la fréquence de rotation.'
+                          : 'Type Épargne : Définissez le forfait standard, les dates de campagne et le rythme de cotisation.'}
+                      </span>
+                    </div>
+
+                    <div className="form-grid">
+                      <Field label="Événement associé">
+                        <select name="eventId">
+                          <option value="">(Optionnel) Aucun événement particulier</option>
+                          {events.map((ev) => (
+                            <option key={ev.id} value={ev.id}>
+                              {ev.name} ({ev.code})
+                            </option>
+                          ))}
+                        </select>
+                      </Field>
+                      {!isTontine ? (
+                        <Field label="Montant standard / forfait (FCFA)">
+                          <input type="number" name="standardAmount" min="1" placeholder="Ex: 5000" />
+                        </Field>
+                      ) : (
+                        <Field label="Jour d'échéance du mois (Option C)">
+                          <input
+                            type="number"
+                            name="dueDay"
+                            min="1"
+                            max="31"
+                            placeholder="Ex: 5 pour le 5 du mois"
+                          />
+                        </Field>
+                      )}
+                    </div>
+
+                    {!isTontine ? (
+                      <>
+                        <div className="form-grid">
+                          <Field label="Date de début">
+                            <input type="date" name="startDate" required />
+                          </Field>
+                          <Field label="Date de fin">
+                            <input type="date" name="endDate" required />
+                          </Field>
+                        </div>
+                        <div className="form-grid">
+                          <Field label="Jour de cotisation hebdomadaire">
+                            <select name="weekday" defaultValue="2">
+                              {days.map((d, i) => (
+                                <option key={d} value={i}>
+                                  {d}
+                                </option>
+                              ))}
+                            </select>
+                          </Field>
+                          <Field label="Intervalle en semaines">
+                            <input
+                              type="number"
+                              name="intervalWeeks"
+                              min="1"
+                              max="52"
+                              defaultValue="1"
+                              required
+                            />
+                          </Field>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="form-grid">
+                        <Field label="Intervalle de rotation (si Tontine rotative)">
+                          <select name="rotationInterval" defaultValue="MONTHLY">
+                            <option value="WEEKLY">Hebdomadaire (7 jours)</option>
+                            <option value="BIWEEKLY">Bimensuel (14 jours)</option>
+                            <option value="MONTHLY">Mensuel (Par défaut)</option>
+                          </select>
+                        </Field>
+                        <div />
+                      </div>
+                    )}
+
+                    <label className="checkbox" style={{ marginTop: 8 }}>
+                      <input type="checkbox" name="isMandatory" />
+                      Souscription obligatoire pour les membres du groupement
+                    </label>
+                  </>
+                );
+              })()}
               {dialog === 'grace' && (
                 <>
                   <Field label="Membre bénéficiaire">

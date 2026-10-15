@@ -740,9 +740,9 @@ export interface components {
             name: string;
             /** Format: uuid */
             typeId: string;
-            startDate: string;
-            endDate: string;
-            weekday: number;
+            startDate?: string;
+            endDate?: string;
+            weekday?: number;
             /** @default 1 */
             intervalWeeks: number;
             /** Format: uuid */

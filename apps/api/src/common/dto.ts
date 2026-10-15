@@ -163,10 +163,10 @@ export class ConfigureGroupTypesDto {
 export class CreateCampaignDto {
   @ApiProperty() @IsString() @MinLength(2) @MaxLength(120) name!: string;
   @ApiProperty({ format: 'uuid' }) @IsUUID() typeId!: string;
-  @ApiProperty() @IsString() @Matches(/^\d{4}-\d{2}-\d{2}$/) startDate!: string;
-  @ApiProperty() @IsString() @Matches(/^\d{4}-\d{2}-\d{2}$/) endDate!: string;
-  @ApiProperty({ minimum: 0, maximum: 6 }) @IsInt() @Min(0) @Max(6) weekday!: number;
-  @ApiProperty({ default: 1 }) @IsInt() @Min(1) @Max(52) intervalWeeks: number = 1;
+  @ApiPropertyOptional() @IsOptional() @IsString() @Matches(/^\d{4}-\d{2}-\d{2}$/) startDate?: string;
+  @ApiPropertyOptional() @IsOptional() @IsString() @Matches(/^\d{4}-\d{2}-\d{2}$/) endDate?: string;
+  @ApiPropertyOptional({ minimum: 0, maximum: 6 }) @IsOptional() @IsInt() @Min(0) @Max(6) weekday?: number;
+  @ApiPropertyOptional({ default: 1 }) @IsOptional() @IsInt() @Min(1) @Max(52) intervalWeeks?: number = 1;
   @ApiPropertyOptional({ format: 'uuid' }) @IsOptional() @IsUUID() eventId?: string;
   @ApiPropertyOptional({ default: false }) @IsOptional() @IsBoolean() isMandatory?: boolean;
   @ApiPropertyOptional({ type: Number })

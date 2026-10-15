@@ -89,8 +89,19 @@ export class CampaignsService {
   }
 
   create(actor: Actor, groupId: string, input: CreateCampaignDto) {
-    if (!validDate(input.startDate) || !validDate(input.endDate) || input.endDate < input.startDate)
+    const today = new Date();
+    const startDate = input.startDate || today.toISOString().slice(0, 10);
+    let endDate = input.endDate;
+    if (!endDate) {
+      const nextYear = new Date(today);
+      nextYear.setFullYear(today.getFullYear() + 1);
+      endDate = nextYear.toISOString().slice(0, 10);
+    }
+    if (!validDate(startDate) || !validDate(endDate) || endDate < startDate)
       throw new BadRequestException('Période de campagne invalide.');
+    const weekday = input.weekday !== undefined ? input.weekday : 2;
+    const intervalWeeks = input.intervalWeeks !== undefined ? input.intervalWeeks : 1;
+
     return this.db.run(actor, async (c) => {
       await requireGroup(c, groupId, true);
       const type = await c.query('SELECT * FROM campaign_types WHERE id=$1', [input.typeId]);
@@ -114,10 +125,10 @@ export class CampaignsService {
           groupId,
           input.typeId,
           input.name,
-          input.startDate,
-          input.endDate,
-          input.weekday,
-          input.intervalWeeks,
+          startDate,
+          endDate,
+          weekday,
+          intervalWeeks,
           type.rows[0].rule_version,
           eventId || null,
           input.isMandatory ?? false,
