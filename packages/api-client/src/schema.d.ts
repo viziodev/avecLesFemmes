@@ -789,6 +789,12 @@ export interface components {
             forfait: string | null;
             is_random: boolean;
             round_number?: number | null;
+            months_contributed_count?: number;
+            sessions_contributed_count?: number;
+            total_contributed_amount?: string;
+            has_received_payout?: boolean | null;
+            recovery_period?: string | null;
+            payout_amount?: string | null;
         };
         ParticipationPage: {
             items: components["schemas"]["ParticipationView"][];
@@ -856,6 +862,7 @@ export interface components {
             session_date: string;
             total_amount: string;
             count: number;
+            members_count?: number;
             contributions: components["schemas"]["SessionMemberContributionView"][];
         };
         CashboxStateView: {

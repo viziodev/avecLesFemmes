@@ -10,6 +10,8 @@ import {
   Check,
   ChevronDown,
   ChevronRight,
+  ChevronUp,
+  Clock,
   Coins,
   Download,
   Edit2,
@@ -523,6 +525,8 @@ export function App({
   const [groupSearch, setGroupSearch] = useState('');
   const [groupDropdownOpen, setGroupDropdownOpen] = useState(false);
   const [campaignTypeId, setCampaignTypeId] = useState('');
+  const [campaignDetailTab, setCampaignDetailTab] = useState<'participants' | 'sessions'>('participants');
+  const [expandedSessionDate, setExpandedSessionDate] = useState<string | null>(null);
 
   const [page, setPage] = useState(1);
   const [participantPage, setParticipantPage] = useState(1);
@@ -2223,62 +2227,278 @@ export function App({
                     <Pager page={campaignPage} total={campaignTotal} onChange={setCampaignPage} />
                   </section>
                   {campaign && (
-                    <section className="panel">
-                      <div className="section-heading">
-                        <div>
-                          <h2>
-                            {canManage || superAdmin
-                              ? 'Participantes et forfaits'
-                              : 'Ma participation'}
-                          </h2>
-                          <p className="muted">{campaign.name}</p>
-                        </div>
-                        {canManage && campaign.active && (
-                          <button className="secondary" onClick={() => open('participant')}>
-                            <Plus size={17} />
-                            Configurer une participation
-                          </button>
-                        )}
+                    <section className="panel" style={{ marginTop: 20 }}>
+                      <div className="campaign-subtabs-nav">
+                        <button
+                          type="button"
+                          className={
+                            campaignDetailTab === 'participants'
+                              ? 'campaign-subtab-btn selected'
+                              : 'campaign-subtab-btn'
+                          }
+                          onClick={() => setCampaignDetailTab('participants')}
+                        >
+                          <Users size={15} />
+                          <span>1. Participantes et forfaits</span>
+                        </button>
+                        <button
+                          type="button"
+                          className={
+                            campaignDetailTab === 'sessions'
+                              ? 'campaign-subtab-btn selected'
+                              : 'campaign-subtab-btn'
+                          }
+                          onClick={() => setCampaignDetailTab('sessions')}
+                        >
+                          <CalendarCheck size={15} />
+                          <span>2. Sessions</span>
+                        </button>
                       </div>
-                      <div className="table-scroll">
-                        <table>
-                          <thead>
-                            <tr>
-                              <th>Membre</th>
-                              <th>Forfait par échéance</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {participants.map((p) => (
-                              <tr key={p.id}>
-                                <td>{p.name}</td>
-                                <td>{p.forfait ? money(p.forfait) : 'Montant libre'}</td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                      {!participants.length && (
-                        <div className="empty">
-                          <p>Aucune participation enregistrée.</p>
-                        </div>
+
+                      {campaignDetailTab === 'participants' && (
+                        <>
+                          <div className="section-heading">
+                            <div>
+                              <h2>
+                                {canManage || superAdmin
+                                  ? 'Participantes et forfaits'
+                                  : 'Ma participation'}
+                              </h2>
+                              <p className="muted">
+                                {campaign.name} · {campaign.type_name}
+                              </p>
+                            </div>
+                            {canManage && campaign.active && (
+                              <button className="secondary" onClick={() => open('participant')}>
+                                <Plus size={17} />
+                                Configurer une participation
+                              </button>
+                            )}
+                          </div>
+
+                          <div className="table-scroll">
+                            {campaign.type_code === 'TONTINE' ||
+                            campaign.type_name?.toLowerCase().includes('tontine') ? (
+                              <table>
+                                <thead>
+                                  <tr>
+                                    <th>Membres</th>
+                                    <th>Nbre de Mois cotisé</th>
+                                    <th>Récupéré</th>
+                                    <th>Période de Récupération</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {participants.map((p) => (
+                                    <tr key={p.id}>
+                                      <td>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                                          <strong>{p.name}</strong>
+                                          <small className="muted">
+                                            {p.forfait ? `Forfait : ${money(p.forfait)}` : 'Montant libre'}
+                                          </small>
+                                        </div>
+                                      </td>
+                                      <td>
+                                        <span className="metric-pill highlight">
+                                          <CalendarCheck size={12} />
+                                          <strong>{p.months_contributed_count ?? 0}</strong> mois
+                                        </span>
+                                      </td>
+                                      <td>
+                                        {p.has_received_payout ? (
+                                          <span className="badge-pill-success" title="Paiement du tour déjà perçu">
+                                            <Check size={12} />
+                                            <span>Oui {p.payout_amount ? `(${money(p.payout_amount)})` : ''}</span>
+                                          </span>
+                                        ) : (
+                                          <span className="badge-pill-amber" title="En attente de son tour de tontine">
+                                            <Clock size={12} />
+                                            <span>En attente</span>
+                                          </span>
+                                        )}
+                                      </td>
+                                      <td>
+                                        <span className="metric-pill" style={{ fontWeight: 600 }}>
+                                          <Calendar size={12} />
+                                          {p.recovery_period
+                                            ? date(p.recovery_period)
+                                            : p.round_number
+                                              ? `Tour n°${p.round_number}`
+                                              : 'À planifier'}
+                                        </span>
+                                      </td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            ) : (
+                              <table>
+                                <thead>
+                                  <tr>
+                                    <th>Membres</th>
+                                    <th>Nbre Session</th>
+                                    <th>Montant Cotisation</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {participants.map((p) => (
+                                    <tr key={p.id}>
+                                      <td>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                                          <strong>{p.name}</strong>
+                                          <small className="muted">
+                                            {p.forfait ? `Forfait : ${money(p.forfait)}` : 'Montant libre'}
+                                          </small>
+                                        </div>
+                                      </td>
+                                      <td>
+                                        <span className="metric-pill highlight">
+                                          <CalendarCheck size={12} />
+                                          <strong>{p.sessions_contributed_count ?? 0}</strong> séance
+                                          {(p.sessions_contributed_count ?? 0) > 1 ? 's' : ''}
+                                        </span>
+                                      </td>
+                                      <td>
+                                        <span style={{ fontSize: 13, fontWeight: 700, color: '#166534' }}>
+                                          {money(p.total_contributed_amount ?? '0')}
+                                        </span>
+                                      </td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            )}
+                          </div>
+
+                          {!participants.length && (
+                            <div className="empty">
+                              <p>Aucune participation enregistrée pour cette campagne.</p>
+                            </div>
+                          )}
+
+                          <Pager
+                            page={participantPage}
+                            total={participantTotal}
+                            limit={100}
+                            onChange={setParticipantPage}
+                          />
+                        </>
                       )}
-                      <Pager
-                        page={participantPage}
-                        total={participantTotal}
-                        limit={100}
-                        onChange={setParticipantPage}
-                      />
-                      <button
-                        className="text-button"
-                        onClick={() => {
-                          setTab('overview');
-                          setPage(1);
-                        }}
-                      >
-                        Consulter les versements
-                        <ArrowRight size={16} />
-                      </button>
+
+                      {campaignDetailTab === 'sessions' && (
+                        <>
+                          <div className="section-heading">
+                            <div>
+                              <h2>Cahier des Sessions de cotisation</h2>
+                              <p className="muted">
+                                Séances et montants récupérés pour {campaign.name}
+                              </p>
+                            </div>
+                          </div>
+
+                            <div className="table-scroll">
+                              <table>
+                                <thead>
+                                  <tr>
+                                    <th>Date</th>
+                                    <th>Montant récupéré</th>
+                                    <th>Nbre Membre ayant de cotisation</th>
+                                    <th style={{ textAlign: 'right' }}>Détails</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {sessions.length === 0 ? (
+                                    <tr>
+                                      <td colSpan={4} style={{ textAlign: 'center', padding: '2rem', color: '#64748b' }}>
+                                        <CalendarCheck size={28} style={{ display: 'block', margin: '0 auto 8px', color: '#94a3b8' }} />
+                                        Aucune session enregistrée pour cette campagne.
+                                      </td>
+                                    </tr>
+                                  ) : (
+                                    sessions.map((s) => {
+                                      const isExpanded = expandedSessionDate === s.session_date;
+                                    const distinctMembers = s.members_count ?? s.count;
+                                    return (
+                                      <>
+                                        <tr key={s.session_date}>
+                                          <td>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                              <Calendar size={15} color="#64748b" />
+                                              <strong>{date(s.session_date)}</strong>
+                                            </div>
+                                          </td>
+                                          <td>
+                                            <strong style={{ color: '#166534', fontSize: 14 }}>
+                                              {money(s.total_amount)}
+                                            </strong>
+                                          </td>
+                                          <td>
+                                            <span className="metric-pill highlight">
+                                              <Users size={12} />
+                                              <strong>{distinctMembers}</strong> membre
+                                              {distinctMembers > 1 ? 's' : ''}
+                                            </span>
+                                          </td>
+                                          <td style={{ textAlign: 'right' }}>
+                                            <button
+                                              type="button"
+                                              className="session-expand-btn"
+                                              onClick={() =>
+                                                setExpandedSessionDate(isExpanded ? null : s.session_date)
+                                              }
+                                            >
+                                              <span>{isExpanded ? 'Masquer' : 'Détails'}</span>
+                                              {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                                            </button>
+                                          </td>
+                                        </tr>
+                                        {isExpanded && (
+                                          <tr key={`${s.session_date}-details`} className="session-details-row">
+                                            <td
+                                              colSpan={4}
+                                              style={{ background: '#f8fafc', padding: '14px 18px', borderTop: 'none' }}
+                                            >
+                                              <div
+                                                style={{ fontSize: 12, fontWeight: 700, marginBottom: 8, color: '#334155' }}
+                                              >
+                                                Cotisations enregistrées pour la séance du {date(s.session_date)} (
+                                                {s.contributions.length}) :
+                                              </div>
+                                              <div className="session-contributions-grid">
+                                                {s.contributions.map((c) => (
+                                                  <div key={c.contribution_id} className="session-contrib-card">
+                                                    <span className="session-contrib-name">{c.member_name}</span>
+                                                    <span className="session-contrib-amount">{money(c.amount)}</span>
+                                                    <span className="session-contrib-ref">Réf : {c.reference}</span>
+                                                  </div>
+                                                ))}
+                                              </div>
+                                            </td>
+                                          </tr>
+                                        )}
+                                      </>
+                                    );
+                                  })
+                                )}
+                              </tbody>
+                            </table>
+                          </div>
+                        </>
+                      )}
+
+                      <div style={{ marginTop: 16 }}>
+                        <button
+                          className="text-button"
+                          onClick={() => {
+                            setTab('overview');
+                            setPage(1);
+                          }}
+                        >
+                          Consulter les versements
+                          <ArrowRight size={16} />
+                        </button>
+                      </div>
                     </section>
                   )}
                 </>

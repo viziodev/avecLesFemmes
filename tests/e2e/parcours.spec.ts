@@ -46,11 +46,12 @@ test('super administrateur consulte, crée et active une campagne', async ({ pag
 test('administratrice enregistre et retrouve sa vue membre', async ({ page }) => {
   await login(page, pwa, 'admin.ndeye');
   const campSelect = page.getByLabel('Campagne suivie', { exact: true });
-  if (await campSelect.isVisible()) {
-    const options = await campSelect.locator('option').allTextContents();
-    const epargneOption = options.find((t) => t.includes('Épargne solidaire 2026'));
-    if (epargneOption) {
-      await campSelect.selectOption({ label: epargneOption });
+  await expect(campSelect).toBeVisible();
+  const epargneOption = campSelect.locator('option', { hasText: 'Épargne solidaire 2026' });
+  if (await epargneOption.count()) {
+    const value = await epargneOption.getAttribute('value');
+    if (value) {
+      await campSelect.selectOption(value);
     }
   }
   await page.getByRole('button', { name: 'Enregistrer une cotisation', exact: true }).click();
@@ -376,6 +377,27 @@ test('tableau des campagnes actives avec métriques et onglet Archives', async (
   await expect(page.getByRole('dialog')).toHaveCount(0);
 
   await page.screenshot({ path: 'test-results/campaigns-table.png' });
+
+  // 1.b Vérification des sous-onglets lors de la sélection d'une campagne
+  await expect(page.getByRole('button', { name: /1\. Participantes et forfaits/i })).toBeVisible();
+  await expect(page.getByRole('button', { name: /2\. Sessions/i })).toBeVisible();
+
+  // Onglet Participantes : colonnes présentes
+  await expect(page.getByRole('columnheader', { name: 'Membres' }).first()).toBeVisible();
+
+  // Bascule vers l'onglet Sessions
+  await page.getByRole('button', { name: /2\. Sessions/i }).click();
+  await expect(page.getByRole('heading', { name: 'Cahier des Sessions de cotisation' })).toBeVisible();
+  await expect(page.getByRole('columnheader', { name: 'Date' })).toBeVisible();
+  await expect(page.getByRole('columnheader', { name: 'Montant récupéré' })).toBeVisible();
+  await expect(page.getByRole('columnheader', { name: 'Nbre Membre ayant de cotisation' })).toBeVisible();
+  await expect(page.getByRole('columnheader', { name: 'Détails' })).toBeVisible();
+  await page.screenshot({ path: 'test-results/selection-sessions-tab.png' });
+
+  // Retour vers l'onglet Participantes
+  await page.getByRole('button', { name: /1\. Participantes et forfaits/i }).click();
+
+  await page.screenshot({ path: 'test-results/selection-subtabs.png' });
 
   // 2. Onglet Archives
   await page.getByRole('button', { name: 'Archives', exact: true }).click();

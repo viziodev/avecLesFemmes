@@ -336,6 +336,12 @@ export class ParticipationView {
   @ApiProperty({ type: String, nullable: true }) forfait!: string | null;
   @ApiProperty() is_random!: boolean;
   @ApiPropertyOptional({ type: Number, nullable: true }) round_number!: number | null;
+  @ApiPropertyOptional({ type: Number }) months_contributed_count?: number;
+  @ApiPropertyOptional({ type: Number }) sessions_contributed_count?: number;
+  @ApiPropertyOptional({ type: String }) total_contributed_amount?: string;
+  @ApiPropertyOptional({ type: Boolean, nullable: true }) has_received_payout?: boolean | null;
+  @ApiPropertyOptional({ type: String, nullable: true }) recovery_period?: string | null;
+  @ApiPropertyOptional({ type: String, nullable: true }) payout_amount?: string | null;
 }
 
 export class ContributionView {
@@ -389,6 +395,7 @@ export class CampaignSessionView {
   @ApiProperty() session_date!: string;
   @ApiProperty() total_amount!: string;
   @ApiProperty() count!: number;
+  @ApiPropertyOptional({ type: Number }) members_count?: number;
   @ApiProperty({ type: [SessionMemberContributionView] })
   contributions!: SessionMemberContributionView[];
 }

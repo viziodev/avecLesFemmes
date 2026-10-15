@@ -2623,6 +2623,27 @@
           "round_number": {
             "type": "number",
             "nullable": true
+          },
+          "months_contributed_count": {
+            "type": "number"
+          },
+          "sessions_contributed_count": {
+            "type": "number"
+          },
+          "total_contributed_amount": {
+            "type": "string"
+          },
+          "has_received_payout": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "recovery_period": {
+            "type": "string",
+            "nullable": true
+          },
+          "payout_amount": {
+            "type": "string",
+            "nullable": true
           }
         },
         "required": [
@@ -2874,6 +2895,9 @@
             "type": "string"
           },
           "count": {
+            "type": "number"
+          },
+          "members_count": {
             "type": "number"
           },
           "contributions": {

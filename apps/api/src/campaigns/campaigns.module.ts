@@ -184,7 +184,28 @@ export class CampaignsService {
         [id, personal],
       );
       const r = await c.query(
-        `SELECT p.id, p.membership_id, m.name, p.forfait::text, p.is_random, p.round_number
+        `SELECT p.id, p.membership_id, m.name, p.forfait::text, p.is_random, p.round_number,
+                (SELECT count(DISTINCT to_char(cb.paid_on, 'YYYY-MM'))
+                 FROM contributions cb
+                 WHERE cb.participation_id=p.id AND cb.voided_at IS NULL)::int AS months_contributed_count,
+                (SELECT count(DISTINCT cb.paid_on)
+                 FROM contributions cb
+                 WHERE cb.participation_id=p.id AND cb.voided_at IS NULL)::int AS sessions_contributed_count,
+                (SELECT coalesce(sum(cb.amount),0)::text
+                 FROM contributions cb
+                 WHERE cb.participation_id=p.id AND cb.voided_at IS NULL) AS total_contributed_amount,
+                (SELECT tr.paid
+                 FROM tontine_rounds tr
+                 WHERE tr.campaign_id=p.campaign_id AND tr.beneficiary_id=p.membership_id
+                 ORDER BY tr.round_number LIMIT 1) AS has_received_payout,
+                (SELECT coalesce(tr.paid_at::text, tr.expected_date::text)
+                 FROM tontine_rounds tr
+                 WHERE tr.campaign_id=p.campaign_id AND tr.beneficiary_id=p.membership_id
+                 ORDER BY tr.round_number LIMIT 1) AS recovery_period,
+                (SELECT tr.payout_amount::text
+                 FROM tontine_rounds tr
+                 WHERE tr.campaign_id=p.campaign_id AND tr.beneficiary_id=p.membership_id
+                 ORDER BY tr.round_number LIMIT 1) AS payout_amount
          FROM participations p
          JOIN memberships m ON m.id=p.membership_id
          WHERE p.campaign_id=$1 AND (NOT $4::boolean OR app_owns_membership(p.membership_id))
@@ -486,10 +507,12 @@ export class CampaignsService {
 
       const sessions: CampaignSessionView[] = [];
       for (const [date, val] of map.entries()) {
+        const distinctMembers = new Set(val.items.map((i: any) => i.member_id)).size;
         sessions.push({
           session_date: date,
           total_amount: val.total.toString(),
           count: val.items.length,
+          members_count: distinctMembers,
           contributions: val.items,
         });
       }
