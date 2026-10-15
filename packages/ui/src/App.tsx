@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState, type FormEvent, type ReactNod
 import QRCode from 'qrcode';
 import {
   AlertTriangle,
+  Archive,
   ArrowLeft,
   ArrowRight,
   Calendar,
@@ -29,6 +30,7 @@ import {
   Sparkles,
   Trash2,
   Unlock,
+  UserPlus,
   Users,
   Wallet,
   X,
@@ -543,6 +545,11 @@ export function App({
   const campaign = campaigns.find((c) => c.id === campaignId);
   const canManage = admin && !personalMode;
 
+  const activeGroups = groups.filter((g) => g.active !== false);
+  const archivedGroups = groups.filter((g) => g.active === false);
+  const activeCampaigns = campaigns.filter((c) => c.active !== false);
+  const archivedCampaigns = campaigns.filter((c) => !c.active);
+
   useEffect(() => {
     api
       .GET('/api/v1/auth/me')
@@ -603,7 +610,10 @@ export function App({
           setEvents(ev);
           if (sc) setSuperCockpit(sc);
           setGroupId((id) => {
-            const next = g.items.some((x) => x.id === id) ? id : g.items[0]?.id || '';
+            const activeItems = g.items.filter((x) => x.active !== false);
+            const next = activeItems.some((x) => x.id === id)
+              ? id
+              : activeItems[0]?.id || g.items[0]?.id || '';
             const sel = g.items.find((x) => x.id === next);
             if (sel) setGroupSearch(sel.name);
             return next;
@@ -630,7 +640,12 @@ export function App({
         if (active) {
           setCampaigns(r.items);
           setCampaignTotal(r.total);
-          setCampaignId((id) => (r.items.some((c) => c.id === id) ? id : r.items[0]?.id || ''));
+          setCampaignId((id) => {
+            const activeItems = r.items.filter((c) => c.active !== false);
+            return activeItems.some((c) => c.id === id)
+              ? id
+              : activeItems[0]?.id || r.items[0]?.id || '';
+          });
         }
       })
       .catch((e) => active && setLoadError(e.message));
@@ -1112,12 +1127,14 @@ export function App({
     tab === 'members'
       ? 'Les membres'
       : tab === 'campaigns'
-        ? 'Les campagnes'
+        ? 'Les campagnes actives'
         : tab === 'types'
           ? 'Types de campagne'
           : tab === 'cockpit'
             ? 'Cockpit Plateforme 360°'
-            : 'Vue d’ensemble';
+            : tab === 'archives'
+              ? 'Archives (Groupements inactifs & Campagnes fermées)'
+              : 'Vue d’ensemble';
 
   return (
     <div className="app-shell">
@@ -1137,6 +1154,7 @@ export function App({
                   ['types', 'Types & Événements', Coins],
                 ]
               : []),
+            ...(superAdmin || admin ? [['archives', 'Archives', Archive]] : []),
           ].map(([key, label, Icon]) => {
             const I = Icon as typeof Users;
             return (
@@ -1241,7 +1259,7 @@ export function App({
                   : 'Retrouvez votre groupement et faites grandir vos projets.'}
               </p>
             </div>
-            {superAdmin && tab !== 'types' && tab !== 'cockpit' && (
+            {superAdmin && tab !== 'types' && tab !== 'cockpit' && tab !== 'archives' && (
               <button className="primary" onClick={() => open('group')}>
                 <Plus size={18} />
                 Créer un groupement
@@ -1355,7 +1373,7 @@ export function App({
 
                   {groupDropdownOpen && (
                     <div className="group-autocomplete-dropdown">
-                      {groups
+                      {activeGroups
                         .filter(
                           (g) =>
                             !groupSearch.trim() ||
@@ -1383,7 +1401,7 @@ export function App({
                             </span>
                           </div>
                         ))}
-                      {!groups.some(
+                      {!activeGroups.some(
                         (g) =>
                           !groupSearch.trim() ||
                           g.name.toLowerCase().includes(groupSearch.toLowerCase()) ||
@@ -1391,7 +1409,7 @@ export function App({
                           g.phone.toLowerCase().includes(groupSearch.toLowerCase()),
                       ) && (
                         <div style={{ padding: '8px 12px', fontSize: 12, color: '#64748b' }}>
-                          Aucun groupement trouvé.
+                          Aucun groupement actif trouvé.
                         </div>
                       )}
                     </div>
@@ -1406,10 +1424,10 @@ export function App({
                     onChange={(e) => selectGroup(e.target.value)}
                     aria-label="Sélectionner un groupement"
                   >
-                    {!groups.length && (
-                      <option value="">{loading ? 'Chargement…' : 'Aucun groupement'}</option>
+                    {!activeGroups.length && (
+                      <option value="">{loading ? 'Chargement…' : 'Aucun groupement actif'}</option>
                     )}
-                    {groups.map((g) => (
+                    {activeGroups.map((g) => (
                       <option key={g.id} value={g.id}>
                         {g.name}
                       </option>
@@ -1467,12 +1485,35 @@ export function App({
                       <QrCode size={16} />
                       <span>Code QR du Groupement</span>
                     </button>
+                    {superAdmin && group.active !== false && (
+                      <button
+                        type="button"
+                        className="btn-archive-group"
+                        disabled={busy}
+                        title="Archiver et désactiver ce groupement"
+                        onClick={() =>
+                          action(
+                            () =>
+                              api
+                                .PATCH('/api/v1/groupements/{groupId}/activation', {
+                                  params: { path: { groupId: group.id } },
+                                  body: { active: false },
+                                })
+                                .then(unwrap),
+                            'Groupement archivé avec succès.',
+                          )
+                        }
+                      >
+                        <Archive size={15} />
+                        <span>Archiver le groupement</span>
+                      </button>
+                    )}
                   </div>
                 </div>
               )}
             </>
           )}
-          {!groupId && tab !== 'types' && tab !== 'cockpit' && !loading ? (
+          {!groupId && tab !== 'types' && tab !== 'cockpit' && tab !== 'archives' && !loading ? (
             <div className="empty big">
               <Users size={40} />
               <h2>{superAdmin ? 'Votre premier groupement' : 'Votre espace est prêt'}</h2>
@@ -1548,8 +1589,8 @@ export function App({
                         setPage(1);
                       }}
                     >
-                      {!campaigns.length && <option value="">Aucune campagne</option>}
-                      {campaigns.map((c) => (
+                      {!activeCampaigns.length && <option value="">Aucune campagne active</option>}
+                      {activeCampaigns.map((c) => (
                         <option key={c.id} value={c.id}>
                           {c.name} {c.event_name ? `(${c.event_name})` : ''}
                         </option>
@@ -1941,7 +1982,7 @@ export function App({
                   <section className="panel">
                     <div className="section-heading">
                       <div>
-                        <h2>Campagnes du groupement</h2>
+                        <h2>Campagnes actives du groupement</h2>
                         <p className="muted">Une période, un rythme et des projets partagés.</p>
                       </div>
                       {(superAdmin || canManage) && Boolean(groupId) && (
@@ -1951,10 +1992,10 @@ export function App({
                         </button>
                       )}
                     </div>
-                    {!campaigns.length && (
+                    {!activeCampaigns.length && (
                       <div className="empty" style={{ margin: '24px 0' }}>
                         <FolderHeart size={36} />
-                        <p>Aucune campagne enregistrée pour ce groupement.</p>
+                        <p>Aucune campagne active enregistrée pour ce groupement.</p>
                         {(superAdmin || canManage) && Boolean(groupId) && (
                           <button
                             className="primary"
@@ -1967,105 +2008,216 @@ export function App({
                         )}
                       </div>
                     )}
-                    <div className="campaign-grid">
-                      {campaigns.map((c) => (
-                        <article
-                          className={
-                            campaignId === c.id ? 'campaign-card selected-card' : 'campaign-card'
-                          }
-                          key={c.id}
-                        >
-                          <div className="card-top">
-                            <span className="stat-icon">
-                              <FolderHeart size={21} />
-                            </span>
-                            <span className={c.active ? 'badge' : 'badge neutral'}>
-                              {c.active ? 'Active' : 'Désactivée'}
-                            </span>
-                          </div>
-                          <h3>{c.name}</h3>
-                          <div
-                            style={{ display: 'flex', gap: 6, flexWrap: 'wrap', margin: '4px 0' }}
-                          >
-                            <span className="badge">{c.type_name}</span>
-                            {c.event_name && (
-                              <span
-                                className="badge"
-                                style={{ background: '#e0f2fe', color: '#0369a1' }}
-                              >
-                                {c.event_name}
-                              </span>
-                            )}
-                            {c.due_day && (
-                              <span className="badge-amber">Échéance le {c.due_day} du mois</span>
-                            )}
-                          </div>
-                          <div className="card-period">
-                            {date(c.start_date)} → {date(c.end_date)}
-                          </div>
-                          <small>
-                            {days[c.weekday]} · toutes les {c.interval_weeks} semaine(s)
-                            {c.standard_amount && ` · Standard : ${money(c.standard_amount)}`}
-                          </small>
-                          <div className="card-actions">
-                            <button
-                              className="text-button"
-                              onClick={() => {
-                                setCampaignId(c.id);
-                                setPage(1);
-                                setParticipantPage(1);
-                              }}
-                            >
-                              Sélectionner
-                              <ChevronRight size={15} />
-                            </button>
-                            {canManage && (
-                              <button
-                                className="text-button"
-                                onClick={() => {
-                                  setCampaignId(c.id);
-                                  open('grace');
-                                }}
-                              >
-                                Délai de grâce
-                              </button>
-                            )}
-                            {superAdmin && (
-                              <button
-                                className="text-button"
-                                disabled={busy}
-                                onClick={() =>
-                                  action(
-                                    () =>
-                                      api
-                                        .PATCH(
-                                          '/api/v1/groupements/{groupId}/campaigns/{id}/activation',
-                                          {
-                                            params: { path: { groupId, id: c.id } },
-                                            body: { active: !c.active },
-                                          },
-                                        )
-                                        .then(unwrap),
-                                    'État de la campagne mis à jour.',
-                                  )
+                    {activeCampaigns.length > 0 && (
+                      <div className="table-scroll">
+                        <table className="campaigns-table">
+                          <thead>
+                            <tr>
+                              <th>Campagne</th>
+                              <th>Membres</th>
+                              <th>Suivi & Métriques</th>
+                              <th>Période & Fréquence</th>
+                              <th style={{ textAlign: 'right' }}>Actions</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {activeCampaigns.map((c) => (
+                              <tr
+                                key={c.id}
+                                className={
+                                  campaignId === c.id
+                                    ? 'campaign-row selected-row'
+                                    : 'campaign-row'
                                 }
                               >
-                                {c.active ? 'Désactiver' : 'Activer'}
-                              </button>
-                            )}
-                          </div>
-                        </article>
-                      ))}
-                    </div>
-                    {!campaigns.length && (
-                      <div className="empty">
-                        <FolderHeart size={32} />
-                        <h3>Aucune campagne</h3>
-                        <p>
-                          {admin
-                            ? 'Créez une campagne pour organiser la collecte.'
-                            : 'Les campagnes de votre groupement apparaîtront ici.'}
-                        </p>
+                                <td>
+                                  <div className="campaign-cell-main">
+                                    <div className="campaign-name-line">
+                                      <strong>{c.name}</strong>
+                                    </div>
+                                    <div className="campaign-tags">
+                                      <span
+                                        className={
+                                          c.type_code === 'TONTINE' ||
+                                          c.type_name?.toLowerCase().includes('tontine')
+                                            ? 'badge-tontine'
+                                            : 'badge-epargne'
+                                        }
+                                      >
+                                        {c.type_name}
+                                      </span>
+                                      {c.event_name && (
+                                        <span className="badge-event">{c.event_name}</span>
+                                      )}
+                                      <span
+                                        className="metric-label"
+                                        style={{ fontSize: 11, alignSelf: 'center' }}
+                                      >
+                                        {c.standard_amount
+                                          ? `Standard : ${money(c.standard_amount)}`
+                                          : 'Libre'}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td>
+                                  <div className="members-cell">
+                                    <div className="member-count-box">
+                                      <Users size={14} />
+                                      <span>
+                                        {c.member_count ?? 0} membre
+                                        {(c.member_count ?? 0) > 1 ? 's' : ''}
+                                      </span>
+                                    </div>
+                                    {(canManage || superAdmin) && (
+                                      <button
+                                        type="button"
+                                        className="btn-add-member-mini"
+                                        title="Ajouter un membre à la campagne"
+                                        onClick={() => {
+                                          setCampaignId(c.id);
+                                          open('participant');
+                                        }}
+                                      >
+                                        <UserPlus size={12} />
+                                        <span>Ajouter un membre</span>
+                                      </button>
+                                    )}
+                                  </div>
+                                </td>
+                                <td>
+                                  <div className="campaign-metrics">
+                                    {c.type_code === 'TONTINE' ||
+                                    c.type_name?.toLowerCase().includes('tontine') ? (
+                                      <>
+                                        <span
+                                          className="metric-pill highlight"
+                                          title="Nombre de retraits déjà payés"
+                                        >
+                                          <Check size={12} />
+                                          <span>
+                                            <strong>{c.payouts_count ?? 0}</strong> retrait
+                                            {(c.payouts_count ?? 0) > 1 ? 's' : ''} payé
+                                            {(c.payouts_count ?? 0) > 1 ? 's' : ''}
+                                          </span>
+                                        </span>
+                                        <span
+                                          className="metric-pill amber"
+                                          title="Nombre de personnes restantes"
+                                        >
+                                          <Users size={12} />
+                                          <span>
+                                            <strong>{c.remaining_count ?? 0}</strong> restante
+                                            {(c.remaining_count ?? 0) > 1 ? 's' : ''}
+                                          </span>
+                                        </span>
+                                        <span
+                                          className="metric-pill"
+                                          title="Délai de cotisation / Échéance"
+                                        >
+                                          <Calendar size={12} />
+                                          <span className="metric-label">Délai :</span>
+                                          <strong>
+                                            {c.next_due_date
+                                              ? date(c.next_due_date)
+                                              : c.due_day
+                                                ? `Le ${c.due_day} du mois`
+                                                : 'Selon calendrier'}
+                                          </strong>
+                                        </span>
+                                      </>
+                                    ) : (
+                                      <>
+                                        <span
+                                          className="metric-pill highlight"
+                                          title="Nombre de séances effectuées"
+                                        >
+                                          <CalendarCheck size={12} />
+                                          <span>
+                                            <strong>{c.session_count ?? 0}</strong> séance
+                                            {(c.session_count ?? 0) > 1 ? 's' : ''}
+                                          </span>
+                                        </span>
+                                        <span className="metric-pill" title="Montant total collecté">
+                                          <Coins size={12} />
+                                          <span className="metric-label">Collecté :</span>
+                                          <strong>{money(c.collected_amount ?? '0')}</strong>
+                                        </span>
+                                      </>
+                                    )}
+                                  </div>
+                                </td>
+                                <td>
+                                  <div className="campaign-period-info">
+                                    <span className="date-range">
+                                      {date(c.start_date)} → {date(c.end_date)}
+                                    </span>
+                                    <span className="muted">
+                                      {days[c.weekday]} · toutes les {c.interval_weeks} sem.
+                                    </span>
+                                    {c.due_day && (
+                                      <span className="muted">Échéance le {c.due_day}</span>
+                                    )}
+                                  </div>
+                                </td>
+                                <td>
+                                  <div className="row-actions">
+                                    <button
+                                      type="button"
+                                      className={
+                                        campaignId === c.id ? 'primary-btn-sm' : 'secondary-btn-sm'
+                                      }
+                                      onClick={() => {
+                                        setCampaignId(c.id);
+                                        setPage(1);
+                                        setParticipantPage(1);
+                                      }}
+                                    >
+                                      {campaignId === c.id ? 'Sélectionnée' : 'Sélectionner'}
+                                    </button>
+                                    {canManage && (
+                                      <button
+                                        type="button"
+                                        className="secondary-btn-sm"
+                                        onClick={() => {
+                                          setCampaignId(c.id);
+                                          open('grace');
+                                        }}
+                                      >
+                                        Délai de grâce
+                                      </button>
+                                    )}
+                                    {(superAdmin || canManage) && (
+                                      <button
+                                        type="button"
+                                        className="danger-text-btn"
+                                        disabled={busy}
+                                        title="Désactiver et archiver cette campagne"
+                                        onClick={() =>
+                                          action(
+                                            () =>
+                                              api
+                                                .PATCH(
+                                                  '/api/v1/groupements/{groupId}/campaigns/{id}/activation',
+                                                  {
+                                                    params: { path: { groupId, id: c.id } },
+                                                    body: { active: false },
+                                                  },
+                                                )
+                                                .then(unwrap),
+                                            'Campagne désactivée et archivée.',
+                                          )
+                                        }
+                                      >
+                                        Désactiver
+                                      </button>
+                                    )}
+                                  </div>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
                       </div>
                     )}
                     <Pager page={campaignPage} total={campaignTotal} onChange={setCampaignPage} />
@@ -2405,6 +2557,195 @@ export function App({
                       </table>
                     </div>
                   </section>
+                </>
+              )}
+
+              {tab === 'archives' && (
+                <>
+                  {/* Section 1: Campagnes fermées du groupement */}
+                  <div className="archive-section">
+                    <div className="archive-header">
+                      <div>
+                        <h3>
+                          <FolderHeart size={18} color="#64748b" />
+                          Campagnes fermées / archivées
+                        </h3>
+                        <p className="muted" style={{ margin: '2px 0 0', fontSize: 13 }}>
+                          Campagnes closes pour le groupement actif (
+                          {group?.name || 'aucun groupement sélectionné'}).
+                        </p>
+                      </div>
+                    </div>
+
+                    {!archivedCampaigns.length ? (
+                      <div className="empty-sub">
+                        <p>Aucune campagne fermée pour ce groupement.</p>
+                      </div>
+                    ) : (
+                      <div className="table-scroll">
+                        <table className="campaigns-table">
+                          <thead>
+                            <tr>
+                              <th>Campagne</th>
+                              <th>Membres</th>
+                              <th>Montant collecté</th>
+                              <th>Période</th>
+                              <th>Statut</th>
+                              <th style={{ textAlign: 'right' }}>Actions</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {archivedCampaigns.map((c) => (
+                              <tr key={c.id} className="campaign-row">
+                                <td>
+                                  <div className="campaign-cell-main">
+                                    <div className="campaign-name-line">
+                                      <strong>{c.name}</strong>
+                                    </div>
+                                    <div className="campaign-tags">
+                                      <span className="badge neutral">{c.type_name}</span>
+                                      {c.event_name && (
+                                        <span className="badge-event">{c.event_name}</span>
+                                      )}
+                                    </div>
+                                  </div>
+                                </td>
+                                <td>
+                                  <div className="member-count-box">
+                                    <Users size={14} />
+                                    <span>
+                                      {c.member_count ?? 0} membre
+                                      {(c.member_count ?? 0) > 1 ? 's' : ''}
+                                    </span>
+                                  </div>
+                                </td>
+                                <td>
+                                  <strong>{money(c.collected_amount ?? '0')}</strong>
+                                </td>
+                                <td>
+                                  <div className="campaign-period-info">
+                                    <span className="date-range">
+                                      {date(c.start_date)} → {date(c.end_date)}
+                                    </span>
+                                  </div>
+                                </td>
+                                <td>
+                                  <span className="badge neutral">Fermée</span>
+                                </td>
+                                <td>
+                                  <div className="row-actions">
+                                    {(superAdmin || canManage) && (
+                                      <button
+                                        type="button"
+                                        className="secondary-btn-sm"
+                                        disabled={busy}
+                                        onClick={() =>
+                                          action(
+                                            () =>
+                                              api
+                                                .PATCH(
+                                                  '/api/v1/groupements/{groupId}/campaigns/{id}/activation',
+                                                  {
+                                                    params: { path: { groupId, id: c.id } },
+                                                    body: { active: true },
+                                                  },
+                                                )
+                                                .then(unwrap),
+                                            'Campagne activée.',
+                                          )
+                                        }
+                                      >
+                                        Activer
+                                      </button>
+                                    )}
+                                  </div>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Section 2: Groupements inactifs (Super Admin) */}
+                  {superAdmin && (
+                    <div className="archive-section" style={{ marginTop: 24 }}>
+                      <div className="archive-header">
+                        <div>
+                          <h3>
+                            <Users size={18} color="#64748b" />
+                            Groupements inactifs
+                          </h3>
+                          <p className="muted" style={{ margin: '2px 0 0', fontSize: 13 }}>
+                            Groupements archivés ou inactifs sur la plateforme.
+                          </p>
+                        </div>
+                      </div>
+
+                      {!archivedGroups.length ? (
+                        <div className="empty-sub">
+                          <p>Aucun groupement inactif.</p>
+                        </div>
+                      ) : (
+                        <div className="table-scroll">
+                          <table>
+                            <thead>
+                              <tr>
+                                <th>Groupement</th>
+                                <th>Adresse</th>
+                                <th>Téléphone</th>
+                                <th>Responsable</th>
+                                <th>Statut</th>
+                                <th style={{ textAlign: 'right' }}>Actions</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {archivedGroups.map((g) => (
+                                <tr key={g.id}>
+                                  <td>
+                                    <strong>{g.name}</strong>
+                                  </td>
+                                  <td>{g.address}</td>
+                                  <td>{g.phone}</td>
+                                  <td>{g.responsible || '—'}</td>
+                                  <td>
+                                    <span className="badge neutral">Inactif</span>
+                                  </td>
+                                  <td>
+                                    <div className="row-actions">
+                                      <button
+                                        type="button"
+                                        className="primary-btn-sm"
+                                        disabled={busy}
+                                        onClick={() =>
+                                          action(
+                                            () =>
+                                              api
+                                                .PATCH(
+                                                  '/api/v1/groupements/{groupId}/activation',
+                                                  {
+                                                    params: { path: { groupId: g.id } },
+                                                    body: { active: true },
+                                                  },
+                                                )
+                                                .then(unwrap),
+                                            'Groupement réactivé avec succès.',
+                                          )
+                                        }
+                                      >
+                                        Réactiver
+                                      </button>
+                                    </div>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </>
               )}
             </>

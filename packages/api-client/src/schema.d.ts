@@ -260,6 +260,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/groupements/{groupId}/activation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["setGroupActivation"];
+        trace?: never;
+    };
     "/api/v1/group-functions": {
         parameters: {
             query?: never;
@@ -587,6 +603,8 @@ export interface components {
             campaign_count: string;
             /** @enum {string} */
             my_role: "ADMIN" | "MEMBER" | "SUPER";
+            /** @default true */
+            active: boolean;
         };
         GroupPage: {
             items: components["schemas"]["GroupView"][];
@@ -690,6 +708,9 @@ export interface components {
         ConfigureGroupTypesDto: {
             typeIds: string[];
         };
+        ActivationDto: {
+            active: boolean;
+        };
         CampaignEventView: {
             id: string;
             code: string;
@@ -731,6 +752,13 @@ export interface components {
             standard_amount?: string | null;
             rotation_interval?: string | null;
             due_day?: number | null;
+            type_code?: string | null;
+            member_count?: number;
+            collected_amount?: string;
+            session_count?: number;
+            payouts_count?: number;
+            remaining_count?: number;
+            next_due_date?: string | null;
         };
         CampaignPage: {
             items: components["schemas"]["CampaignView"][];
@@ -753,9 +781,6 @@ export interface components {
             /** @enum {string} */
             rotationInterval?: "WEEKLY" | "BIWEEKLY" | "MONTHLY";
             dueDay?: number;
-        };
-        ActivationDto: {
-            active: boolean;
         };
         ParticipationView: {
             id: string;
@@ -1337,6 +1362,30 @@ export interface operations {
             };
         };
         responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    setGroupActivation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                groupId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ActivationDto"];
+            };
+        };
+        responses: {
+            /** @description Statut d’activation du groupement mis à jour */
             200: {
                 headers: {
                     [name: string]: unknown;

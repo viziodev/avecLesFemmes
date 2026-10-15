@@ -698,6 +698,40 @@
         ]
       }
     },
+    "/api/v1/groupements/{groupId}/activation": {
+      "patch": {
+        "operationId": "setGroupActivation",
+        "parameters": [
+          {
+            "name": "groupId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActivationDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Statut d’activation du groupement mis à jour"
+          }
+        },
+        "summary": "",
+        "tags": [
+          "Groupements"
+        ]
+      }
+    },
     "/api/v1/group-functions": {
       "get": {
         "operationId": "listPlatformFunctions",
@@ -1930,6 +1964,10 @@
               "MEMBER",
               "SUPER"
             ]
+          },
+          "active": {
+            "type": "boolean",
+            "default": true
           }
         },
         "required": [
@@ -2305,6 +2343,17 @@
           "typeIds"
         ]
       },
+      "ActivationDto": {
+        "type": "object",
+        "properties": {
+          "active": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "active"
+        ]
+      },
       "CampaignEventView": {
         "type": "object",
         "properties": {
@@ -2442,6 +2491,29 @@
           "due_day": {
             "type": "number",
             "nullable": true
+          },
+          "type_code": {
+            "type": "string",
+            "nullable": true
+          },
+          "member_count": {
+            "type": "number"
+          },
+          "collected_amount": {
+            "type": "string"
+          },
+          "session_count": {
+            "type": "number"
+          },
+          "payouts_count": {
+            "type": "number"
+          },
+          "remaining_count": {
+            "type": "number"
+          },
+          "next_due_date": {
+            "type": "string",
+            "nullable": true
           }
         },
         "required": [
@@ -2527,17 +2599,6 @@
         "required": [
           "name",
           "typeId"
-        ]
-      },
-      "ActivationDto": {
-        "type": "object",
-        "properties": {
-          "active": {
-            "type": "boolean"
-          }
-        },
-        "required": [
-          "active"
         ]
       },
       "ParticipationView": {

@@ -37,6 +37,9 @@ before(async () => {
   await pg.exec(
     await readFile(resolve('../../database/migrations/004_types_crud_permissions.sql'), 'utf8'),
   );
+  await pg.exec(
+    await readFile(resolve('../../database/migrations/005_groupements_archive_status.sql'), 'utf8'),
+  );
   const users = ['super', 'admin', 'member', 'other'].map((login, i) => ({
     id: randomUUID(),
     login,
@@ -712,4 +715,40 @@ test('tontine rotative, tirage au sort, séances et état de la caisse', async (
     })
     .expect(201);
   assert.equal(superCamp.body.name, 'Campagne Super Admin');
+
+  // Liste des campagnes avec métriques enrichies
+  const campList = await request(app.getHttpServer())
+    .get(`/api/v1/groupements/${customGroup.body.id}/campaigns`)
+    .set('Cookie', superCookie)
+    .expect(200);
+  assert.ok(campList.body.items.length >= 1);
+  const foundCamp = campList.body.items.find((c: any) => c.id === superCamp.body.id);
+  assert.ok(foundCamp);
+  assert.equal(typeof foundCamp.member_count, 'number');
+  assert.equal(typeof foundCamp.session_count, 'number');
+  assert.equal(typeof foundCamp.collected_amount, 'string');
+
+  // Seul le Super Admin peut archiver (désactiver) un groupement
+  await request(app.getHttpServer())
+    .patch(`/api/v1/groupements/${customGroup.body.id}/activation`)
+    .set(headers)
+    .set('Cookie', adminCookie)
+    .send({ active: false })
+    .expect(403);
+
+  const deactGroup = await request(app.getHttpServer())
+    .patch(`/api/v1/groupements/${customGroup.body.id}/activation`)
+    .set(headers)
+    .set('Cookie', superCookie)
+    .send({ active: false })
+    .expect(200);
+  assert.equal(deactGroup.body.active, false);
+
+  const reactGroup = await request(app.getHttpServer())
+    .patch(`/api/v1/groupements/${customGroup.body.id}/activation`)
+    .set(headers)
+    .set('Cookie', superCookie)
+    .send({ active: true })
+    .expect(200);
+  assert.equal(reactGroup.body.active, true);
 });

@@ -74,9 +74,15 @@ export class CampaignsService {
       await requireGroup(c, groupId);
       const count = await c.query('SELECT count(*) FROM campaigns WHERE group_id=$1', [groupId]);
       const r = await c.query(
-        `SELECT x.*, x.start_date::text, x.end_date::text, t.name type_name,
+        `SELECT x.*, x.start_date::text, x.end_date::text, t.name type_name, t.code type_code,
                 e.id event_id, e.name event_name, e.code event_code,
-                x.standard_amount::text standard_amount
+                x.standard_amount::text standard_amount,
+                (SELECT count(*) FROM participations p WHERE p.campaign_id=x.id)::int member_count,
+                (SELECT coalesce(sum(c.amount),0) FROM contributions c WHERE c.campaign_id=x.id AND c.voided_at IS NULL)::text collected_amount,
+                (SELECT count(DISTINCT c.paid_on) FROM contributions c WHERE c.campaign_id=x.id AND c.voided_at IS NULL)::int session_count,
+                (SELECT count(*) FROM tontine_rounds tr WHERE tr.campaign_id=x.id AND tr.paid=true)::int payouts_count,
+                (SELECT count(*) FROM tontine_rounds tr WHERE tr.campaign_id=x.id AND tr.paid=false)::int remaining_count,
+                (SELECT min(tr.expected_date::text) FROM tontine_rounds tr WHERE tr.campaign_id=x.id AND tr.paid=false) next_due_date
          FROM campaigns x
          JOIN campaign_types t ON t.id=x.type_id
          LEFT JOIN campaign_events e ON e.id=x.event_id
@@ -523,11 +529,14 @@ export class CampaignsService {
   superDashboard(actor: Actor) {
     requireSuper(actor);
     return this.db.run(actor, async (c) => {
-      const gCount = await c.query('SELECT count(*) FROM groupements');
+      const gCount = await c.query('SELECT count(*) FROM groupements WHERE active');
       const mCount = await c.query('SELECT count(*) FROM memberships WHERE active');
-      const cCount = await c.query('SELECT count(*) FROM campaigns');
+      const cCount = await c.query('SELECT count(*) FROM campaigns WHERE active');
       const coll = await c.query(
-        'SELECT coalesce(sum(amount),0)::text total FROM contributions WHERE voided_at IS NULL',
+        `SELECT coalesce(sum(c.amount),0)::text total
+         FROM contributions c
+         JOIN campaigns cp ON cp.id=c.campaign_id
+         WHERE c.voided_at IS NULL AND cp.active`,
       );
 
       const boxes = await c.query(
@@ -536,6 +545,7 @@ export class CampaignsService {
                 coalesce((SELECT sum(tr.payout_amount) FROM tontine_rounds tr WHERE tr.campaign_id=x.id AND tr.paid),0)::text total_paid_out
          FROM campaigns x
          LEFT JOIN contributions cb ON cb.campaign_id=x.id AND cb.voided_at IS NULL
+         WHERE x.active
          GROUP BY x.id, x.name
          ORDER BY x.name`,
       );

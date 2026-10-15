@@ -24,8 +24,10 @@ test('super administrateur consulte, crée et active une campagne', async ({ pag
   await page.getByRole('button', { name: 'Campagnes', exact: true }).click();
   await expect(page.getByText('Épargne solidaire 2026', { exact: true }).first()).toBeVisible();
   await page.getByRole('button', { name: 'Désactiver', exact: true }).first().click();
+  await page.getByRole('button', { name: 'Archives', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Activer', exact: true }).first()).toBeVisible();
   await page.getByRole('button', { name: 'Activer', exact: true }).first().click();
+  await page.getByRole('button', { name: 'Campagnes', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Désactiver', exact: true }).first()).toBeVisible();
   await page.getByRole('button', { name: 'Masquer', exact: true }).click();
   await page.evaluate(() => window.scrollTo(0, 0));
@@ -289,7 +291,7 @@ test('bouton Créer une campagne sur l’onglet Campagnes à la sélection d’u
   await createButton.click();
   await expect(page.getByRole('dialog')).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Créer une campagne' })).toBeVisible();
-  await page.getByRole('button', { name: 'Fermer', exact: true }).click();
+  await page.locator('.dialog-header button[aria-label="Fermer"]').click();
   await expect(page.getByRole('dialog')).toHaveCount(0);
 
   // Déconnexion
@@ -339,8 +341,49 @@ test('champs conditionnels du modal création de campagne selon Type Épargne vs
     await page.screenshot({ path: 'test-results/modal-tontine.png' });
   }
 
-  await page.getByRole('button', { name: 'Fermer', exact: true }).click();
+  await page.locator('.dialog-header button[aria-label="Fermer"]').click();
   await expect(page.getByRole('dialog')).toHaveCount(0);
+
+  // Déconnexion
+  await page.getByRole('button', { name: 'Se déconnecter', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Bienvenue dans votre espace' })).toBeVisible();
+});
+
+test('tableau des campagnes actives avec métriques et onglet Archives', async ({ page }) => {
+  await login(page, './', 'superadmin');
+  await page.locator('#group-select').selectOption({ label: 'Les Femmes de Grand Yoff' });
+
+  // 1. Onglet Campagnes : Table enrichie
+  await page.getByRole('button', { name: 'Campagnes', exact: true }).click();
+  await expect(page.locator('.campaigns-table')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Campagnes actives du groupement' })).toBeVisible();
+
+  // Vérification de la présence des colonnes
+  const headers = page.locator('.campaigns-table th');
+  await expect(headers.filter({ hasText: 'Campagne' })).toBeVisible();
+  await expect(headers.filter({ hasText: 'Membres' })).toBeVisible();
+  await expect(headers.filter({ hasText: 'Suivi & Métriques' })).toBeVisible();
+  await expect(headers.filter({ hasText: 'Période & Fréquence' })).toBeVisible();
+  await expect(headers.filter({ hasText: 'Actions' })).toBeVisible();
+
+  // Vérification du bouton "Ajouter un membre"
+  const addMemberBtn = page.locator('.btn-add-member-mini').first();
+  await expect(addMemberBtn).toBeVisible();
+  await addMemberBtn.click();
+  await expect(page.getByRole('dialog')).toBeVisible();
+  await expect(page.getByText('Configurer une participation')).toBeVisible();
+  await page.locator('.dialog-header button[aria-label="Fermer"]').click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+
+  await page.screenshot({ path: 'test-results/campaigns-table.png' });
+
+  // 2. Onglet Archives
+  await page.getByRole('button', { name: 'Archives', exact: true }).click();
+  await expect(page.getByRole('heading', { name: /Archives/i })).toBeVisible();
+  await expect(page.getByText('Campagnes fermées / archivées')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Groupements inactifs', exact: true })).toBeVisible();
+
+  await page.screenshot({ path: 'test-results/archives-tab.png' });
 
   // Déconnexion
   await page.getByRole('button', { name: 'Se déconnecter', exact: true }).click();

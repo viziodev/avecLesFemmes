@@ -22,6 +22,7 @@ import { Actor, Database } from '../database/database.module';
 import { AuthRequest } from '../auth/auth.module';
 import { hashPassword } from '../auth/password';
 import {
+  ActivationDto,
   BlockMemberDto,
   CampaignEventView,
   ConfigureGroupEventsDto,
@@ -108,6 +109,17 @@ export class GroupementsService {
 
       await audit(c, actor, id, 'GROUP_CREATED', id);
       return { ...r.rows[0], my_role: 'SUPER', member_count: '0', campaign_count: '0' };
+    });
+  }
+
+  activate(actor: Actor, id: string, input: ActivationDto) {
+    requireSuper(actor);
+    return this.db.run(actor, async (c) => {
+      const existing = await c.query('SELECT id, name FROM groupements WHERE id=$1', [id]);
+      if (!existing.rows[0]) throw new NotFoundException('Groupement introuvable.');
+      await c.query('UPDATE groupements SET active=$1 WHERE id=$2', [input.active, id]);
+      await audit(c, actor, id, 'GROUP_ACTIVATION', id, { active: input.active });
+      return { id, active: input.active };
     });
   }
 
@@ -660,6 +672,17 @@ export class GroupementsController {
     @Body() input: ConfigureGroupTypesDto,
   ) {
     return this.service.configureGroupTypes(r.actor, groupId, input);
+  }
+
+  @Patch(':groupId/activation')
+  @ApiOperation({ operationId: 'setGroupActivation' })
+  @ApiOkResponse({ description: 'Statut d’activation du groupement mis à jour' })
+  setGroupActivation(
+    @Req() r: AuthRequest,
+    @Param('groupId', ParseUUIDPipe) id: string,
+    @Body() input: ActivationDto,
+  ) {
+    return this.service.activate(r.actor, id, input);
   }
 }
 

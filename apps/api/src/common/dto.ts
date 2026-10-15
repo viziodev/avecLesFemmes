@@ -256,6 +256,7 @@ export class GroupView {
   @ApiProperty() member_count!: string;
   @ApiProperty() campaign_count!: string;
   @ApiProperty({ enum: ['ADMIN', 'MEMBER', 'SUPER'] }) my_role!: 'ADMIN' | 'MEMBER' | 'SUPER';
+  @ApiPropertyOptional({ default: true }) active?: boolean;
 }
 
 export class GroupFunctionView {
@@ -319,6 +320,13 @@ export class CampaignView {
   @ApiPropertyOptional({ type: String, nullable: true }) standard_amount!: string | null;
   @ApiPropertyOptional({ type: String, nullable: true }) rotation_interval!: string | null;
   @ApiPropertyOptional({ type: Number, nullable: true }) due_day!: number | null;
+  @ApiPropertyOptional({ type: String, nullable: true }) type_code?: string | null;
+  @ApiPropertyOptional({ type: Number }) member_count?: number;
+  @ApiPropertyOptional({ type: String }) collected_amount?: string;
+  @ApiPropertyOptional({ type: Number }) session_count?: number;
+  @ApiPropertyOptional({ type: Number }) payouts_count?: number;
+  @ApiPropertyOptional({ type: Number }) remaining_count?: number;
+  @ApiPropertyOptional({ type: String, nullable: true }) next_due_date?: string | null;
 }
 
 export class ParticipationView {
