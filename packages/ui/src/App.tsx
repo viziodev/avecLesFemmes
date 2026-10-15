@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import QRCode from 'qrcode';
 import {
   AlertTriangle,
@@ -27,6 +27,7 @@ import {
   Phone,
   Plus,
   QrCode,
+  RotateCcw,
   Search,
   ShieldCheck,
   Shuffle,
@@ -531,6 +532,24 @@ export function App({
   const [contributionSort, setContributionSort] = useState<'date' | 'session' | 'member'>('date');
   const [expandedTontineRound, setExpandedTontineRound] = useState<number | null>(null);
 
+  // Filtres de sélection autocomplete pour l'historique des cotisations
+  const [sessionFilterSearch, setSessionFilterSearch] = useState('');
+  const [sessionFilterDropdownOpen, setSessionFilterDropdownOpen] = useState(false);
+  const [selectedSessionFilter, setSelectedSessionFilter] = useState<string | null>(null);
+
+  const [periodFilterSearch, setPeriodFilterSearch] = useState('');
+  const [periodFilterDropdownOpen, setPeriodFilterDropdownOpen] = useState(false);
+  const [selectedPeriodFilter, setSelectedPeriodFilter] = useState<number | null>(null);
+
+  const [memberFilterSearch, setMemberFilterSearch] = useState('');
+  const [memberFilterDropdownOpen, setMemberFilterDropdownOpen] = useState(false);
+  const [selectedMemberFilter, setSelectedMemberFilter] = useState<string | null>(null);
+
+  const groupSearchRef = useRef<HTMLDivElement>(null);
+  const sessionFilterRef = useRef<HTMLDivElement>(null);
+  const periodFilterRef = useRef<HTMLDivElement>(null);
+  const memberFilterRef = useRef<HTMLDivElement>(null);
+
   const [page, setPage] = useState(1);
   const [participantPage, setParticipantPage] = useState(1);
   const [campaignPage, setCampaignPage] = useState(1);
@@ -556,6 +575,117 @@ export function App({
   const archivedGroups = groups.filter((g) => g.active === false);
   const activeCampaigns = campaigns.filter((c) => c.active !== false);
   const archivedCampaigns = campaigns.filter((c) => !c.active);
+
+  const isTontineCampaign = !!campaign?.type_name?.toLowerCase().includes('tontine');
+
+  // 1. Liste des sessions passées pour Type Épargne (sessions officielles + dates trouvées dans l'historique)
+  const availableSessions = useMemo(() => {
+    const map = new Map<string, { date: string; count: number; total: number }>();
+    sessions.forEach((s) => {
+      if (s.session_date) {
+        map.set(s.session_date, {
+          date: s.session_date,
+          count: s.count || (s.contributions ? s.contributions.length : 0),
+          total: Number(s.total_amount || 0),
+        });
+      }
+    });
+    contributions.forEach((c) => {
+      if (c.paid_on && !map.has(c.paid_on)) {
+        const matching = contributions.filter((x) => x.paid_on === c.paid_on);
+        const tot = matching.reduce((acc, curr) => acc + Number(curr.amount || 0), 0);
+        map.set(c.paid_on, { date: c.paid_on, count: matching.length, total: tot });
+      }
+    });
+    return Array.from(map.values()).sort((a, b) => b.date.localeCompare(a.date));
+  }, [sessions, contributions]);
+
+  // 2. Liste des périodes passées pour Type Tontine (tours de rotation)
+  const availablePeriods = useMemo(() => {
+    return tontineRounds
+      .map((tr) => ({
+        roundNumber: tr.round_number,
+        expectedDate: tr.expected_date,
+        beneficiaryName: tr.beneficiary_name || 'Bénéficiaire à désigner',
+        totalCollected: Number(tr.total_collected_amount || 0),
+        totalExpected: Number(tr.payout_amount || 0),
+        paidOutAt: tr.paid_at,
+        contributionsCount: tr.contributions ? tr.contributions.length : 0,
+      }))
+      .sort((a, b) => a.roundNumber - b.roundNumber);
+  }, [tontineRounds]);
+
+  // 3. Liste des membres de cette cotisation (participantes de la campagne + cotisations)
+  const availableMembers = useMemo(() => {
+    const map = new Map<string, { id: string; name: string; phone?: string | null }>();
+    participants.forEach((p) => {
+      if (p.name) {
+        const memberInfo = members.find((m) => m.id === p.membership_id);
+        map.set(p.name.toLowerCase().trim(), {
+          id: p.id,
+          name: p.name,
+          phone: memberInfo?.phone,
+        });
+      }
+    });
+    contributions.forEach((c) => {
+      if (c.name) {
+        const k = c.name.toLowerCase().trim();
+        if (!map.has(k)) {
+          map.set(k, {
+            id: c.participation_id,
+            name: c.name,
+          });
+        }
+      }
+    });
+    return Array.from(map.values()).sort((a, b) => a.name.localeCompare(b.name, 'fr'));
+  }, [participants, members, contributions]);
+
+  // Filtrage combiné des cotisations selon session/période et membre
+  const filteredContributions = useMemo(() => {
+    return contributions.filter((c) => {
+      if (!isTontineCampaign && selectedSessionFilter) {
+        if (c.paid_on !== selectedSessionFilter) return false;
+      }
+      if (isTontineCampaign && selectedPeriodFilter !== null) {
+        const round = tontineRounds.find((r) => r.round_number === selectedPeriodFilter);
+        if (round && round.contributions && round.contributions.length > 0) {
+          const ids = new Set(round.contributions.map((rc) => rc.contribution_id));
+          if (!ids.has(c.id)) return false;
+        } else if (round && round.expected_date) {
+          if (!c.paid_on.startsWith(round.expected_date.slice(0, 7)) && c.paid_on !== round.expected_date) {
+            return false;
+          }
+        }
+      }
+      if (selectedMemberFilter) {
+        if (c.name.toLowerCase().trim() !== selectedMemberFilter.toLowerCase().trim()) {
+          return false;
+        }
+      }
+      return true;
+    });
+  }, [contributions, isTontineCampaign, selectedSessionFilter, selectedPeriodFilter, tontineRounds, selectedMemberFilter]);
+
+  // Tri des cotisations filtrées
+  const sortedContributions = useMemo(() => {
+    return [...filteredContributions].sort((a, b) => {
+      if (contributionSort === 'member') {
+        const cmp = a.name.localeCompare(b.name, 'fr');
+        if (cmp !== 0) return cmp;
+        return b.paid_on.localeCompare(a.paid_on);
+      }
+      if (contributionSort === 'session') {
+        const cmp = b.paid_on.localeCompare(a.paid_on);
+        if (cmp !== 0) return cmp;
+        return a.name.localeCompare(b.name, 'fr');
+      }
+      const cmp = b.paid_on.localeCompare(a.paid_on);
+      if (cmp !== 0) return cmp;
+      return b.id.localeCompare(a.id);
+    });
+  }, [filteredContributions, contributionSort]);
 
   useEffect(() => {
     api
@@ -784,6 +914,15 @@ export function App({
     };
   }, [actor, groupId, campaignId, page, participantPage, refresh, personalMode, contributionSort]);
 
+  const resetFilters = useCallback(() => {
+    setSelectedSessionFilter(null);
+    setSessionFilterSearch('');
+    setSelectedPeriodFilter(null);
+    setPeriodFilterSearch('');
+    setSelectedMemberFilter(null);
+    setMemberFilterSearch('');
+  }, []);
+
   const selectGroup = useCallback(
     (id: string) => {
       if (id === groupId) return;
@@ -796,13 +935,37 @@ export function App({
       setDashboard(null);
       setParticipants([]);
       setContributions([]);
+      resetFilters();
       setPage(1);
       setCampaignPage(1);
       setParticipantPage(1);
       setTab('overview');
     },
-    [groupId, groups],
+    [groupId, groups, resetFilters],
   );
+
+  useEffect(() => {
+    resetFilters();
+  }, [campaignId, resetFilters]);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (groupSearchRef.current && !groupSearchRef.current.contains(e.target as Node)) {
+        setGroupDropdownOpen(false);
+      }
+      if (sessionFilterRef.current && !sessionFilterRef.current.contains(e.target as Node)) {
+        setSessionFilterDropdownOpen(false);
+      }
+      if (periodFilterRef.current && !periodFilterRef.current.contains(e.target as Node)) {
+        setPeriodFilterDropdownOpen(false);
+      }
+      if (memberFilterRef.current && !memberFilterRef.current.contains(e.target as Node)) {
+        setMemberFilterDropdownOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   useEffect(() => {
     if (group && !groupSearch) {
@@ -1350,10 +1513,17 @@ export function App({
                 <span className="group-symbol">
                   <Users size={22} />
                 </span>
-                <div className="group-autocomplete-wrapper">
-                  <label htmlFor="group-search-input">
-                    {superAdmin ? 'Rechercher un groupement' : 'Votre groupement'}
-                  </label>
+                <div className="group-autocomplete-wrapper" ref={groupSearchRef}>
+                  <div className="group-autocomplete-label-row">
+                    <label htmlFor="group-search-input">
+                      {superAdmin ? 'Rechercher un groupement' : 'Votre groupement'}
+                    </label>
+                    {group && (
+                      <span className="current-group-badge">
+                        <Check size={12} /> Actif : <strong>{group.name}</strong>
+                      </span>
+                    )}
+                  </div>
                   <div className="group-autocomplete-input-box">
                     <Search size={16} className="muted" />
                     <input
@@ -1372,6 +1542,7 @@ export function App({
                         type="button"
                         className="icon-button"
                         style={{ padding: 2 }}
+                        title="Effacer"
                         onClick={() => {
                           setGroupSearch('');
                           setGroupDropdownOpen(true);
@@ -1380,14 +1551,39 @@ export function App({
                         <X size={14} />
                       </button>
                     )}
+                    <button
+                      type="button"
+                      className="autocomplete-chevron-btn"
+                      title="Ouvrir la liste"
+                      onClick={() => setGroupDropdownOpen(!groupDropdownOpen)}
+                    >
+                      {groupDropdownOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                    </button>
                   </div>
 
                   {groupDropdownOpen && (
                     <div className="group-autocomplete-dropdown">
+                      <div className="group-autocomplete-guide">
+                        <span>Sélectionnez un groupement :</span>
+                        <span className="badge-count">
+                          {
+                            activeGroups.filter(
+                              (g) =>
+                                !groupSearch.trim() ||
+                                (group && groupSearch.trim().toLowerCase() === group.name.toLowerCase()) ||
+                                g.name.toLowerCase().includes(groupSearch.toLowerCase()) ||
+                                g.address.toLowerCase().includes(groupSearch.toLowerCase()) ||
+                                g.phone.toLowerCase().includes(groupSearch.toLowerCase()),
+                            ).length
+                          }{' '}
+                          disponible(s)
+                        </span>
+                      </div>
                       {activeGroups
                         .filter(
                           (g) =>
                             !groupSearch.trim() ||
+                            (group && groupSearch.trim().toLowerCase() === group.name.toLowerCase()) ||
                             g.name.toLowerCase().includes(groupSearch.toLowerCase()) ||
                             g.address.toLowerCase().includes(groupSearch.toLowerCase()) ||
                             g.phone.toLowerCase().includes(groupSearch.toLowerCase()),
@@ -1400,16 +1596,33 @@ export function App({
                                 ? 'group-autocomplete-item selected'
                                 : 'group-autocomplete-item'
                             }
-                            onMouseDown={() => {
+                            onClick={() => {
                               selectGroup(g.id);
                               setGroupSearch(g.name);
                               setGroupDropdownOpen(false);
                             }}
                           >
-                            <strong>{g.name}</strong>
-                            <span className="muted">
-                              {g.address} · {g.phone}
-                            </span>
+                            <div className="group-item-avatar">
+                              <Users size={16} />
+                            </div>
+                            <div className="group-item-content">
+                              <div className="group-item-header">
+                                <strong>{g.name}</strong>
+                                {g.id === groupId && (
+                                  <span className="badge-selected-pill">
+                                    <Check size={11} /> Actuel
+                                  </span>
+                                )}
+                              </div>
+                              <div className="group-item-meta">
+                                <span className="group-meta-sub">
+                                  <MapPin size={12} /> {g.address}
+                                </span>
+                                <span className="group-meta-sub">
+                                  <Phone size={12} /> {g.phone}
+                                </span>
+                              </div>
+                            </div>
                           </div>
                         ))}
                       {!activeGroups.some(
@@ -1419,8 +1632,18 @@ export function App({
                           g.address.toLowerCase().includes(groupSearch.toLowerCase()) ||
                           g.phone.toLowerCase().includes(groupSearch.toLowerCase()),
                       ) && (
-                        <div style={{ padding: '8px 12px', fontSize: 12, color: '#64748b' }}>
-                          Aucun groupement actif trouvé.
+                        <div className="group-autocomplete-empty">
+                          <p>Aucun groupement actif trouvé.</p>
+                          <button
+                            type="button"
+                            className="btn-link"
+                            onClick={() => {
+                              setGroupSearch('');
+                              setGroupDropdownOpen(true);
+                            }}
+                          >
+                            Voir tous les groupements
+                          </button>
                         </div>
                       )}
                     </div>
@@ -1926,6 +2149,461 @@ export function App({
                       </div>
                     )}
 
+                    {/* Filtres de sélection Autocomplete pour l'Historique des cotisations */}
+                    {!dashboard?.personal && (
+                      <div className="contributions-filters-card">
+                        <div className="contributions-filters-header">
+                          <div className="contributions-filters-title">
+                            <Filter size={16} />
+                            <span>Filtres de recherche</span>
+                          </div>
+                          <span className="contributions-filters-subtitle">
+                            Filtrer facilement par session/période ou par nom de membre
+                          </span>
+                        </div>
+
+                        <div className="contributions-filters-grid">
+                          {/* 1. Filtre Session (Épargne) ou Période (Tontine) */}
+                          {!isTontineCampaign ? (
+                            <div className="filter-autocomplete-wrapper" ref={sessionFilterRef}>
+                              <label htmlFor="session-filter-input">
+                                <Calendar size={13} />
+                                Filtrer par session passée
+                              </label>
+                              <div className="filter-autocomplete-box">
+                                <CalendarCheck size={16} className="muted" />
+                                <input
+                                  id="session-filter-input"
+                                  type="text"
+                                  placeholder="Rechercher une séance passée…"
+                                  value={
+                                    sessionFilterSearch ||
+                                    (selectedSessionFilter ? `Séance du ${date(selectedSessionFilter)}` : '')
+                                  }
+                                  onChange={(e) => {
+                                    setSessionFilterSearch(e.target.value);
+                                    setSessionFilterDropdownOpen(true);
+                                  }}
+                                  onFocus={() => setSessionFilterDropdownOpen(true)}
+                                />
+                                {(sessionFilterSearch || selectedSessionFilter) && (
+                                  <button
+                                    type="button"
+                                    className="filter-clear-btn"
+                                    title="Effacer ce filtre"
+                                    onClick={() => {
+                                      setSelectedSessionFilter(null);
+                                      setSessionFilterSearch('');
+                                    }}
+                                  >
+                                    <X size={14} />
+                                  </button>
+                                )}
+                                <button
+                                  type="button"
+                                  className="filter-chevron-btn"
+                                  title="Ouvrir la liste des séances"
+                                  onClick={() => setSessionFilterDropdownOpen(!sessionFilterDropdownOpen)}
+                                >
+                                  {sessionFilterDropdownOpen ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
+                                </button>
+                              </div>
+
+                              {sessionFilterDropdownOpen && (
+                                <div className="filter-autocomplete-dropdown">
+                                  <div
+                                    className={`filter-dropdown-item all-item ${!selectedSessionFilter ? 'selected' : ''}`}
+                                    onClick={() => {
+                                      setSelectedSessionFilter(null);
+                                      setSessionFilterSearch('');
+                                      setSessionFilterDropdownOpen(false);
+                                    }}
+                                  >
+                                    <div className="filter-dropdown-icon">
+                                      <Calendar size={15} />
+                                    </div>
+                                    <div className="filter-dropdown-content">
+                                      <strong>Toutes les sessions passées</strong>
+                                      <span className="muted">Afficher toutes les séances</span>
+                                    </div>
+                                    {!selectedSessionFilter && <Check size={15} className="item-check" />}
+                                  </div>
+
+                                  {availableSessions
+                                    .filter((s) => {
+                                      const isFiltering =
+                                        sessionFilterSearch.trim() &&
+                                        (!selectedSessionFilter ||
+                                          sessionFilterSearch.trim().toLowerCase() !==
+                                            `séance du ${date(selectedSessionFilter)}`.toLowerCase());
+                                      if (!isFiltering) return true;
+                                      const q = sessionFilterSearch.toLowerCase();
+                                      return s.date.includes(q) || date(s.date).toLowerCase().includes(q);
+                                    })
+                                    .map((s) => (
+                                      <div
+                                        key={s.date}
+                                        className={`filter-dropdown-item ${selectedSessionFilter === s.date ? 'selected' : ''}`}
+                                        onClick={() => {
+                                          setSelectedSessionFilter(s.date);
+                                          setSessionFilterSearch(`Séance du ${date(s.date)}`);
+                                          setSessionFilterDropdownOpen(false);
+                                        }}
+                                      >
+                                        <div className="filter-dropdown-icon">
+                                          <CalendarCheck size={15} />
+                                        </div>
+                                        <div className="filter-dropdown-content">
+                                          <strong>Séance du {date(s.date)}</strong>
+                                          <span className="muted">
+                                            {s.count} versement{s.count > 1 ? 's' : ''} · Total : {money(s.total)}
+                                          </span>
+                                        </div>
+                                        {selectedSessionFilter === s.date && <Check size={15} className="item-check" />}
+                                      </div>
+                                    ))}
+
+                                  {!availableSessions.some((s) => {
+                                    const isFiltering =
+                                      sessionFilterSearch.trim() &&
+                                      (!selectedSessionFilter ||
+                                        sessionFilterSearch.trim().toLowerCase() !==
+                                          `séance du ${date(selectedSessionFilter)}`.toLowerCase());
+                                    if (!isFiltering) return true;
+                                    const q = sessionFilterSearch.toLowerCase();
+                                    return s.date.includes(q) || date(s.date).toLowerCase().includes(q);
+                                  }) && (
+                                    <div className="filter-dropdown-empty">
+                                      Aucune session passée trouvée.
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            <div className="filter-autocomplete-wrapper" ref={periodFilterRef}>
+                              <label htmlFor="period-filter-input">
+                                <Clock size={13} />
+                                Filtrer par période passée
+                              </label>
+                              <div className="filter-autocomplete-box">
+                                <Clock size={16} className="muted" />
+                                <input
+                                  id="period-filter-input"
+                                  type="text"
+                                  placeholder="Rechercher une période passée…"
+                                  value={
+                                    periodFilterSearch ||
+                                    (selectedPeriodFilter !== null ? `Tour ${selectedPeriodFilter}` : '')
+                                  }
+                                  onChange={(e) => {
+                                    setPeriodFilterSearch(e.target.value);
+                                    setPeriodFilterDropdownOpen(true);
+                                  }}
+                                  onFocus={() => setPeriodFilterDropdownOpen(true)}
+                                />
+                                {(periodFilterSearch || selectedPeriodFilter !== null) && (
+                                  <button
+                                    type="button"
+                                    className="filter-clear-btn"
+                                    title="Effacer ce filtre"
+                                    onClick={() => {
+                                      setSelectedPeriodFilter(null);
+                                      setPeriodFilterSearch('');
+                                    }}
+                                  >
+                                    <X size={14} />
+                                  </button>
+                                )}
+                                <button
+                                  type="button"
+                                  className="filter-chevron-btn"
+                                  title="Ouvrir la liste des périodes"
+                                  onClick={() => setPeriodFilterDropdownOpen(!periodFilterDropdownOpen)}
+                                >
+                                  {periodFilterDropdownOpen ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
+                                </button>
+                              </div>
+
+                              {periodFilterDropdownOpen && (
+                                <div className="filter-autocomplete-dropdown">
+                                  <div
+                                    className={`filter-dropdown-item all-item ${selectedPeriodFilter === null ? 'selected' : ''}`}
+                                    onClick={() => {
+                                      setSelectedPeriodFilter(null);
+                                      setPeriodFilterSearch('');
+                                      setPeriodFilterDropdownOpen(false);
+                                    }}
+                                  >
+                                    <div className="filter-dropdown-icon">
+                                      <Clock size={15} />
+                                    </div>
+                                    <div className="filter-dropdown-content">
+                                      <strong>Toutes les périodes passées</strong>
+                                      <span className="muted">Afficher tous les tours de tontine</span>
+                                    </div>
+                                    {selectedPeriodFilter === null && <Check size={15} className="item-check" />}
+                                  </div>
+
+                                  {availablePeriods
+                                    .filter((p) => {
+                                      const isFiltering =
+                                        periodFilterSearch.trim() &&
+                                        (selectedPeriodFilter === null ||
+                                          !periodFilterSearch
+                                            .trim()
+                                            .toLowerCase()
+                                            .startsWith(`tour ${selectedPeriodFilter}`.toLowerCase()));
+                                      if (!isFiltering) return true;
+                                      const q = periodFilterSearch.toLowerCase();
+                                      return (
+                                        `tour ${p.roundNumber}`.includes(q) ||
+                                        p.beneficiaryName.toLowerCase().includes(q) ||
+                                        (p.expectedDate && date(p.expectedDate).toLowerCase().includes(q))
+                                      );
+                                    })
+                                    .map((p) => (
+                                      <div
+                                        key={p.roundNumber}
+                                        className={`filter-dropdown-item ${selectedPeriodFilter === p.roundNumber ? 'selected' : ''}`}
+                                        onClick={() => {
+                                          setSelectedPeriodFilter(p.roundNumber);
+                                          setPeriodFilterSearch(
+                                            `Tour ${p.roundNumber}${p.expectedDate ? ' · ' + date(p.expectedDate) : ''}`,
+                                          );
+                                          setPeriodFilterDropdownOpen(false);
+                                        }}
+                                      >
+                                        <div className="filter-dropdown-icon">
+                                          <Clock size={15} />
+                                        </div>
+                                        <div className="filter-dropdown-content">
+                                          <strong>
+                                            Tour {p.roundNumber}
+                                            {p.expectedDate ? ` · ${date(p.expectedDate)}` : ''}
+                                          </strong>
+                                          <span className="muted">
+                                            Bénéficiaire : {p.beneficiaryName} · Collecté : {money(p.totalCollected)}
+                                          </span>
+                                        </div>
+                                        {selectedPeriodFilter === p.roundNumber && (
+                                          <Check size={15} className="item-check" />
+                                        )}
+                                      </div>
+                                    ))}
+
+                                  {!availablePeriods.some((p) => {
+                                    const isFiltering =
+                                      periodFilterSearch.trim() &&
+                                      (selectedPeriodFilter === null ||
+                                        !periodFilterSearch
+                                          .trim()
+                                          .toLowerCase()
+                                          .startsWith(`tour ${selectedPeriodFilter}`.toLowerCase()));
+                                    if (!isFiltering) return true;
+                                    const q = periodFilterSearch.toLowerCase();
+                                    return (
+                                      `tour ${p.roundNumber}`.includes(q) ||
+                                      p.beneficiaryName.toLowerCase().includes(q) ||
+                                      (p.expectedDate && date(p.expectedDate).toLowerCase().includes(q))
+                                    );
+                                  }) && (
+                                    <div className="filter-dropdown-empty">
+                                      Aucune période passée trouvée.
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          )}
+
+                          {/* 2. Filtre Membre (Épargne & Tontine) */}
+                          <div className="filter-autocomplete-wrapper" ref={memberFilterRef}>
+                            <label htmlFor="member-filter-input">
+                              <Users size={13} />
+                              Filtrer par membre
+                            </label>
+                            <div className="filter-autocomplete-box">
+                              <Users size={16} className="muted" />
+                              <input
+                                id="member-filter-input"
+                                type="text"
+                                placeholder="Rechercher ou choisir un membre…"
+                                value={
+                                  memberFilterSearch ||
+                                  (selectedMemberFilter ? selectedMemberFilter : '')
+                                }
+                                onChange={(e) => {
+                                  setMemberFilterSearch(e.target.value);
+                                  setMemberFilterDropdownOpen(true);
+                                }}
+                                onFocus={() => setMemberFilterDropdownOpen(true)}
+                              />
+                              {(memberFilterSearch || selectedMemberFilter) && (
+                                <button
+                                  type="button"
+                                  className="filter-clear-btn"
+                                  title="Effacer ce filtre"
+                                  onClick={() => {
+                                    setSelectedMemberFilter(null);
+                                    setMemberFilterSearch('');
+                                  }}
+                                >
+                                  <X size={14} />
+                                </button>
+                              )}
+                              <button
+                                type="button"
+                                className="filter-chevron-btn"
+                                title="Ouvrir la liste des membres"
+                                onClick={() => setMemberFilterDropdownOpen(!memberFilterDropdownOpen)}
+                              >
+                                {memberFilterDropdownOpen ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
+                              </button>
+                            </div>
+
+                            {memberFilterDropdownOpen && (
+                              <div className="filter-autocomplete-dropdown">
+                                <div
+                                  className={`filter-dropdown-item all-item ${!selectedMemberFilter ? 'selected' : ''}`}
+                                  onClick={() => {
+                                    setSelectedMemberFilter(null);
+                                    setMemberFilterSearch('');
+                                    setMemberFilterDropdownOpen(false);
+                                  }}
+                                >
+                                  <div className="filter-dropdown-icon">
+                                    <Users size={15} />
+                                  </div>
+                                  <div className="filter-dropdown-content">
+                                    <strong>Tous les membres</strong>
+                                    <span className="muted">Afficher toutes les participantes</span>
+                                  </div>
+                                  {!selectedMemberFilter && <Check size={15} className="item-check" />}
+                                </div>
+
+                                {availableMembers
+                                  .filter((m) => {
+                                    const isFiltering =
+                                      memberFilterSearch.trim() &&
+                                      (!selectedMemberFilter ||
+                                        memberFilterSearch.trim().toLowerCase() !==
+                                          selectedMemberFilter.toLowerCase());
+                                    if (!isFiltering) return true;
+                                    const q = memberFilterSearch.toLowerCase();
+                                    return (
+                                      m.name.toLowerCase().includes(q) ||
+                                      (m.phone && m.phone.includes(q))
+                                    );
+                                  })
+                                  .map((m) => (
+                                    <div
+                                      key={m.name}
+                                      className={`filter-dropdown-item ${selectedMemberFilter === m.name ? 'selected' : ''}`}
+                                      onClick={() => {
+                                        setSelectedMemberFilter(m.name);
+                                        setMemberFilterSearch(m.name);
+                                        setMemberFilterDropdownOpen(false);
+                                      }}
+                                    >
+                                      <div className="filter-dropdown-avatar">
+                                        {m.name.slice(0, 1).toUpperCase()}
+                                      </div>
+                                      <div className="filter-dropdown-content">
+                                        <strong>{m.name}</strong>
+                                        <span className="muted">
+                                          {m.phone ? `${m.phone} · ` : ''}Membre de la cotisation
+                                        </span>
+                                      </div>
+                                      {selectedMemberFilter === m.name && (
+                                        <Check size={15} className="item-check" />
+                                      )}
+                                    </div>
+                                  ))}
+
+                                {!availableMembers.some((m) => {
+                                  if (!memberFilterSearch.trim()) return true;
+                                  const q = memberFilterSearch.toLowerCase();
+                                  return (
+                                    m.name.toLowerCase().includes(q) ||
+                                    (m.phone && m.phone.includes(q))
+                                  );
+                                }) && (
+                                  <div className="filter-dropdown-empty">
+                                    Aucun membre trouvé.
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Bannière récapitulative des filtres actifs */}
+                        {(selectedSessionFilter || selectedPeriodFilter !== null || selectedMemberFilter) && (
+                          <div className="active-filters-banner">
+                            <span className="active-filters-title">
+                              <Filter size={13} /> Filtre{selectedMemberFilter && (selectedSessionFilter || selectedPeriodFilter !== null) ? 's appliqués :' : ' appliqué :'}
+                            </span>
+                            {selectedSessionFilter && (
+                              <span className="active-filter-badge">
+                                <CalendarCheck size={12} />
+                                <span>Session : {date(selectedSessionFilter)}</span>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setSelectedSessionFilter(null);
+                                    setSessionFilterSearch('');
+                                  }}
+                                  title="Retirer le filtre de session"
+                                >
+                                  <X size={12} />
+                                </button>
+                              </span>
+                            )}
+                            {selectedPeriodFilter !== null && (
+                              <span className="active-filter-badge">
+                                <Clock size={12} />
+                                <span>Tour {selectedPeriodFilter}</span>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setSelectedPeriodFilter(null);
+                                    setPeriodFilterSearch('');
+                                  }}
+                                  title="Retirer le filtre de période"
+                                >
+                                  <X size={12} />
+                                </button>
+                              </span>
+                            )}
+                            {selectedMemberFilter && (
+                              <span className="active-filter-badge">
+                                <Users size={12} />
+                                <span>Membre : {selectedMemberFilter}</span>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setSelectedMemberFilter(null);
+                                    setMemberFilterSearch('');
+                                  }}
+                                  title="Retirer le filtre de membre"
+                                >
+                                  <X size={12} />
+                                </button>
+                              </span>
+                            )}
+                            <button
+                              type="button"
+                              className="btn-clear-all-filters"
+                              onClick={resetFilters}
+                            >
+                              <RotateCcw size={12} /> Tout effacer
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
                     {/* Barre de tri de l'Historique */}
                     <div className="contributions-sort-bar">
                       <span className="contributions-sort-label">
@@ -1966,6 +2644,9 @@ export function App({
                         <Users size={13} />
                         Par membre
                       </button>
+                      <span className="contributions-count-badge">
+                        {sortedContributions.length} cotisation{sortedContributions.length > 1 ? 's' : ''}
+                      </span>
                     </div>
 
                     {contributions.length ? (
@@ -1998,7 +2679,7 @@ export function App({
                             </div>
                           ))}
                         </div>
-                      ) : (
+                      ) : sortedContributions.length ? (
                         <div className="table-scroll">
                           <table className="contribution-table">
                             <thead>
@@ -2037,23 +2718,7 @@ export function App({
                               </tr>
                             </thead>
                             <tbody>
-                              {[...contributions]
-                                .sort((a, b) => {
-                                  if (contributionSort === 'member') {
-                                    const cmp = a.name.localeCompare(b.name, 'fr');
-                                    if (cmp !== 0) return cmp;
-                                    return b.paid_on.localeCompare(a.paid_on);
-                                  }
-                                  if (contributionSort === 'session') {
-                                    const cmp = b.paid_on.localeCompare(a.paid_on);
-                                    if (cmp !== 0) return cmp;
-                                    return a.name.localeCompare(b.name, 'fr');
-                                  }
-                                  const cmp = b.paid_on.localeCompare(a.paid_on);
-                                  if (cmp !== 0) return cmp;
-                                  return b.id.localeCompare(a.id);
-                                })
-                                .map((c) => (
+                              {sortedContributions.map((c) => (
                                 <tr key={c.id}>
                                   <td>
                                     <span className="member-cell">
@@ -2090,6 +2755,20 @@ export function App({
                               ))}
                             </tbody>
                           </table>
+                        </div>
+                      ) : (
+                        <div className="contributions-empty-filter">
+                          <Filter size={32} className="muted" />
+                          <h3>Aucune cotisation ne correspond à vos filtres</h3>
+                          <p>Essayez de modifier la séance, la période ou le membre sélectionné.</p>
+                          <button
+                            type="button"
+                            className="btn-clear-all-filters"
+                            style={{ margin: '8px auto', display: 'inline-flex' }}
+                            onClick={resetFilters}
+                          >
+                            <RotateCcw size={13} /> Effacer les filtres et tout afficher
+                          </button>
                         </div>
                       )
                     ) : (

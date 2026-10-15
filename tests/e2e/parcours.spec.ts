@@ -48,11 +48,10 @@ test('administratrice enregistre et retrouve sa vue membre', async ({ page }) =>
   const campSelect = page.getByLabel('Campagne suivie', { exact: true });
   await expect(campSelect).toBeVisible();
   const epargneOption = campSelect.locator('option', { hasText: 'Épargne solidaire 2026' });
-  if (await epargneOption.count()) {
-    const value = await epargneOption.getAttribute('value');
-    if (value) {
-      await campSelect.selectOption(value);
-    }
+  await expect(epargneOption).toBeAttached();
+  const value = await epargneOption.getAttribute('value');
+  if (value) {
+    await campSelect.selectOption(value);
   }
   await page.getByRole('button', { name: 'Enregistrer une cotisation', exact: true }).click();
   const selection = page.getByRole('combobox', { name: 'Participante', exact: true });
@@ -438,6 +437,93 @@ test('tableau des campagnes actives avec métriques et onglet Archives', async (
   await expect(page.getByRole('heading', { name: 'Groupements inactifs', exact: true })).toBeVisible();
 
   await page.screenshot({ path: 'test-results/archives-tab.png' });
+
+  // Déconnexion
+  await page.getByRole('button', { name: 'Se déconnecter', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Bienvenue dans votre espace' })).toBeVisible();
+});
+
+test('filtres autocomplete cotisations (session, periode, membre) et recherche de groupement accessible', async ({
+  page,
+}) => {
+  await login(page, './', 'superadmin');
+
+  // 1. Expérience enrichie de recherche de groupement par autocomplétion
+  const groupInput = page.locator('#group-search-input');
+  await expect(groupInput).toBeVisible();
+
+  // Test du bouton chevron pour dérouler sans saisie
+  const chevronBtn = page.locator('.autocomplete-chevron-btn').first();
+  await chevronBtn.click();
+  await expect(page.locator('.group-autocomplete-dropdown')).toBeVisible();
+  await expect(page.locator('.group-autocomplete-guide')).toBeVisible();
+  await page.screenshot({ path: 'test-results/group-autocomplete-dropdown-open.png' });
+
+  // Sélection d'un groupement
+  await page.locator('.group-autocomplete-item', { hasText: 'Les Femmes de Grand Yoff' }).click();
+  await expect(page.locator('.current-group-badge')).toContainText('Les Femmes de Grand Yoff');
+  await page.screenshot({ path: 'test-results/group-autocomplete-experience.png' });
+
+  // 2. Cotisation : Type Épargne (filtre session autocomplete + filtre membre autocomplete)
+  const campSelect = page.getByLabel('Campagne suivie', { exact: true });
+  const epargneOption = campSelect.locator('option', { hasText: 'Épargne solidaire 2026' });
+  await expect(epargneOption).toBeAttached();
+  const epargneVal = await epargneOption.getAttribute('value');
+  if (epargneVal) {
+    await campSelect.selectOption(epargneVal);
+  }
+
+  // Vérifier la présence des 2 filtres autocomplete pour l'Épargne
+  const sessionInput = page.locator('#session-filter-input');
+  const memberInput = page.locator('#member-filter-input');
+  await expect(sessionInput).toBeVisible();
+  await expect(memberInput).toBeVisible();
+
+  // Tester l'ouverture de l'autocomplete session
+  await sessionInput.click();
+  await expect(page.locator('.filter-autocomplete-dropdown')).toBeVisible();
+  await page.screenshot({ path: 'test-results/epargne-session-dropdown-open.png' });
+  // Sélectionner la première option de session passée ou "Toutes les sessions"
+  await page.locator('.filter-dropdown-item').first().click();
+
+  // Tester l'autocomplete membre
+  await memberInput.click();
+  await expect(page.locator('.filter-autocomplete-dropdown')).toBeVisible();
+  // Saisir un filtre de recherche membre
+  await memberInput.fill('Awa');
+  const awaItem = page.locator('.filter-dropdown-item', { hasText: 'Awa' });
+  if (await awaItem.count()) {
+    await awaItem.first().click();
+    await expect(page.locator('.active-filters-banner')).toBeVisible();
+    await expect(page.locator('.active-filter-badge')).toContainText('Awa');
+    await page.screenshot({ path: 'test-results/epargne-member-filter-applied.png' });
+  }
+
+  // Réinitialiser les filtres
+  const clearAllBtn = page.locator('.btn-clear-all-filters');
+  if (await clearAllBtn.count()) {
+    await clearAllBtn.first().click();
+  }
+  await page.screenshot({ path: 'test-results/epargne-autocomplete-filters.png' });
+
+  // 3. Cotisation : Type Tontine (filtre période autocomplete)
+  const tontineOption = campSelect.locator('option', { hasText: 'Tontine solidaire 2026' });
+  if (await tontineOption.count()) {
+    const tontineVal = await tontineOption.getAttribute('value');
+    if (tontineVal) {
+      await campSelect.selectOption(tontineVal);
+      // Pour une tontine, le champ de filtre par période doit être affiché
+      const periodInput = page.locator('#period-filter-input');
+      await expect(periodInput).toBeVisible();
+
+      // Tester l'ouverture de l'autocomplete période
+      await periodInput.click();
+      await expect(page.locator('.filter-autocomplete-dropdown')).toBeVisible();
+      await page.screenshot({ path: 'test-results/tontine-period-dropdown-open.png' });
+      await page.locator('.filter-dropdown-item').first().click();
+      await page.screenshot({ path: 'test-results/tontine-autocomplete-filters.png' });
+    }
+  }
 
   // Déconnexion
   await page.getByRole('button', { name: 'Se déconnecter', exact: true }).click();

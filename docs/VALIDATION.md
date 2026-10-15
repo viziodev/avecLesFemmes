@@ -39,9 +39,14 @@ Exécutée le 15 octobre 2026 sur l'environnement local (PostgreSQL Docker 5433,
   - Migration SQL `003_group_types_assignment.sql` appliquée et validée : table `groupment_types` avec RLS, politiques de lecture/écriture et attribution des types et événements lors de la création d'un groupement.
   - Migration SQL `004_types_crud_permissions.sql` appliquée et validée : politiques RLS UPDATE/DELETE pour super-admin sur `campaign_types`, politiques RLS pour création et modification des campagnes par le super-admin, et endpoints PATCH/DELETE complets.
   - **CRUD Événements & Types (Super Admin) :** création, modification et suppression sécurisées avec vérification des liaisons en cascade (campagnes actives).
-  - **Recherche autocomplete & Détails groupement (Super Admin & Admin Groupement) :** champ de recherche dynamique autocomplété par nom, adresse, téléphone, et affichage instantané de la fiche détaillée du groupement (nom, adresse, téléphone, bouton Code QR vectoriel).
+  - **Recherche autocomplete & Détails groupement (Super Admin & Admin Groupement) :** refonte ergonomique accessible pour profils non-numériques (champ clair, déroulement direct via bouton chevron sans frappe obligatoire, badge du groupement actif, cartes de groupements enrichies avec adresse, téléphone et statut actuel).
   - **Bouton Créer une campagne :** disponible directement sur l'onglet Campagnes dès la sélection d'un groupement pour le super-admin et l'admin groupement.
-  - **Tests E2E Playwright (9/9 réussis) :** validation de bout en bout de l'ensemble des parcours (dont les nouveaux parcours CRUD Événements/Types, autocomplétion + fiche détaillée + QR code groupement, et création directe de campagne).
+  - **Sous-onglets de campagne (Participantes/Forfaits & Sessions) :** affichage détaillé sans bouton redondant, table des sessions avec métriques et totaux.
+  - **Filtres autocomplete cotisations (Épargne & Tontine) :**
+    - Type Épargne : filtre par session passée en liste autocomplete (dates réelles des séances, nombre de versements, total collecté) et filtre par membre autocomplete (avatar, nom, téléphone).
+    - Type Tontine : filtre par période passée en liste autocomplete (tours de rotation, date, nom de la bénéficiaire, total collecté) et filtre par membre.
+    - Bannière récapitulative des filtres actifs avec pastilles détachables et bouton de réinitialisation générale.
+  - **Tests E2E Playwright (12/12 réussis) :** validation de bout en bout de l'ensemble des parcours (dont les nouveaux parcours CRUD Événements/Types, autocomplétion + fiche détaillée + QR code groupement, création directe de campagne, archives/campagnes, sous-onglets et filtres cotisations par session/période/membre).
 
 ---
 
