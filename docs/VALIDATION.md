@@ -37,7 +37,11 @@ Exécutée le 15 octobre 2026 sur l'environnement local (PostgreSQL Docker 5433,
   - Typage TypeScript généré et synchronisé (`packages/api-client/src/schema.d.ts`).
   - Migration SQL `002_fonctions_tontines_qr.sql` appliquée et validée avec RLS complet (y compris politique UPDATE pour gestion membre).
   - Migration SQL `003_group_types_assignment.sql` appliquée et validée : table `groupment_types` avec RLS, politiques de lecture/écriture et attribution des types et événements lors de la création d'un groupement.
-  - Tests E2E Playwright (6/6 réussis) validant la création de groupement avec attribution visuelle des types de campagne et événements.
+  - Migration SQL `004_types_crud_permissions.sql` appliquée et validée : politiques RLS UPDATE/DELETE pour super-admin sur `campaign_types`, politiques RLS pour création et modification des campagnes par le super-admin, et endpoints PATCH/DELETE complets.
+  - **CRUD Événements & Types (Super Admin) :** création, modification et suppression sécurisées avec vérification des liaisons en cascade (campagnes actives).
+  - **Recherche autocomplete & Détails groupement (Super Admin & Admin Groupement) :** champ de recherche dynamique autocomplété par nom, adresse, téléphone, et affichage instantané de la fiche détaillée du groupement (nom, adresse, téléphone, bouton Code QR vectoriel).
+  - **Bouton Créer une campagne :** disponible directement sur l'onglet Campagnes dès la sélection d'un groupement pour le super-admin et l'admin groupement.
+  - **Tests E2E Playwright (9/9 réussis) :** validation de bout en bout de l'ensemble des parcours (dont les nouveaux parcours CRUD Événements/Types, autocomplétion + fiche détaillée + QR code groupement, et création directe de campagne).
 
 ---
 

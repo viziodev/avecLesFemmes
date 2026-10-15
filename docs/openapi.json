@@ -778,6 +778,69 @@
         ]
       }
     },
+    "/api/v1/campaign-events/{id}": {
+      "patch": {
+        "operationId": "updateCampaignEvent",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCampaignEventDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CampaignEventView"
+                }
+              }
+            }
+          }
+        },
+        "summary": "",
+        "tags": [
+          "Événements"
+        ]
+      },
+      "delete": {
+        "operationId": "deleteCampaignEvent",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "",
+        "tags": [
+          "Événements"
+        ]
+      }
+    },
     "/api/v1/campaign-types": {
       "get": {
         "operationId": "listTypes",
@@ -825,6 +888,69 @@
                 }
               }
             }
+          }
+        },
+        "summary": "",
+        "tags": [
+          "Types de campagne"
+        ]
+      }
+    },
+    "/api/v1/campaign-types/{id}": {
+      "patch": {
+        "operationId": "updateType",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTypeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TypeView"
+                }
+              }
+            }
+          }
+        },
+        "summary": "",
+        "tags": [
+          "Types de campagne"
+        ]
+      },
+      "delete": {
+        "operationId": "deleteType",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
           }
         },
         "summary": "",
@@ -2223,6 +2349,20 @@
           "code"
         ]
       },
+      "UpdateCampaignEventDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      },
       "CreateTypeDto": {
         "type": "object",
         "properties": {
@@ -2237,6 +2377,17 @@
           "name",
           "code"
         ]
+      },
+      "UpdateTypeDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          }
+        }
       },
       "CampaignView": {
         "type": "object",

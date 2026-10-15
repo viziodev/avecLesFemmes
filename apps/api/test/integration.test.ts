@@ -34,6 +34,9 @@ before(async () => {
   await pg.exec(
     await readFile(resolve('../../database/migrations/003_group_types_assignment.sql'), 'utf8'),
   );
+  await pg.exec(
+    await readFile(resolve('../../database/migrations/004_types_crud_permissions.sql'), 'utf8'),
+  );
   const users = ['super', 'admin', 'member', 'other'].map((login, i) => ({
     id: randomUUID(),
     login,
@@ -645,4 +648,68 @@ test('tontine rotative, tirage au sort, séances et état de la caisse', async (
     .set('Cookie', superCookie)
     .expect(200);
   assert.equal(updatedGrpTypes.body.length, typesList.body.length);
+
+  // CRUD sur les types de campagne (Super Admin)
+  const createdType = await request(app.getHttpServer())
+    .post('/api/v1/campaign-types')
+    .set(headers)
+    .set('Cookie', superCookie)
+    .send({ name: 'Type Temporaire', code: 'TEMP_TYPE' })
+    .expect(201);
+  assert.equal(createdType.body.name, 'Type Temporaire');
+
+  const updatedType = await request(app.getHttpServer())
+    .patch(`/api/v1/campaign-types/${createdType.body.id}`)
+    .set(headers)
+    .set('Cookie', superCookie)
+    .send({ name: 'Type Modifié' })
+    .expect(200);
+  assert.equal(updatedType.body.name, 'Type Modifié');
+
+  await request(app.getHttpServer())
+    .delete(`/api/v1/campaign-types/${createdType.body.id}`)
+    .set(headers)
+    .set('Cookie', superCookie)
+    .expect(200);
+
+  // CRUD sur les événements (Super Admin)
+  const createdEvent = await request(app.getHttpServer())
+    .post('/api/v1/campaign-events')
+    .set(headers)
+    .set('Cookie', superCookie)
+    .send({ name: 'Événement Temporaire', code: 'TEMP_EV', description: 'Test desc' })
+    .expect(201);
+  assert.equal(createdEvent.body.name, 'Événement Temporaire');
+
+  const updatedEvent = await request(app.getHttpServer())
+    .patch(`/api/v1/campaign-events/${createdEvent.body.id}`)
+    .set(headers)
+    .set('Cookie', superCookie)
+    .send({ name: 'Événement Mis à Jour', description: 'Nouvelle description' })
+    .expect(200);
+  assert.equal(updatedEvent.body.name, 'Événement Mis à Jour');
+  assert.equal(updatedEvent.body.description, 'Nouvelle description');
+
+  await request(app.getHttpServer())
+    .delete(`/api/v1/campaign-events/${createdEvent.body.id}`)
+    .set(headers)
+    .set('Cookie', superCookie)
+    .expect(200);
+
+  // Création d'une campagne par le Super Admin sur un groupement
+  const superCamp = await request(app.getHttpServer())
+    .post(`/api/v1/groupements/${customGroup.body.id}/campaigns`)
+    .set(headers)
+    .set('Cookie', superCookie)
+    .send({
+      name: 'Campagne Super Admin',
+      typeId: typesList.body[0].id,
+      eventId: eventsList.body[0].id,
+      startDate: '2026-07-01',
+      endDate: '2026-12-31',
+      weekday: 3,
+      intervalWeeks: 1,
+    })
+    .expect(201);
+  assert.equal(superCamp.body.name, 'Campagne Super Admin');
 });

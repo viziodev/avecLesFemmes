@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Delete,
   Injectable,
   Module,
   Param,
@@ -40,7 +41,9 @@ import {
   ResetPinDto,
   ScopedPageDto,
   TypeView,
+  UpdateCampaignEventDto,
   UpdateMemberDto,
+  UpdateTypeDto,
 } from '../common/dto';
 import { audit, requireGroup, requireSuper } from '../common/access';
 
@@ -372,6 +375,47 @@ export class GroupementsService {
     });
   }
 
+  updateCampaignEvent(actor: Actor, id: string, input: UpdateCampaignEventDto) {
+    requireSuper(actor);
+    return this.db.run(actor, async (c) => {
+      const existing = await c.query('SELECT * FROM campaign_events WHERE id=$1', [id]);
+      if (!existing.rows[0]) throw new NotFoundException('Événement introuvable.');
+      const r = await c.query(
+        `UPDATE campaign_events
+         SET name = COALESCE($2, name),
+             code = COALESCE($3, code),
+             description = COALESCE($4, description)
+         WHERE id = $1
+         RETURNING *`,
+        [
+          id,
+          input.name ?? null,
+          input.code ? input.code.toUpperCase() : null,
+          input.description !== undefined ? input.description : null,
+        ],
+      );
+      await audit(c, actor, null, 'CAMPAIGN_EVENT_UPDATED', id, input);
+      return r.rows[0];
+    });
+  }
+
+  deleteCampaignEvent(actor: Actor, id: string) {
+    requireSuper(actor);
+    return this.db.run(actor, async (c) => {
+      const existing = await c.query('SELECT * FROM campaign_events WHERE id=$1', [id]);
+      if (!existing.rows[0]) throw new NotFoundException('Événement introuvable.');
+      const inUse = await c.query('SELECT 1 FROM campaigns WHERE event_id=$1 LIMIT 1', [id]);
+      if (inUse.rowCount && inUse.rowCount > 0) {
+        throw new BadRequestException(
+          'Impossible de supprimer cet événement car il est associé à des campagnes existantes.',
+        );
+      }
+      await c.query('DELETE FROM campaign_events WHERE id=$1', [id]);
+      await audit(c, actor, null, 'CAMPAIGN_EVENT_DELETED', id);
+      return { ok: true, id };
+    });
+  }
+
   groupEvents(actor: Actor, groupId: string) {
     return this.db.run(actor, async (c) => {
       await requireGroup(c, groupId);
@@ -451,6 +495,41 @@ export class GroupementsService {
       );
       await audit(c, actor, null, 'TYPE_CREATED', id);
       return r.rows[0];
+    });
+  }
+
+  updateType(actor: Actor, id: string, input: UpdateTypeDto) {
+    requireSuper(actor);
+    return this.db.run(actor, async (c) => {
+      const existing = await c.query('SELECT * FROM campaign_types WHERE id=$1', [id]);
+      if (!existing.rows[0]) throw new NotFoundException('Type de campagne introuvable.');
+      const r = await c.query(
+        `UPDATE campaign_types
+         SET name = COALESCE($2, name),
+             code = COALESCE($3, code)
+         WHERE id = $1
+         RETURNING *`,
+        [id, input.name ?? null, input.code ? input.code.toUpperCase() : null],
+      );
+      await audit(c, actor, null, 'TYPE_UPDATED', id, input);
+      return r.rows[0];
+    });
+  }
+
+  deleteType(actor: Actor, id: string) {
+    requireSuper(actor);
+    return this.db.run(actor, async (c) => {
+      const existing = await c.query('SELECT * FROM campaign_types WHERE id=$1', [id]);
+      if (!existing.rows[0]) throw new NotFoundException('Type de campagne introuvable.');
+      const inUse = await c.query('SELECT 1 FROM campaigns WHERE type_id=$1 LIMIT 1', [id]);
+      if (inUse.rowCount && inUse.rowCount > 0) {
+        throw new BadRequestException(
+          'Impossible de supprimer ce type de campagne car il est associé à des campagnes existantes.',
+        );
+      }
+      await c.query('DELETE FROM campaign_types WHERE id=$1', [id]);
+      await audit(c, actor, null, 'TYPE_DELETED', id);
+      return { ok: true, id };
     });
   }
 }
@@ -615,6 +694,23 @@ export class CampaignEventsController {
   create(@Req() r: AuthRequest, @Body() input: CreateCampaignEventDto) {
     return this.service.createCampaignEvent(r.actor, input);
   }
+
+  @Patch(':id')
+  @ApiOperation({ operationId: 'updateCampaignEvent' })
+  @ApiOkResponse({ type: CampaignEventView })
+  update(
+    @Req() r: AuthRequest,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() input: UpdateCampaignEventDto,
+  ) {
+    return this.service.updateCampaignEvent(r.actor, id, input);
+  }
+
+  @Delete(':id')
+  @ApiOperation({ operationId: 'deleteCampaignEvent' })
+  delete(@Req() r: AuthRequest, @Param('id', ParseUUIDPipe) id: string) {
+    return this.service.deleteCampaignEvent(r.actor, id);
+  }
 }
 
 @ApiTags('Types de campagne')
@@ -633,6 +729,23 @@ export class TypesController {
   @ApiCreatedResponse({ type: TypeView })
   create(@Req() r: AuthRequest, @Body() input: CreateTypeDto) {
     return this.service.createType(r.actor, input);
+  }
+
+  @Patch(':id')
+  @ApiOperation({ operationId: 'updateType' })
+  @ApiOkResponse({ type: TypeView })
+  update(
+    @Req() r: AuthRequest,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() input: UpdateTypeDto,
+  ) {
+    return this.service.updateType(r.actor, id, input);
+  }
+
+  @Delete(':id')
+  @ApiOperation({ operationId: 'deleteType' })
+  delete(@Req() r: AuthRequest, @Param('id', ParseUUIDPipe) id: string) {
+    return this.service.deleteType(r.actor, id);
   }
 }
 

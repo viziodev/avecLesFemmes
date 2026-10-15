@@ -11,6 +11,7 @@ import {
   ChevronRight,
   Coins,
   Download,
+  Edit2,
   Filter,
   FolderHeart,
   KeyRound,
@@ -18,11 +19,15 @@ import {
   Leaf,
   Lock,
   LogOut,
+  MapPin,
+  Phone,
   Plus,
   QrCode,
+  Search,
   ShieldCheck,
   Shuffle,
   Sparkles,
+  Trash2,
   Unlock,
   Users,
   Wallet,
@@ -511,6 +516,10 @@ export function App({
   );
   const [resetPinMember, setResetPinMember] = useState<{ id: string; name: string } | null>(null);
   const [graceMemberId, setGraceMemberId] = useState('');
+  const [editEvent, setEditEvent] = useState<CampaignEvent | null>(null);
+  const [editType, setEditType] = useState<S['TypeView'] | null>(null);
+  const [groupSearch, setGroupSearch] = useState('');
+  const [groupDropdownOpen, setGroupDropdownOpen] = useState(false);
 
   const [page, setPage] = useState(1);
   const [participantPage, setParticipantPage] = useState(1);
@@ -592,7 +601,12 @@ export function App({
           setFunctions(fn);
           setEvents(ev);
           if (sc) setSuperCockpit(sc);
-          setGroupId((id) => (g.items.some((x) => x.id === id) ? id : g.items[0]?.id || ''));
+          setGroupId((id) => {
+            const next = g.items.some((x) => x.id === id) ? id : g.items[0]?.id || '';
+            const sel = g.items.find((x) => x.id === next);
+            if (sel) setGroupSearch(sel.name);
+            return next;
+          });
         }
       })
       .catch((e) => active && setLoadError(e.message))
@@ -747,6 +761,8 @@ export function App({
     (id: string) => {
       if (id === groupId) return;
       setGroupId(id);
+      const sel = groups.find((g) => g.id === id);
+      if (sel) setGroupSearch(sel.name);
       setCampaignId('');
       setCampaigns([]);
       setMembers([]);
@@ -758,8 +774,42 @@ export function App({
       setParticipantPage(1);
       setTab('overview');
     },
-    [groupId],
+    [groupId, groups],
   );
+
+  useEffect(() => {
+    if (group && !groupSearch) {
+      setGroupSearch(group.name);
+    }
+  }, [group, groupSearch]);
+
+  async function handleDeleteType(typeItem: S['TypeView']) {
+    if (!confirm(`Confirmez-vous la suppression du type "${typeItem.name}" ?`)) return;
+    await action(
+      () =>
+        api
+          .DELETE('/api/v1/campaign-types/{id}', {
+            params: { path: { id: typeItem.id } },
+          })
+          .then(unwrap),
+      'Type de campagne supprimé.',
+    );
+    setRefresh((x) => x + 1);
+  }
+
+  async function handleDeleteEvent(eventItem: CampaignEvent) {
+    if (!confirm(`Confirmez-vous la suppression de l’événement "${eventItem.name}" ?`)) return;
+    await action(
+      () =>
+        api
+          .DELETE('/api/v1/campaign-events/{id}', {
+            params: { path: { id: eventItem.id } },
+          })
+          .then(unwrap),
+      'Événement supprimé.',
+    );
+    setRefresh((x) => x + 1);
+  }
 
   function open(name: string) {
     idempotency.current = crypto.randomUUID();
@@ -847,6 +897,21 @@ export function App({
         'Type de campagne créé.',
       );
 
+    if (dialog === 'edit-type' && editType)
+      await action(
+        () =>
+          api
+            .PATCH('/api/v1/campaign-types/{id}', {
+              params: { path: { id: editType.id } },
+              body: {
+                name: v.name,
+                code: v.code ? v.code.toUpperCase() : undefined,
+              },
+            })
+            .then(unwrap),
+        'Type de campagne mis à jour.',
+      );
+
     if (dialog === 'event')
       await action(
         () =>
@@ -860,6 +925,22 @@ export function App({
             })
             .then(unwrap),
         'Événement ajouté au catalogue.',
+      );
+
+    if (dialog === 'edit-event' && editEvent)
+      await action(
+        () =>
+          api
+            .PATCH('/api/v1/campaign-events/{id}', {
+              params: { path: { id: editEvent.id } },
+              body: {
+                name: v.name,
+                code: v.code ? v.code.toUpperCase() : undefined,
+                description: v.description || undefined,
+              },
+            })
+            .then(unwrap),
+        'Événement mis à jour.',
       );
 
     if (dialog === 'campaign')
@@ -1217,51 +1298,161 @@ export function App({
             </div>
           )}
           {tab !== 'types' && tab !== 'cockpit' && (
-            <div className="group-selector">
-              <span className="group-symbol">
-                <Users size={22} />
-              </span>
-              <div>
-                <label htmlFor="group-select">
-                  {superAdmin ? 'Groupement suivi' : 'Votre groupement'}
-                </label>
-                <select
-                  id="group-select"
-                  value={groupId}
-                  onChange={(e) => selectGroup(e.target.value)}
-                >
-                  {!groups.length && (
-                    <option value="">{loading ? 'Chargement…' : 'Aucun groupement'}</option>
+            <>
+              <div className="group-selector">
+                <span className="group-symbol">
+                  <Users size={22} />
+                </span>
+                <div className="group-autocomplete-wrapper">
+                  <label htmlFor="group-search-input">
+                    {superAdmin ? 'Rechercher un groupement' : 'Votre groupement'}
+                  </label>
+                  <div className="group-autocomplete-input-box">
+                    <Search size={16} className="muted" />
+                    <input
+                      id="group-search-input"
+                      type="text"
+                      placeholder="Rechercher par nom, adresse, téléphone…"
+                      value={groupSearch}
+                      onChange={(e) => {
+                        setGroupSearch(e.target.value);
+                        setGroupDropdownOpen(true);
+                      }}
+                      onFocus={() => setGroupDropdownOpen(true)}
+                    />
+                    {groupSearch && (
+                      <button
+                        type="button"
+                        className="icon-button"
+                        style={{ padding: 2 }}
+                        onClick={() => {
+                          setGroupSearch('');
+                          setGroupDropdownOpen(true);
+                        }}
+                      >
+                        <X size={14} />
+                      </button>
+                    )}
+                  </div>
+
+                  {groupDropdownOpen && (
+                    <div className="group-autocomplete-dropdown">
+                      {groups
+                        .filter(
+                          (g) =>
+                            !groupSearch.trim() ||
+                            g.name.toLowerCase().includes(groupSearch.toLowerCase()) ||
+                            g.address.toLowerCase().includes(groupSearch.toLowerCase()) ||
+                            g.phone.toLowerCase().includes(groupSearch.toLowerCase()),
+                        )
+                        .map((g) => (
+                          <div
+                            key={g.id}
+                            className={
+                              g.id === groupId
+                                ? 'group-autocomplete-item selected'
+                                : 'group-autocomplete-item'
+                            }
+                            onMouseDown={() => {
+                              selectGroup(g.id);
+                              setGroupSearch(g.name);
+                              setGroupDropdownOpen(false);
+                            }}
+                          >
+                            <strong>{g.name}</strong>
+                            <span className="muted">
+                              {g.address} · {g.phone}
+                            </span>
+                          </div>
+                        ))}
+                      {!groups.some(
+                        (g) =>
+                          !groupSearch.trim() ||
+                          g.name.toLowerCase().includes(groupSearch.toLowerCase()) ||
+                          g.address.toLowerCase().includes(groupSearch.toLowerCase()) ||
+                          g.phone.toLowerCase().includes(groupSearch.toLowerCase()),
+                      ) && (
+                        <div style={{ padding: '8px 12px', fontSize: 12, color: '#64748b' }}>
+                          Aucun groupement trouvé.
+                        </div>
+                      )}
+                    </div>
                   )}
-                  {groups.map((g) => (
-                    <option key={g.id} value={g.id}>
-                      {g.name}
-                    </option>
-                  ))}
-                </select>
+                </div>
+
+                <div className="group-select-picker">
+                  <label htmlFor="group-select">Sélection directe</label>
+                  <select
+                    id="group-select"
+                    value={groupId}
+                    onChange={(e) => selectGroup(e.target.value)}
+                    aria-label="Sélectionner un groupement"
+                  >
+                    {!groups.length && (
+                      <option value="">{loading ? 'Chargement…' : 'Aucun groupement'}</option>
+                    )}
+                    {groups.map((g) => (
+                      <option key={g.id} value={g.id}>
+                        {g.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {groupTotal > 25 && (
+                  <Pager page={groupPage} total={groupTotal} onChange={setGroupPage} />
+                )}
               </div>
-              <span className="group-address">{group?.address}</span>
+
+              {/* Fiche détaillée du groupement sélectionné */}
               {group && (
-                <button
-                  type="button"
-                  className="icon-button"
-                  title="QR Code du Groupement"
-                  onClick={() =>
-                    setQrModal({
-                      title: `Groupement · ${group.name}`,
-                      subtitle: `${group.address} · Tél: ${group.phone}`,
-                      data: `ALF:GROUP:${group.id}`,
-                    })
-                  }
-                >
-                  <QrCode size={18} />
-                </button>
+                <div className="group-details-card">
+                  <div className="group-details-main">
+                    <div className="group-details-avatar">
+                      <Users size={22} />
+                    </div>
+                    <div className="group-details-info">
+                      <div className="group-details-header">
+                        <h3 className="group-details-name">{group.name}</h3>
+                        <span className="badge-pill-success">Groupement solidaire</span>
+                      </div>
+                      <div className="group-details-meta">
+                        <span className="group-meta-item">
+                          <MapPin size={14} />
+                          <span>{group.address}</span>
+                        </span>
+                        <span className="group-meta-item">
+                          <Phone size={14} />
+                          <a href={`tel:${group.phone}`}>{group.phone}</a>
+                        </span>
+                        {group.responsible && (
+                          <span className="group-meta-item muted">
+                            Responsable : {group.responsible}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="group-details-actions">
+                    <button
+                      type="button"
+                      className="btn-group-qr"
+                      onClick={() =>
+                        setQrModal({
+                          title: `Groupement · ${group.name}`,
+                          subtitle: `${group.address} · Tél: ${group.phone}`,
+                          data: `ALF:GROUP:${group.id}`,
+                        })
+                      }
+                    >
+                      <QrCode size={16} />
+                      <span>Code QR du Groupement</span>
+                    </button>
+                  </div>
+                </div>
               )}
-              {groupTotal > 25 && (
-                <Pager page={groupPage} total={groupTotal} onChange={setGroupPage} />
-              )}
-              <ChevronDown size={17} />
-            </div>
+            </>
           )}
           {!groupId && tab !== 'types' && tab !== 'cockpit' && !loading ? (
             <div className="empty big">
@@ -1735,13 +1926,29 @@ export function App({
                         <h2>Campagnes du groupement</h2>
                         <p className="muted">Une période, un rythme et des projets partagés.</p>
                       </div>
-                      {canManage && (
+                      {(superAdmin || canManage) && Boolean(groupId) && (
                         <button className="primary" onClick={() => open('campaign')}>
                           <Plus size={17} />
                           Créer une campagne
                         </button>
                       )}
                     </div>
+                    {!campaigns.length && (
+                      <div className="empty" style={{ margin: '24px 0' }}>
+                        <FolderHeart size={36} />
+                        <p>Aucune campagne enregistrée pour ce groupement.</p>
+                        {(superAdmin || canManage) && Boolean(groupId) && (
+                          <button
+                            className="primary"
+                            onClick={() => open('campaign')}
+                            style={{ marginTop: 12 }}
+                          >
+                            <Plus size={16} />
+                            Créer une campagne
+                          </button>
+                        )}
+                      </div>
+                    )}
                     <div className="campaign-grid">
                       {campaigns.map((c) => (
                         <article
@@ -2050,6 +2257,12 @@ export function App({
                           Solidarité…)
                         </p>
                       </div>
+                      {superAdmin && (
+                        <button className="primary" onClick={() => open('event')}>
+                          <Plus size={16} />
+                          Créer un événement
+                        </button>
+                      )}
                     </div>
                     <div className="table-scroll">
                       <table>
@@ -2058,16 +2271,46 @@ export function App({
                             <th>Nom</th>
                             <th>Code</th>
                             <th>Description</th>
+                            {superAdmin && <th>Actions</th>}
                           </tr>
                         </thead>
                         <tbody>
                           {events.map((e) => (
                             <tr key={e.id}>
-                              <td>{e.name}</td>
                               <td>
-                                <code>{e.code}</code>
+                                <strong>{e.name}</strong>
+                              </td>
+                              <td>
+                                <span className="badge-code">{e.code}</span>
                               </td>
                               <td>{e.description || '—'}</td>
+                              {superAdmin && (
+                                <td>
+                                  <div style={{ display: 'flex', gap: 6 }}>
+                                    <button
+                                      type="button"
+                                      className="text-button"
+                                      style={{ padding: '4px 8px', fontSize: 12 }}
+                                      onClick={() => {
+                                        setEditEvent(e);
+                                        open('edit-event');
+                                      }}
+                                    >
+                                      <Edit2 size={13} />
+                                      Modifier
+                                    </button>
+                                    <button
+                                      type="button"
+                                      className="text-button"
+                                      style={{ padding: '4px 8px', fontSize: 12, color: '#dc2626' }}
+                                      onClick={() => handleDeleteEvent(e)}
+                                    >
+                                      <Trash2 size={13} />
+                                      Supprimer
+                                    </button>
+                                  </div>
+                                </td>
+                              )}
                             </tr>
                           ))}
                         </tbody>
@@ -2080,10 +2323,16 @@ export function App({
                       <div>
                         <h2>Catalogue des types de campagne</h2>
                         <p className="muted">
-                          Le premier incrément prend en charge Avec Épargne, Tontine rotative et
-                          Caisse de solidarité.
+                          Modèles d’épargne pris en charge : Avec Épargne, Tontine rotative, Caisse
+                          de solidarité.
                         </p>
                       </div>
+                      {superAdmin && (
+                        <button className="primary" onClick={() => open('type')}>
+                          <Plus size={16} />
+                          Créer un type de campagne
+                        </button>
+                      )}
                     </div>
                     <div className="table-scroll">
                       <table>
@@ -2092,16 +2341,46 @@ export function App({
                             <th>Nom</th>
                             <th>Code</th>
                             <th>Version des règles</th>
+                            {superAdmin && <th>Actions</th>}
                           </tr>
                         </thead>
                         <tbody>
                           {types.map((t) => (
                             <tr key={t.id}>
-                              <td>{t.name}</td>
                               <td>
-                                <code>{t.code}</code>
+                                <strong>{t.name}</strong>
                               </td>
-                              <td>{t.rule_version}</td>
+                              <td>
+                                <span className="badge-code">{t.code}</span>
+                              </td>
+                              <td>Modèle standard v{t.rule_version}</td>
+                              {superAdmin && (
+                                <td>
+                                  <div style={{ display: 'flex', gap: 6 }}>
+                                    <button
+                                      type="button"
+                                      className="text-button"
+                                      style={{ padding: '4px 8px', fontSize: 12 }}
+                                      onClick={() => {
+                                        setEditType(t);
+                                        open('edit-type');
+                                      }}
+                                    >
+                                      <Edit2 size={13} />
+                                      Modifier
+                                    </button>
+                                    <button
+                                      type="button"
+                                      className="text-button"
+                                      style={{ padding: '4px 8px', fontSize: 12, color: '#dc2626' }}
+                                      onClick={() => handleDeleteType(t)}
+                                    >
+                                      <Trash2 size={13} />
+                                      Supprimer
+                                    </button>
+                                  </div>
+                                </td>
+                              )}
                             </tr>
                           ))}
                         </tbody>
@@ -2135,8 +2414,10 @@ export function App({
             {
               group: 'Créer un groupement',
               member: 'Ajouter une membre',
-              type: 'Créer un type Avec',
+              type: 'Créer un type de campagne',
+              'edit-type': 'Modifier le type de campagne',
               event: 'Créer un événement',
+              'edit-event': 'Modifier l’événement',
               campaign: 'Créer une campagne',
               participant: 'Configurer une participation',
               contribution: 'Enregistrer une cotisation',
@@ -2150,7 +2431,9 @@ export function App({
               group: 'Enregistrez un groupement d’épargne solidaire.',
               member: 'Ajoutez une participante et définissez sa fonction statutaire.',
               type: 'Créez un nouveau modèle de règles d’épargne solidaire.',
+              'edit-type': 'Mettez à jour le nom ou le code du type de campagne.',
               event: 'Ajoutez un événement au catalogue de la plateforme.',
+              'edit-event': 'Mettez à jour les informations de cet événement.',
               campaign: 'Paramétrez une campagne d’épargne ou tontine rotative.',
               participant: 'Inscrivez une membre et définissez son forfait.',
               contribution: 'Saisie de versement en séance pour la participante sélectionnée.',
@@ -2413,6 +2696,36 @@ export function App({
                   </Field>
                 </>
               )}
+              {dialog === 'edit-event' && editEvent && (
+                <>
+                  <Field label="Nom de l’événement">
+                    <input
+                      name="name"
+                      required
+                      minLength={2}
+                      defaultValue={editEvent.name}
+                      placeholder="Ex: Rentrée scolaire"
+                    />
+                  </Field>
+                  <Field label="Code unique en majuscules">
+                    <input
+                      name="code"
+                      required
+                      pattern="[A-Z][A-Z0-9_]{1,39}"
+                      defaultValue={editEvent.code}
+                      placeholder="Ex: RENTREE"
+                    />
+                  </Field>
+                  <Field label="Description">
+                    <input
+                      name="description"
+                      defaultValue={editEvent.description || ''}
+                      placeholder="Frais d’inscription, fournitures scolaires..."
+                      maxLength={250}
+                    />
+                  </Field>
+                </>
+              )}
               {dialog === 'type' && (
                 <>
                   <Field label="Nom du type">
@@ -2429,6 +2742,32 @@ export function App({
                   <div className="dialog-info-pill">
                     <Sparkles size={16} />
                     <span>Ce type utilisera les règles et le moteur de calcul Avec Épargne.</span>
+                  </div>
+                </>
+              )}
+              {dialog === 'edit-type' && editType && (
+                <>
+                  <Field label="Nom du type">
+                    <input
+                      name="name"
+                      required
+                      minLength={2}
+                      defaultValue={editType.name}
+                      placeholder="Ex: Tontine rotative"
+                    />
+                  </Field>
+                  <Field label="Code unique en majuscules">
+                    <input
+                      name="code"
+                      required
+                      pattern="[A-Z][A-Z0-9_]{1,39}"
+                      defaultValue={editType.code}
+                      placeholder="Ex: TONTINE"
+                    />
+                  </Field>
+                  <div className="dialog-info-pill">
+                    <Sparkles size={16} />
+                    <span>Modèle standard v{editType.rule_version}</span>
                   </div>
                 </>
               )}

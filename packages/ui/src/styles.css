@@ -1743,3 +1743,235 @@ textarea {
   color: #2e7d32;
   border-radius: 12px;
 }
+
+/* Autocomplete search for groupements */
+.group-autocomplete-wrapper {
+  position: relative;
+  flex: 1;
+  min-width: 240px;
+}
+
+.group-select-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 200px;
+}
+
+.group-select-picker label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+  margin-bottom: 2px;
+}
+
+.group-select-picker select {
+  border: 1px solid #d1d5db !important;
+  border-radius: 8px !important;
+  padding: 8px 12px !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: #1e293b !important;
+  background: #f8faf9 !important;
+  appearance: auto !important;
+  cursor: pointer;
+  outline: none;
+  min-height: 38px;
+  transition: all 0.2s ease;
+}
+
+.group-select-picker select:focus {
+  border-color: var(--green) !important;
+  background: #fff !important;
+  box-shadow: 0 0 0 3px rgba(22, 101, 52, 0.12);
+}
+
+.group-autocomplete-input-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f8faf9;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 8px 12px;
+  transition: all 0.2s ease;
+}
+
+.group-autocomplete-input-box:focus-within {
+  border-color: var(--green);
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(22, 101, 52, 0.12);
+}
+
+.group-autocomplete-input-box input {
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  font-size: 13px;
+  font-weight: 500;
+  width: 100%;
+  color: #1e293b;
+  outline: none !important;
+}
+
+.group-autocomplete-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  box-shadow:
+    0 10px 25px -5px rgba(0, 0, 0, 0.1),
+    0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  max-height: 260px;
+  overflow-y: auto;
+  z-index: 100;
+  padding: 4px;
+}
+
+.group-autocomplete-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.group-autocomplete-item:hover,
+.group-autocomplete-item.selected {
+  background: #f0fdf4;
+}
+
+.group-autocomplete-item strong {
+  font-size: 13px;
+  color: #1e293b;
+}
+
+.group-autocomplete-item .muted {
+  font-size: 11px;
+  color: #64748b;
+}
+
+/* Group details card */
+.group-details-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 20px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  margin-bottom: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.group-details-main {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 1;
+  min-width: 0;
+}
+
+.group-details-avatar {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: #e8f5e9;
+  color: var(--green);
+  flex-shrink: 0;
+}
+
+.group-details-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.group-details-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.group-details-name {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+  color: #17332c;
+}
+
+.badge-pill-success {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  background: #dcfce7;
+  color: #15803d;
+  border-radius: 12px;
+}
+
+.group-details-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.group-meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: #475569;
+}
+
+.group-meta-item a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.group-meta-item a:hover {
+  text-decoration: underline;
+}
+
+.btn-group-qr {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: #f0fdf4;
+  border: 1.5px solid #86efac;
+  color: #166534;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-group-qr:hover {
+  background: #dcfce7;
+  border-color: #4ade80;
+  transform: translateY(-1px);
+}
+
+@media (max-width: 768px) {
+  .group-details-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .btn-group-qr {
+    width: 100%;
+    justify-content: center;
+  }
+}

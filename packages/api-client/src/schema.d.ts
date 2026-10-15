@@ -292,6 +292,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/campaign-events/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["deleteCampaignEvent"];
+        options?: never;
+        head?: never;
+        patch: operations["updateCampaignEvent"];
+        trace?: never;
+    };
     "/api/v1/campaign-types": {
         parameters: {
             query?: never;
@@ -306,6 +322,22 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/api/v1/campaign-types/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["deleteType"];
+        options?: never;
+        head?: never;
+        patch: operations["updateType"];
         trace?: never;
     };
     "/api/v1/groupements/{groupId}/campaigns": {
@@ -670,9 +702,18 @@ export interface components {
             code: string;
             description?: string;
         };
+        UpdateCampaignEventDto: {
+            name?: string;
+            code?: string;
+            description?: string;
+        };
         CreateTypeDto: {
             name: string;
             code: string;
+        };
+        UpdateTypeDto: {
+            name?: string;
+            code?: string;
         };
         CampaignView: {
             id: string;
@@ -1365,6 +1406,50 @@ export interface operations {
             };
         };
     };
+    deleteCampaignEvent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    updateCampaignEvent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateCampaignEventDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CampaignEventView"];
+                };
+            };
+        };
+    };
     listTypes: {
         parameters: {
             query?: never;
@@ -1398,6 +1483,50 @@ export interface operations {
         };
         responses: {
             201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TypeView"];
+                };
+            };
+        };
+    };
+    deleteType: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    updateType: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateTypeDto"];
+            };
+        };
+        responses: {
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };

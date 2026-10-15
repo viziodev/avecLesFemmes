@@ -204,7 +204,7 @@ export class AuthController {
   }
   @Public()
   @Post('login')
-  @Throttle({ default: { limit: 10, ttl: 60000 } })
+  @Throttle({ default: { limit: 60, ttl: 60000 } })
   @ApiOperation({ operationId: 'login' })
   @ApiCreatedResponse({ type: ActorView })
   async login(@Body() input: LoginDto, @Res({ passthrough: true }) res: Response) {
@@ -214,7 +214,7 @@ export class AuthController {
   }
   @Public()
   @Post('login/pin')
-  @Throttle({ default: { limit: 10, ttl: 60000 } })
+  @Throttle({ default: { limit: 60, ttl: 60000 } })
   @ApiOperation({ operationId: 'loginPin' })
   @ApiCreatedResponse({ type: ActorView })
   async loginPin(@Body() input: PinLoginDto, @Res({ passthrough: true }) res: Response) {
@@ -224,7 +224,7 @@ export class AuthController {
   }
   @Public()
   @Post('otp/request')
-  @Throttle({ default: { limit: 5, ttl: 60000 } })
+  @Throttle({ default: { limit: 20, ttl: 60000 } })
   @ApiOperation({ operationId: 'requestOtp' })
   @ApiCreatedResponse({ type: OtpRequestView })
   requestOtp(@Body() input: PhoneDto) {
@@ -232,7 +232,7 @@ export class AuthController {
   }
   @Public()
   @Post('otp/verify')
-  @Throttle({ default: { limit: 10, ttl: 60000 } })
+  @Throttle({ default: { limit: 30, ttl: 60000 } })
   @ApiOperation({ operationId: 'verifyOtp' })
   @ApiCreatedResponse({ type: ActorView })
   async verifyOtp(@Body() input: OtpDto, @Res({ passthrough: true }) res: Response) {

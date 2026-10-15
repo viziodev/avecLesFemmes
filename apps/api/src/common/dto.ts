@@ -115,9 +115,20 @@ export class CreateTypeDto {
   @ApiProperty() @IsString() @Matches(/^[A-Z][A-Z0-9_]{1,39}$/) code!: string;
 }
 
+export class UpdateTypeDto {
+  @ApiPropertyOptional() @IsOptional() @IsString() @MinLength(2) @MaxLength(120) name?: string;
+  @ApiPropertyOptional() @IsOptional() @IsString() @Matches(/^[A-Z][A-Z0-9_]{1,39}$/) code?: string;
+}
+
 export class CreateCampaignEventDto {
   @ApiProperty() @IsString() @MinLength(2) @MaxLength(120) name!: string;
   @ApiProperty() @IsString() @Matches(/^[A-Z][A-Z0-9_]{1,39}$/) code!: string;
+  @ApiPropertyOptional() @IsOptional() @IsString() @MaxLength(250) description?: string;
+}
+
+export class UpdateCampaignEventDto {
+  @ApiPropertyOptional() @IsOptional() @IsString() @MinLength(2) @MaxLength(120) name?: string;
+  @ApiPropertyOptional() @IsOptional() @IsString() @Matches(/^[A-Z][A-Z0-9_]{1,39}$/) code?: string;
   @ApiPropertyOptional() @IsOptional() @IsString() @MaxLength(250) description?: string;
 }
 
