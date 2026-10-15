@@ -14,8 +14,11 @@ import {
   ChevronUp,
   Clock,
   Coins,
+  Copy,
   Download,
   Edit2,
+  Eye,
+  EyeOff,
   Filter,
   FolderHeart,
   KeyRound,
@@ -34,6 +37,7 @@ import {
   Sparkles,
   Trash2,
   Unlock,
+  UserCheck,
   UserPlus,
   Users,
   Wallet,
@@ -255,8 +259,62 @@ function Login({ portal, onLogin }: { portal: 'super' | 'member'; onLogin: (a: A
   const [sent, setSent] = useState(false);
   const [localCode, setLocalCode] = useState('');
 
+  // États pour la saisie et le pré-remplissage interactif
+  const [loginVal, setLoginVal] = useState('');
+  const [passwordVal, setPasswordVal] = useState('');
+  const [phoneVal, setPhoneVal] = useState('');
+  const [pinVal, setPinVal] = useState('');
+  const [demoPassword, setDemoPassword] = useState('be3c24993bdd62d7b39c1b25');
+  const [showPassword, setShowPassword] = useState(false);
+  const [copiedKey, setCopiedKey] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch('/api/v1/auth/demo')
+      .then((r) => r.json())
+      .then((data) => {
+        if (data?.demoPassword) {
+          setDemoPassword(data.demoPassword);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const copyToClipboard = (text: string, key: string) => {
+    if (navigator?.clipboard?.writeText) {
+      navigator.clipboard.writeText(text).catch(() => {});
+    }
+    setCopiedKey(key);
+    setTimeout(() => {
+      setCopiedKey((curr) => (curr === key ? null : curr));
+    }, 2000);
+  };
+
+  const handleAutoFill = (opts: {
+    mode: 'password' | 'pin' | 'phone';
+    login?: string;
+    phone?: string;
+    pin?: string;
+  }) => {
+    setMode(opts.mode);
+    setError('');
+    setSent(false);
+    setLocalCode('');
+    if (opts.login !== undefined) setLoginVal(opts.login);
+    if (demoPassword) setPasswordVal(demoPassword);
+    if (opts.phone !== undefined) {
+      setPhoneVal(opts.phone);
+      setPhone(opts.phone);
+    }
+    if (opts.pin !== undefined) setPinVal(opts.pin);
+  };
+
   async function submit(e: FormEvent<HTMLFormElement>) {
     const v = values(e);
+    const effectiveLogin = (v.login || loginVal).trim();
+    const effectivePassword = v.password || passwordVal;
+    const effectivePhone = (v.phone || phoneVal).trim();
+    const effectivePin = (v.pin || pinVal).trim();
+
     setError('');
     setBusy(true);
     try {
@@ -264,7 +322,7 @@ function Login({ portal, onLogin }: { portal: 'super' | 'member'; onLogin: (a: A
         onLogin(
           await unwrap(
             await api.POST('/api/v1/auth/login/pin', {
-              body: { phone: v.phone, pin: v.pin },
+              body: { phone: effectivePhone, pin: effectivePin },
             }),
           ),
         );
@@ -272,15 +330,15 @@ function Login({ portal, onLogin }: { portal: 'super' | 'member'; onLogin: (a: A
         onLogin(
           await unwrap(
             await api.POST('/api/v1/auth/login', {
-              body: { login: v.login, password: v.password },
+              body: { login: effectiveLogin, password: effectivePassword },
             }),
           ),
         );
       } else if (!sent) {
         const response = await unwrap(
-          await api.POST('/api/v1/auth/otp/request', { body: { phone: v.phone } }),
+          await api.POST('/api/v1/auth/otp/request', { body: { phone: effectivePhone } }),
         );
-        setPhone(v.phone);
+        setPhone(effectivePhone);
         setLocalCode(response.developmentCode || '');
         setSent(true);
         setError(response.message);
@@ -319,6 +377,21 @@ function Login({ portal, onLogin }: { portal: 'super' | 'member'; onLogin: (a: A
               <br />
               <small>Chaque contribution compte.</small>
             </span>
+          </div>
+          <div className="login-story-credentials">
+            <span className="story-creds-title">
+              <KeyRound size={15} />
+              Identifiants de test disponibles
+            </span>
+            {portal === 'super' ? (
+              <p style={{ margin: 0, fontSize: 12, color: '#2a5135', lineHeight: 1.5 }}>
+                Compte : <strong>superadmin</strong> · SMS : <strong>+221770000001</strong>
+              </p>
+            ) : (
+              <p style={{ margin: 0, fontSize: 12, color: '#2a5135', lineHeight: 1.5 }}>
+                Admin : <strong>admin.ndeye</strong> · Membre : <strong>membre.awa</strong>
+              </p>
+            )}
           </div>
         </div>
         <small>AvecLesFemmes · Épargne solidaire</small>
@@ -378,6 +451,8 @@ function Login({ portal, onLogin }: { portal: 'super' | 'member'; onLogin: (a: A
                     autoComplete="tel"
                     placeholder="+221771234567"
                     pattern="\+[1-9][0-9]{7,14}"
+                    value={phoneVal}
+                    onChange={(e) => setPhoneVal(e.target.value)}
                     required
                   />
                 </Field>
@@ -389,6 +464,8 @@ function Login({ portal, onLogin }: { portal: 'super' | 'member'; onLogin: (a: A
                     pattern="[0-9]{4}"
                     maxLength={4}
                     placeholder="••••"
+                    value={pinVal}
+                    onChange={(e) => setPinVal(e.target.value)}
                     required
                   />
                 </Field>
@@ -400,6 +477,8 @@ function Login({ portal, onLogin }: { portal: 'super' | 'member'; onLogin: (a: A
                     name="login"
                     autoComplete="username"
                     placeholder="Votre identifiant"
+                    value={loginVal}
+                    onChange={(e) => setLoginVal(e.target.value)}
                     required
                   />
                 </Field>
@@ -409,6 +488,8 @@ function Login({ portal, onLogin }: { portal: 'super' | 'member'; onLogin: (a: A
                     type="password"
                     autoComplete="current-password"
                     placeholder="Votre mot de passe"
+                    value={passwordVal}
+                    onChange={(e) => setPasswordVal(e.target.value)}
                     required
                   />
                 </Field>
@@ -442,6 +523,8 @@ function Login({ portal, onLogin }: { portal: 'super' | 'member'; onLogin: (a: A
                   autoComplete="tel"
                   placeholder="+221771234567"
                   pattern="\+[1-9][0-9]{7,14}"
+                  value={phoneVal}
+                  onChange={(e) => setPhoneVal(e.target.value)}
                   required
                 />
               </Field>
@@ -473,6 +556,245 @@ function Login({ portal, onLogin }: { portal: 'super' | 'member'; onLogin: (a: A
             )}
           </fieldset>
         </form>
+
+        {/* Section explicite des identifiants et comptes de test */}
+        <div className="login-demo-card">
+          <div className="login-demo-header">
+            <div className="login-demo-title">
+              <KeyRound size={16} />
+              <span>Identifiants & Comptes de test</span>
+            </div>
+            <span className="login-demo-badge">
+              {portal === 'super' ? 'Espace Super Admin' : 'Espace Membre & Groupement'}
+            </span>
+          </div>
+
+          <p className="login-demo-instructions">
+            💡 Cliquez sur <strong>« Remplir »</strong> pour renseigner automatiquement le formulaire sans saisie manuelle.
+          </p>
+
+          <div className="login-demo-accounts">
+            {portal === 'super' ? (
+              <div className="login-demo-item">
+                <div className="login-demo-item-top">
+                  <div className="login-demo-item-role">
+                    <ShieldCheck size={14} className="muted" />
+                    <strong>Super Administrateur</strong>
+                  </div>
+                  <span className="login-demo-tag super">Plateforme</span>
+                </div>
+                <div className="login-demo-item-desc">
+                  Accès global, pilotage des groupements, types et événements
+                </div>
+                <div className="login-demo-fields">
+                  <div className="login-demo-field-pill">
+                    <span>Identifiant :</span>
+                    <code>superadmin</code>
+                    <button
+                      type="button"
+                      className="login-demo-copy-btn"
+                      title="Copier l'identifiant"
+                      onClick={() => copyToClipboard('superadmin', 'superadmin-login')}
+                    >
+                      {copiedKey === 'superadmin-login' ? <Check size={12} color="#1c4b28" /> : <Copy size={12} />}
+                    </button>
+                  </div>
+                  <div className="login-demo-field-pill">
+                    <span>Tél SMS :</span>
+                    <code>+221770000001</code>
+                    <button
+                      type="button"
+                      className="login-demo-copy-btn"
+                      title="Copier le numéro"
+                      onClick={() => copyToClipboard('+221770000001', 'superadmin-phone')}
+                    >
+                      {copiedKey === 'superadmin-phone' ? <Check size={12} color="#1c4b28" /> : <Copy size={12} />}
+                    </button>
+                  </div>
+                </div>
+                <div className="login-demo-actions">
+                  <button
+                    type="button"
+                    className="login-demo-btn-fill"
+                    onClick={() => handleAutoFill({ mode: 'password', login: 'superadmin' })}
+                  >
+                    <Check size={13} />
+                    Remplir (Identifiant)
+                  </button>
+                  <button
+                    type="button"
+                    className="login-demo-btn-fill"
+                    onClick={() => handleAutoFill({ mode: 'phone', phone: '+221770000001' })}
+                  >
+                    <Phone size={13} />
+                    Remplir (SMS)
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <>
+                <div className="login-demo-item">
+                  <div className="login-demo-item-top">
+                    <div className="login-demo-item-role">
+                      <Users size={14} className="muted" />
+                      <strong>Ndèye Diop (Administratrice)</strong>
+                    </div>
+                    <span className="login-demo-tag admin">Groupement</span>
+                  </div>
+                  <div className="login-demo-item-desc">
+                    Les Femmes de Grand Yoff · Campagnes, membres & cotisations
+                  </div>
+                  <div className="login-demo-fields">
+                    <div className="login-demo-field-pill">
+                      <span>Identifiant :</span>
+                      <code>admin.ndeye</code>
+                      <button
+                        type="button"
+                        className="login-demo-copy-btn"
+                        title="Copier l'identifiant"
+                        onClick={() => copyToClipboard('admin.ndeye', 'admin-ndeye-login')}
+                      >
+                        {copiedKey === 'admin-ndeye-login' ? <Check size={12} color="#1c4b28" /> : <Copy size={12} />}
+                      </button>
+                    </div>
+                    <div className="login-demo-field-pill">
+                      <span>Tél (SMS/PIN) :</span>
+                      <code>+221770000002</code>
+                      <button
+                        type="button"
+                        className="login-demo-copy-btn"
+                        title="Copier le numéro"
+                        onClick={() => copyToClipboard('+221770000002', 'admin-ndeye-phone')}
+                      >
+                        {copiedKey === 'admin-ndeye-phone' ? <Check size={12} color="#1c4b28" /> : <Copy size={12} />}
+                      </button>
+                    </div>
+                  </div>
+                  <div className="login-demo-actions">
+                    <button
+                      type="button"
+                      className="login-demo-btn-fill"
+                      onClick={() => handleAutoFill({ mode: 'password', login: 'admin.ndeye' })}
+                    >
+                      <Check size={13} />
+                      Remplir (Identifiant)
+                    </button>
+                    <button
+                      type="button"
+                      className="login-demo-btn-fill"
+                      onClick={() => handleAutoFill({ mode: 'phone', phone: '+221770000002' })}
+                    >
+                      <Phone size={13} />
+                      Remplir (SMS)
+                    </button>
+                  </div>
+                </div>
+
+                <div className="login-demo-item">
+                  <div className="login-demo-item-top">
+                    <div className="login-demo-item-role">
+                      <UserCheck size={14} className="muted" />
+                      <strong>Awa Fall (Membre participante)</strong>
+                    </div>
+                    <span className="login-demo-tag member">Membre</span>
+                  </div>
+                  <div className="login-demo-item-desc">
+                    Les Femmes de Grand Yoff · Épargne personnelle & QR Code
+                  </div>
+                  <div className="login-demo-fields">
+                    <div className="login-demo-field-pill">
+                      <span>Identifiant :</span>
+                      <code>membre.awa</code>
+                      <button
+                        type="button"
+                        className="login-demo-copy-btn"
+                        title="Copier l'identifiant"
+                        onClick={() => copyToClipboard('membre.awa', 'membre-awa-login')}
+                      >
+                        {copiedKey === 'membre-awa-login' ? <Check size={12} color="#1c4b28" /> : <Copy size={12} />}
+                      </button>
+                    </div>
+                    <div className="login-demo-field-pill">
+                      <span>Tél (SMS/PIN) :</span>
+                      <code>+221770000003</code>
+                      <button
+                        type="button"
+                        className="login-demo-copy-btn"
+                        title="Copier le numéro"
+                        onClick={() => copyToClipboard('+221770000003', 'membre-awa-phone')}
+                      >
+                        {copiedKey === 'membre-awa-phone' ? <Check size={12} color="#1c4b28" /> : <Copy size={12} />}
+                      </button>
+                    </div>
+                  </div>
+                  <div className="login-demo-actions">
+                    <button
+                      type="button"
+                      className="login-demo-btn-fill"
+                      onClick={() => handleAutoFill({ mode: 'password', login: 'membre.awa' })}
+                    >
+                      <Check size={13} />
+                      Remplir (Identifiant)
+                    </button>
+                    <button
+                      type="button"
+                      className="login-demo-btn-fill"
+                      onClick={() => handleAutoFill({ mode: 'phone', phone: '+221770000003' })}
+                    >
+                      <Phone size={13} />
+                      Remplir (SMS)
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* Barre du mot de passe commun */}
+          <div className="login-demo-password-bar">
+            <div className="login-demo-password-info">
+              <Lock size={13} className="muted" />
+              <span>Mot de passe :</span>
+              <span className="login-demo-password-val">
+                {showPassword ? demoPassword : '••••••••••••'}
+              </span>
+              <button
+                type="button"
+                className="login-demo-copy-btn"
+                title={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? <EyeOff size={13} /> : <Eye size={13} />}
+              </button>
+              <button
+                type="button"
+                className="login-demo-copy-btn"
+                title="Copier le mot de passe"
+                onClick={() => copyToClipboard(demoPassword, 'password-val')}
+              >
+                {copiedKey === 'password-val' ? <Check size={13} color="#1c4b28" /> : <Copy size={13} />}
+              </button>
+            </div>
+            {copiedKey === 'password-val' && (
+              <span style={{ fontSize: 10, color: '#1c4b28', fontWeight: 600 }}>Copié !</span>
+            )}
+          </div>
+
+          <div className="login-demo-footer">
+            {portal === 'super' ? (
+              <span>
+                💡 Vous souhaitez tester l’espace membre ou groupement ? Rendez-vous sur la{' '}
+                <strong>PWA Membre</strong> (port 8086 ou 5174) avec les comptes <code>admin.ndeye</code> ou <code>membre.awa</code>.
+              </span>
+            ) : (
+              <span>
+                💡 Vous êtes Super Administrateur ? Rendez-vous sur la{' '}
+                <strong>Console Super Admin</strong> (port 8085 ou 5173) avec le compte <code>superadmin</code>.
+              </span>
+            )}
+          </div>
+        </div>
+
         <p className="login-help">
           Votre accès est créé par votre responsable de groupement ou l’administration.
         </p>

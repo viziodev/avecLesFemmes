@@ -530,3 +530,68 @@ test('filtres autocomplete cotisations (session, periode, membre) et recherche d
   await expect(page.getByRole('heading', { name: 'Bienvenue dans votre espace' })).toBeVisible();
 });
 
+test('informations de connexion et préremplissage automatique sur les pages de connexion', async ({
+  page,
+}) => {
+  // 1. Page de connexion Super Admin
+  await page.goto('./');
+  const logoutBtn = page.getByRole('button', { name: 'Se déconnecter', exact: true });
+  if (await logoutBtn.isVisible()) {
+    await logoutBtn.click();
+    await expect(page.getByRole('heading', { name: 'Bienvenue dans votre espace' })).toBeVisible();
+  }
+
+  // Vérifier la présence de la carte des infos de connexion
+  const superDemoCard = page.locator('.login-demo-card');
+  await expect(superDemoCard).toBeVisible();
+  await expect(superDemoCard).toContainText('superadmin');
+  await expect(superDemoCard).toContainText('+221770000001');
+
+  await page.screenshot({ path: 'test-results/superadmin-login-demo-info.png' });
+
+  // Tester le bouton de pré-remplissage 1-clic pour superadmin
+  await page.locator('.login-demo-btn-fill', { hasText: 'Remplir (Identifiant)' }).first().click();
+  await expect(page.getByLabel('Identifiant', { exact: true })).toHaveValue('superadmin');
+  await expect(page.getByLabel('Mot de passe', { exact: true })).not.toHaveValue('');
+
+  // Se connecter avec les identifiants préremplis
+  await page.getByRole('button', { name: 'Se connecter', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Vue d’ensemble', exact: true })).toBeVisible();
+
+  // Déconnexion
+  await page.getByRole('button', { name: 'Se déconnecter', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Bienvenue dans votre espace' })).toBeVisible();
+
+  // 2. Page de connexion Espace Membres & Groupements (PWA)
+  await page.goto(pwa);
+  const pwaLogout = page.getByRole('button', { name: 'Se déconnecter', exact: true });
+  if (await pwaLogout.isVisible()) {
+    await pwaLogout.click();
+    await expect(page.getByRole('heading', { name: 'Bienvenue dans votre espace' })).toBeVisible();
+  }
+
+  // Vérifier la présence de la carte des infos de connexion PWA
+  const pwaDemoCard = page.locator('.login-demo-card');
+  await expect(pwaDemoCard).toBeVisible();
+  await expect(pwaDemoCard).toContainText('admin.ndeye');
+  await expect(pwaDemoCard).toContainText('membre.awa');
+  await expect(pwaDemoCard).toContainText('+221770000002');
+  await expect(pwaDemoCard).toContainText('+221770000003');
+
+  await page.screenshot({ path: 'test-results/membres-pwa-login-demo-info.png' });
+
+  // Tester le pré-remplissage 1-clic pour l'administratrice de groupement
+  await page.locator('.login-demo-btn-fill', { hasText: 'Remplir (Identifiant)' }).first().click();
+  await expect(page.getByLabel('Identifiant', { exact: true })).toHaveValue('admin.ndeye');
+  await expect(page.getByLabel('Mot de passe', { exact: true })).not.toHaveValue('');
+
+  // Connexion avec les identifiants préremplis
+  await page.getByRole('button', { name: 'Se connecter', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Vue d’ensemble', exact: true })).toBeVisible();
+
+  // Déconnexion
+  await page.getByRole('button', { name: 'Se déconnecter', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Bienvenue dans votre espace' })).toBeVisible();
+});
+
+

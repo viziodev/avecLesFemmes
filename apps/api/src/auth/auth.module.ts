@@ -258,6 +258,19 @@ export class AuthController {
     });
     return { ok: true };
   }
+  @Public()
+  @Get('demo')
+  @ApiOperation({ operationId: 'demoCredentials' })
+  demoCredentials() {
+    if (settings.production) {
+      return { demoPassword: null, isDemo: false };
+    }
+    return {
+      demoPassword: process.env.DEMO_PASSWORD || 'be3c24993bdd62d7b39c1b25',
+      smsMode: process.env.SMS_MODE || 'development',
+      isDemo: true,
+    };
+  }
 }
 @Module({
   controllers: [AuthController],

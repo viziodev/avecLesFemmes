@@ -2852,3 +2852,232 @@ textarea {
   border-radius: 12px;
   border: 1px solid #e2e8f0;
 }
+
+/* ==========================================================================
+   Comptes de test & Infos de connexion (Login)
+   ========================================================================== */
+
+.login-demo-card {
+  margin-top: 24px;
+  background: #f7faf7;
+  border: 1px solid #d4e5d4;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(20, 43, 37, 0.04);
+}
+
+.login-demo-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e3ede3;
+}
+
+.login-demo-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--green);
+}
+
+.login-demo-badge {
+  font-size: 10px;
+  font-weight: 600;
+  background: #e6f2e6;
+  color: #2e623b;
+  padding: 3px 8px;
+  border-radius: 12px;
+  border: 1px solid #c7dec7;
+}
+
+.login-demo-instructions {
+  font-size: 11.5px;
+  color: #607260;
+  margin: 0 0 12px 0;
+  line-height: 1.4;
+}
+
+.login-demo-accounts {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.login-demo-item {
+  background: #ffffff;
+  border: 1px solid #e2ece2;
+  border-radius: 8px;
+  padding: 10px 12px;
+  transition: all 0.15s ease;
+}
+
+.login-demo-item:hover {
+  border-color: #a9caa9;
+  box-shadow: 0 2px 6px rgba(30, 65, 45, 0.06);
+}
+
+.login-demo-item-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.login-demo-item-role {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #1e3a24;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.login-demo-tag {
+  font-size: 9.5px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+.login-demo-tag.super { background: #d7e8d7; color: #1c4b28; }
+.login-demo-tag.admin { background: #e3eeea; color: #1f5038; }
+.login-demo-tag.member { background: #eef3eb; color: #3c5d33; }
+
+.login-demo-item-desc {
+  font-size: 11px;
+  color: #728472;
+  margin-bottom: 8px;
+  line-height: 1.35;
+}
+
+.login-demo-fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 11px;
+}
+
+.login-demo-field-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #f2f7f2;
+  padding: 3px 8px;
+  border-radius: 6px;
+  color: #385038;
+}
+
+.login-demo-field-pill code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-weight: 600;
+  color: #16361a;
+}
+
+.login-demo-copy-btn {
+  background: transparent;
+  border: 0;
+  padding: 2px 4px;
+  cursor: pointer;
+  color: #557555;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 4px;
+  transition: all 0.12s ease;
+}
+
+.login-demo-copy-btn:hover {
+  color: var(--green);
+  background: #e0ece0;
+}
+
+.login-demo-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.login-demo-btn-fill {
+  background: #eef5ee;
+  border: 1px solid #cadbca;
+  color: #244d2d;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.15s ease;
+}
+
+.login-demo-btn-fill:hover {
+  background: var(--green);
+  color: #ffffff;
+  border-color: var(--green);
+}
+
+.login-demo-password-bar {
+  background: #ffffff;
+  border: 1px solid #e0eae0;
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+}
+
+.login-demo-password-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.login-demo-password-val {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-weight: 700;
+  color: #17381d;
+  background: #edf4ed;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.login-demo-footer {
+  font-size: 11px;
+  color: #6d7f6d;
+  border-top: 1px solid #e3ede3;
+  padding-top: 8px;
+  line-height: 1.4;
+}
+
+.login-demo-footer strong {
+  color: #204526;
+}
+
+.login-story-credentials {
+  margin-top: 30px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 10px;
+  border: 1px solid #cfe0cf;
+  font-size: 12px;
+}
+
+.story-creds-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  color: #1b4725;
+  margin-bottom: 6px;
+}
+

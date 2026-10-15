@@ -46,7 +46,10 @@ Exécutée le 15 octobre 2026 sur l'environnement local (PostgreSQL Docker 5433,
     - Type Épargne : filtre par session passée en liste autocomplete (dates réelles des séances, nombre de versements, total collecté) et filtre par membre autocomplete (avatar, nom, téléphone).
     - Type Tontine : filtre par période passée en liste autocomplete (tours de rotation, date, nom de la bénéficiaire, total collecté) et filtre par membre.
     - Bannière récapitulative des filtres actifs avec pastilles détachables et bouton de réinitialisation générale.
-  - **Tests E2E Playwright (12/12 réussis) :** validation de bout en bout de l'ensemble des parcours (dont les nouveaux parcours CRUD Événements/Types, autocomplétion + fiche détaillée + QR code groupement, création directe de campagne, archives/campagnes, sous-onglets et filtres cotisations par session/période/membre).
+  - **Informations de connexion & Préremplissage 1-clic sur les pages de connexion :**
+    - Console Super Admin : carte des identifiants avec compte `superadmin`, téléphone `+221770000001`, mot de passe commun (copier/révéler) et boutons de préremplissage automatique en un clic.
+    - PWA Membres & Groupements : carte des identifiants avec compte administratrice (`admin.ndeye`, `+221770000002`), compte membre (`membre.awa`, `+221770000003`), indications pour connexion SMS et Code PIN, et boutons de préremplissage automatique.
+  - **Tests E2E Playwright (13/13 réussis) :** validation de bout en bout de l'ensemble des parcours (dont les nouveaux parcours CRUD Événements/Types, autocomplétion + fiche détaillée + QR code groupement, création directe de campagne, archives/campagnes, sous-onglets, filtres cotisations et informations de connexion avec pré-remplissage).
 
 ---
 
