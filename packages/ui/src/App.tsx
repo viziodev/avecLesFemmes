@@ -119,14 +119,18 @@ function Pager({
 
 function Dialog({
   title,
+  subtitle,
   onClose,
   children,
   busy,
+  wide,
 }: {
   title: string;
+  subtitle?: string;
   onClose: () => void;
   children: ReactNode;
   busy?: boolean;
+  wide?: boolean;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -144,15 +148,19 @@ function Dialog({
       }}
     >
       <div
-        className="dialog-card"
+        className={`dialog-card ${wide ? 'wide' : ''}`}
         role="dialog"
         aria-modal="true"
         aria-labelledby="dialog-title"
         ref={ref}
       >
         <div className="dialog-header">
-          <h2 id="dialog-title">{title}</h2>
+          <div>
+            <h2 id="dialog-title">{title}</h2>
+            {subtitle && <p className="dialog-subtitle">{subtitle}</p>}
+          </div>
           <button
+            type="button"
             className="icon-button"
             aria-label="Fermer"
             disabled={busy}
@@ -2121,6 +2129,21 @@ export function App({
               void: 'Annuler une cotisation',
             }[dialog] || ''
           }
+          subtitle={
+            {
+              group: 'Enregistrez un groupement d’épargne solidaire.',
+              member: 'Ajoutez une participante et définissez sa fonction statutaire.',
+              type: 'Créez un nouveau modèle de règles d’épargne solidaire.',
+              event: 'Ajoutez un événement au catalogue de la plateforme.',
+              campaign: 'Paramétrez une campagne d’épargne ou tontine rotative.',
+              participant: 'Inscrivez une membre et définissez son forfait.',
+              contribution: 'Saisie de versement en séance pour la participante sélectionnée.',
+              grace: 'Délai de grâce individuel accordé avec motif d’audit.',
+              'reset-pin': 'Définissez un nouveau code secret à 4 chiffres.',
+              void: 'Annulation exceptionnelle d’une cotisation erronée.',
+            }[dialog]
+          }
+          wide={dialog === 'campaign' || dialog === 'member'}
           busy={busy}
           onClose={() => setDialog('')}
         >
@@ -2129,42 +2152,64 @@ export function App({
               {dialog === 'group' && (
                 <>
                   <Field label="Nom du groupement">
-                    <input name="name" required minLength={2} maxLength={120} />
+                    <input
+                      name="name"
+                      required
+                      minLength={2}
+                      maxLength={120}
+                      placeholder="Ex: Les Femmes de Grand Yoff"
+                    />
                   </Field>
                   <Field label="Adresse">
-                    <input name="address" required minLength={2} maxLength={250} />
+                    <input
+                      name="address"
+                      required
+                      minLength={2}
+                      maxLength={250}
+                      placeholder="Ex: Grand Yoff, Dakar"
+                    />
                   </Field>
                   <Field label="Téléphone">
-                    <input name="phone" type="tel" required />
+                    <input name="phone" type="tel" required placeholder="Ex: +221771234567" />
                   </Field>
                 </>
               )}
               {dialog === 'member' && (
                 <>
                   <Field label="Nom complet">
-                    <input name="name" required minLength={2} maxLength={120} />
+                    <input
+                      name="name"
+                      required
+                      minLength={2}
+                      maxLength={120}
+                      placeholder="Ex: Aminata Diallo"
+                    />
                   </Field>
-                  <Field label="Téléphone avec indicatif">
-                    <input name="phone" type="tel" placeholder="+221771234567" />
-                  </Field>
-                  <Field label="Adresse">
-                    <input name="address" placeholder="Quartier, Ville" maxLength={250} />
-                  </Field>
-                  <Field label="Sexe">
-                    <select name="gender" defaultValue="F">
-                      <option value="F">Femme (F)</option>
-                      <option value="M">Homme (M)</option>
-                    </select>
-                  </Field>
-                  <Field label="Fonction dans le groupement">
-                    <select name="functionId">
-                      {functions.map((fn) => (
-                        <option key={fn.id} value={fn.id}>
-                          {fn.name} {fn.can_be_admin ? '★ (Bureau)' : ''}
-                        </option>
-                      ))}
-                    </select>
-                  </Field>
+                  <div className="form-grid">
+                    <Field label="Téléphone avec indicatif">
+                      <input name="phone" type="tel" placeholder="+221771234567" />
+                    </Field>
+                    <Field label="Sexe">
+                      <select name="gender" defaultValue="F">
+                        <option value="F">Femme (F)</option>
+                        <option value="M">Homme (M)</option>
+                      </select>
+                    </Field>
+                  </div>
+                  <div className="form-grid">
+                    <Field label="Adresse">
+                      <input name="address" placeholder="Quartier, Ville" maxLength={250} />
+                    </Field>
+                    <Field label="Fonction dans le groupement">
+                      <select name="functionId">
+                        {functions.map((fn) => (
+                          <option key={fn.id} value={fn.id}>
+                            {fn.name} {fn.can_be_admin ? '★ (Bureau)' : ''}
+                          </option>
+                        ))}
+                      </select>
+                    </Field>
+                  </div>
                   <Field label="Code PIN secret (4 chiffres)">
                     <input
                       name="pin"
@@ -2175,22 +2220,53 @@ export function App({
                       placeholder="Ex: 1234"
                     />
                   </Field>
-                  <h3>Accès optionnel par identifiant classique</h3>
-                  <p className="muted">
-                    Pour une connexion par identifiant au lieu du téléphone + PIN.
-                  </p>
-                  <Field label="Identifiant (optionnel)">
-                    <input name="login" pattern="[a-zA-Z0-9._-]{3,80}" autoComplete="off" />
-                  </Field>
-                  <Field label="Mot de passe initial (optionnel)">
-                    <input
-                      name="password"
-                      type="password"
-                      minLength={4}
-                      maxLength={128}
-                      autoComplete="new-password"
-                    />
-                  </Field>
+                  <div className="dialog-info-pill">
+                    <KeyRound size={16} />
+                    <span>
+                      Ce code PIN permettra à la membre de se connecter immédiatement sur son
+                      mobile.
+                    </span>
+                  </div>
+                  <details style={{ marginTop: 8, marginBottom: 14 }}>
+                    <summary
+                      style={{
+                        cursor: 'pointer',
+                        fontWeight: 600,
+                        color: '#314737',
+                        fontSize: 13,
+                      }}
+                    >
+                      Accès classique par identifiant (Optionnel)
+                    </summary>
+                    <div
+                      style={{
+                        marginTop: 10,
+                        padding: 12,
+                        background: '#f8faf7',
+                        borderRadius: 8,
+                        border: '1px solid #e1ebe0',
+                      }}
+                    >
+                      <Field label="Identifiant (optionnel)">
+                        <input
+                          name="login"
+                          pattern="[a-zA-Z0-9._-]{3,80}"
+                          autoComplete="off"
+                          placeholder="Ex: aminata.diallo"
+                        />
+                      </Field>
+                      <Field label="Mot de passe initial (optionnel)">
+                        <input
+                          name="password"
+                          type="password"
+                          minLength={4}
+                          maxLength={128}
+                          autoComplete="new-password"
+                          placeholder="••••••••"
+                        />
+                      </Field>
+                    </div>
+                  </details>
                   {(superAdmin || admin) && (
                     <label className="checkbox">
                       <input type="checkbox" name="admin" />
@@ -2212,10 +2288,13 @@ export function App({
                       required
                     />
                   </Field>
-                  <p className="muted">
-                    Ce code PIN permettra à la membre de se connecter immédiatement avec son numéro
-                    de téléphone.
-                  </p>
+                  <div className="dialog-info-pill">
+                    <KeyRound size={16} />
+                    <span>
+                      Ce code PIN permettra à la membre de se connecter immédiatement avec son
+                      numéro de téléphone.
+                    </span>
+                  </div>
                 </>
               )}
               {dialog === 'event' && (
@@ -2232,47 +2311,68 @@ export function App({
                     />
                   </Field>
                   <Field label="Description">
-                    <input name="description" placeholder="Courte description" maxLength={250} />
+                    <input
+                      name="description"
+                      placeholder="Frais d’inscription, fournitures scolaires..."
+                      maxLength={250}
+                    />
                   </Field>
                 </>
               )}
               {dialog === 'type' && (
                 <>
                   <Field label="Nom du type">
-                    <input name="name" required minLength={2} />
+                    <input name="name" required minLength={2} placeholder="Ex: Tontine rotative" />
                   </Field>
                   <Field label="Code unique en majuscules">
-                    <input name="code" required pattern="[A-Z][A-Z0-9_]{1,39}" />
+                    <input
+                      name="code"
+                      required
+                      pattern="[A-Z][A-Z0-9_]{1,39}"
+                      placeholder="Ex: TONTINE"
+                    />
                   </Field>
-                  <p className="muted">Ce type utilisera les règles Avec Épargne.</p>
+                  <div className="dialog-info-pill">
+                    <Sparkles size={16} />
+                    <span>Ce type utilisera les règles et le moteur de calcul Avec Épargne.</span>
+                  </div>
                 </>
               )}
               {dialog === 'campaign' && (
                 <>
-                  <Field label="Nom de la campagne">
-                    <input name="name" required minLength={2} />
-                  </Field>
-                  <Field label="Type de campagne">
-                    <select name="typeId" required>
-                      {types.map((t) => (
-                        <option key={t.id} value={t.id}>
-                          {t.name}
-                        </option>
-                      ))}
-                    </select>
-                  </Field>
-                  <Field label="Événement associé">
-                    <select name="eventId">
-                      {events.map((ev) => (
-                        <option key={ev.id} value={ev.id}>
-                          {ev.name} ({ev.code})
-                        </option>
-                      ))}
-                    </select>
-                  </Field>
-                  <Field label="Montant standard / forfait (FCFA)">
-                    <input type="number" name="standardAmount" min="1" placeholder="Ex: 5000" />
-                  </Field>
+                  <div className="form-grid">
+                    <Field label="Nom de la campagne">
+                      <input
+                        name="name"
+                        required
+                        minLength={2}
+                        placeholder="Ex: Épargne solidaire 2026"
+                      />
+                    </Field>
+                    <Field label="Type de campagne">
+                      <select name="typeId" required>
+                        {types.map((t) => (
+                          <option key={t.id} value={t.id}>
+                            {t.name}
+                          </option>
+                        ))}
+                      </select>
+                    </Field>
+                  </div>
+                  <div className="form-grid">
+                    <Field label="Événement associé">
+                      <select name="eventId">
+                        {events.map((ev) => (
+                          <option key={ev.id} value={ev.id}>
+                            {ev.name} ({ev.code})
+                          </option>
+                        ))}
+                      </select>
+                    </Field>
+                    <Field label="Montant standard / forfait (FCFA)">
+                      <input type="number" name="standardAmount" min="1" placeholder="Ex: 5000" />
+                    </Field>
+                  </div>
                   <div className="form-grid">
                     <Field label="Date de début">
                       <input type="date" name="startDate" required />
@@ -2281,16 +2381,16 @@ export function App({
                       <input type="date" name="endDate" required />
                     </Field>
                   </div>
-                  <Field label="Jour de cotisation hebdomadaire">
-                    <select name="weekday" defaultValue="2">
-                      {days.map((d, i) => (
-                        <option key={d} value={i}>
-                          {d}
-                        </option>
-                      ))}
-                    </select>
-                  </Field>
                   <div className="form-grid">
+                    <Field label="Jour de cotisation hebdomadaire">
+                      <select name="weekday" defaultValue="2">
+                        {days.map((d, i) => (
+                          <option key={d} value={i}>
+                            {d}
+                          </option>
+                        ))}
+                      </select>
+                    </Field>
                     <Field label="Intervalle en semaines">
                       <input
                         type="number"
@@ -2301,6 +2401,8 @@ export function App({
                         required
                       />
                     </Field>
+                  </div>
+                  <div className="form-grid">
                     <Field label="Jour d'échéance du mois (Option C)">
                       <input
                         type="number"
@@ -2310,15 +2412,15 @@ export function App({
                         placeholder="Ex: 5 pour le 5 du mois"
                       />
                     </Field>
+                    <Field label="Intervalle de rotation (si Tontine rotative)">
+                      <select name="rotationInterval" defaultValue="MONTHLY">
+                        <option value="WEEKLY">Hebdomadaire (7 jours)</option>
+                        <option value="BIWEEKLY">Bimensuel (14 jours)</option>
+                        <option value="MONTHLY">Mensuel (Par défaut)</option>
+                      </select>
+                    </Field>
                   </div>
-                  <Field label="Intervalle de rotation (si Tontine rotative)">
-                    <select name="rotationInterval" defaultValue="MONTHLY">
-                      <option value="WEEKLY">Hebdomadaire (7 jours)</option>
-                      <option value="BIWEEKLY">Bimensuel (14 jours)</option>
-                      <option value="MONTHLY">Mensuel (Par défaut)</option>
-                    </select>
-                  </Field>
-                  <label className="checkbox">
+                  <label className="checkbox" style={{ marginTop: 8 }}>
                     <input type="checkbox" name="isMandatory" />
                     Souscription obligatoire pour les membres du groupement
                   </label>
@@ -2405,29 +2507,37 @@ export function App({
                       ))}
                     </select>
                   </Field>
-                  <Field label="Montant réellement versé en FCFA">
-                    <input type="number" name="amount" min="1" required />
-                  </Field>
-                  <Field label="Date du versement">
-                    <input
-                      type="date"
-                      name="paidOn"
-                      defaultValue={new Date().toISOString().slice(0, 10)}
-                      required
-                    />
-                  </Field>
+                  <div className="form-grid">
+                    <Field label="Montant réellement versé en FCFA">
+                      <input type="number" name="amount" min="1" required placeholder="Ex: 5000" />
+                    </Field>
+                    <Field label="Date du versement">
+                      <input
+                        type="date"
+                        name="paidOn"
+                        defaultValue={new Date().toISOString().slice(0, 10)}
+                        required
+                      />
+                    </Field>
+                  </div>
                 </>
               )}
               {dialog === 'void' && (
-                <Field label="Motif de l’annulation">
-                  <textarea
-                    name="reason"
-                    required
-                    minLength={5}
-                    maxLength={250}
-                    placeholder="Erreur de saisie, doublon…"
-                  />
-                </Field>
+                <>
+                  <div className="alert" style={{ marginBottom: 14 }}>
+                    <AlertTriangle size={16} />
+                    <span>Cette annulation est définitive et corrigera l’état de caisse.</span>
+                  </div>
+                  <Field label="Motif de l’annulation">
+                    <textarea
+                      name="reason"
+                      required
+                      minLength={5}
+                      maxLength={250}
+                      placeholder="Erreur de saisie, versement doublon…"
+                    />
+                  </Field>
+                </>
               )}
               <div className="dialog-actions">
                 <button type="button" className="secondary" onClick={() => setDialog('')}>

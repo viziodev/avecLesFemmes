@@ -662,49 +662,222 @@ td {
 .toast button {
   margin-left: auto;
 }
+/* Modals et fenêtres de dialogue */
+.dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(14, 27, 21, 0.68);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: dialogFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.dialog-card {
+  position: relative;
+  width: 100%;
+  max-width: 520px;
+  max-height: calc(90vh);
+  overflow-y: auto;
+  background: #ffffff;
+  border: 1px solid rgba(220, 227, 217, 0.9);
+  border-radius: 20px;
+  box-shadow:
+    0 25px 60px -15px rgba(16, 38, 29, 0.38),
+    0 0 0 1px rgba(255, 255, 255, 0.9) inset;
+  padding: 28px 32px;
+  color: #263a33;
+  animation: dialogPopIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.dialog-card.wide {
+  max-width: 680px;
+}
+
+@keyframes dialogFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes dialogPopIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.dialog-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 22px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #edf2ec;
+  gap: 16px;
+}
+
+.dialog-header h2 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1a2e22;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.dialog-subtitle {
+  font-size: 13px;
+  color: #6a7c6f;
+  margin: 4px 0 0;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+.dialog-header .icon-button {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #f2f6f1;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #4b6354;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+.dialog-header .icon-button:hover {
+  background: #e2ebe0;
+  color: #1a2e22;
+}
+
+.dialog-card h3 {
+  margin: 22px 0 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #266240;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dialog-card p.muted {
+  font-size: 12px;
+  color: #6a7c6f;
+  margin-bottom: 16px;
+  line-height: 1.45;
+}
+
+.dialog-info-pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f4f8f4;
+  border: 1px solid #dbe8db;
+  color: #235433;
+  padding: 11px 15px;
+  border-radius: 10px;
+  font-size: 12.5px;
+  margin: 14px 0;
+  line-height: 1.4;
+}
+
+.dialog-info-pill svg {
+  flex-shrink: 0;
+  color: #266240;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  margin-top: 26px;
+  padding-top: 18px;
+  border-top: 1px solid #edf2ec;
+}
+
+.dialog-actions button {
+  min-width: 110px;
+  padding: 11px 22px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+/* Fallback HTML dialog */
 dialog {
-  width: min(520px, calc(100% - 28px));
+  width: min(540px, calc(100% - 28px));
   border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 25px;
+  border-radius: 18px;
+  padding: 28px;
   color: #263a33;
   max-height: 90vh;
   overflow: auto;
   box-shadow: 0 25px 100px #10261d40;
 }
 dialog::backdrop {
-  background: #142b2566;
-  backdrop-filter: blur(3px);
+  background: rgba(14, 27, 21, 0.68);
+  backdrop-filter: blur(8px);
 }
-.dialog-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 20px;
-}
-.dialog-heading h2 {
-  font-size: 20px;
-}
+
 .field {
   display: grid;
-  gap: 8px;
+  gap: 7px;
   margin-bottom: 18px;
-  font-size: 12px;
-  color: #536458;
+  font-size: 13px;
+  color: #3b5042;
 }
 .field span {
-  font-weight: 500;
+  font-weight: 600;
+  color: #24382c;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 input,
 select,
 textarea {
   width: 100%;
-  padding: 12px 13px;
-  background: #fff;
-  border: 1px solid #dce3d9;
-  border-radius: 7px;
-  color: #314737;
+  padding: 12px 14px;
+  background: #fbfdfa;
+  border: 1px solid #d0dcd0;
+  border-radius: 9px;
+  color: #1e3325;
   font-size: 14px;
+  font-family: inherit;
+  box-sizing: border-box;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    background 0.15s ease;
+}
+input:focus,
+select:focus,
+textarea:focus {
+  background: #ffffff;
+  border-color: #266240;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(38, 98, 64, 0.18);
+}
+input::placeholder,
+textarea::placeholder {
+  color: #9ab0a0;
 }
 textarea {
   min-height: 90px;
@@ -713,29 +886,27 @@ textarea {
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 15px;
+  gap: 16px;
 }
-.dialog-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  margin-top: 23px;
+@media (max-width: 580px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
 }
 .checkbox {
   display: flex;
   align-items: center;
   gap: 10px;
   font-size: 13px;
+  color: #2d4536;
+  font-weight: 500;
+  cursor: pointer;
 }
 .checkbox input {
-  width: 17px;
-}
-.dialog-heading ~ form h3 {
-  margin: 22px 0 8px;
-}
-.dialog-heading ~ form p {
-  font-size: 12px;
-  margin-bottom: 18px;
+  width: 18px;
+  height: 18px;
+  accent-color: #266240;
+  cursor: pointer;
 }
 .login-page {
   display: grid;
