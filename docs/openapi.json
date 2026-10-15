@@ -308,6 +308,20 @@
                 "group"
               ]
             }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "date",
+                "session",
+                "period",
+                "member"
+              ]
+            }
           }
         ],
         "responses": {
@@ -1172,6 +1186,20 @@
                 "group"
               ]
             }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "date",
+                "session",
+                "period",
+                "member"
+              ]
+            }
           }
         ],
         "responses": {
@@ -1703,6 +1731,20 @@
               "enum": [
                 "personal",
                 "group"
+              ]
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "date",
+                "session",
+                "period",
+                "member"
               ]
             }
           }
@@ -2722,6 +2764,36 @@
           "updatedAt"
         ]
       },
+      "SessionMemberContributionView": {
+        "type": "object",
+        "properties": {
+          "contribution_id": {
+            "type": "string"
+          },
+          "member_id": {
+            "type": "string"
+          },
+          "member_name": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "string"
+          },
+          "reference": {
+            "type": "string"
+          },
+          "paid_on": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "contribution_id",
+          "member_id",
+          "member_name",
+          "amount",
+          "reference"
+        ]
+      },
       "TontineRoundView": {
         "type": "object",
         "properties": {
@@ -2749,6 +2821,15 @@
           "paid_at": {
             "type": "string",
             "nullable": true
+          },
+          "total_collected_amount": {
+            "type": "string"
+          },
+          "contributions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SessionMemberContributionView"
+            }
           }
         },
         "required": [
@@ -2856,33 +2937,6 @@
           "period_date",
           "extended_deadline",
           "created_at"
-        ]
-      },
-      "SessionMemberContributionView": {
-        "type": "object",
-        "properties": {
-          "contribution_id": {
-            "type": "string"
-          },
-          "member_id": {
-            "type": "string"
-          },
-          "member_name": {
-            "type": "string"
-          },
-          "amount": {
-            "type": "string"
-          },
-          "reference": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "contribution_id",
-          "member_id",
-          "member_name",
-          "amount",
-          "reference"
         ]
       },
       "CampaignSessionView": {

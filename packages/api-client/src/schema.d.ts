@@ -815,6 +815,14 @@ export interface components {
             personal: boolean;
             updatedAt: string;
         };
+        SessionMemberContributionView: {
+            contribution_id: string;
+            member_id: string;
+            member_name: string;
+            amount: string;
+            reference: string;
+            paid_on?: string;
+        };
         TontineRoundView: {
             id: string;
             round_number: number;
@@ -824,6 +832,8 @@ export interface components {
             payout_amount: string;
             paid: boolean;
             paid_at: string | null;
+            total_collected_amount?: string;
+            contributions?: components["schemas"]["SessionMemberContributionView"][];
         };
         TontineRoundOrderDto: {
             roundNumber: number;
@@ -850,13 +860,6 @@ export interface components {
             extended_deadline: string;
             reason?: string;
             created_at: string;
-        };
-        SessionMemberContributionView: {
-            contribution_id: string;
-            member_id: string;
-            member_name: string;
-            amount: string;
-            reference: string;
         };
         CampaignSessionView: {
             session_date: string;
@@ -1125,6 +1128,7 @@ export interface operations {
                 page?: number;
                 limit?: number;
                 scope?: "personal" | "group";
+                sort?: "date" | "session" | "period" | "member";
             };
             header?: never;
             path: {
@@ -1671,6 +1675,7 @@ export interface operations {
                 page?: number;
                 limit?: number;
                 scope?: "personal" | "group";
+                sort?: "date" | "session" | "period" | "member";
             };
             header?: never;
             path: {
@@ -1950,6 +1955,7 @@ export interface operations {
                 page?: number;
                 limit?: number;
                 scope?: "personal" | "group";
+                sort?: "date" | "session" | "period" | "member";
             };
             header?: never;
             path: {

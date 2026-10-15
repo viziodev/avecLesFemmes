@@ -5,6 +5,7 @@ import {
   Archive,
   ArrowLeft,
   ArrowRight,
+  ArrowUpDown,
   Calendar,
   CalendarCheck,
   Check,
@@ -527,6 +528,8 @@ export function App({
   const [campaignTypeId, setCampaignTypeId] = useState('');
   const [campaignDetailTab, setCampaignDetailTab] = useState<'participants' | 'sessions'>('participants');
   const [expandedSessionDate, setExpandedSessionDate] = useState<string | null>(null);
+  const [contributionSort, setContributionSort] = useState<'date' | 'session' | 'member'>('date');
+  const [expandedTontineRound, setExpandedTontineRound] = useState<number | null>(null);
 
   const [page, setPage] = useState(1);
   const [participantPage, setParticipantPage] = useState(1);
@@ -714,6 +717,10 @@ export function App({
     }
     let active = true;
     setDashboard(null);
+    setContributions([]);
+    setParticipants([]);
+    setSessions([]);
+    setTontineRounds([]);
     const path = { groupId, id: campaignId };
     Promise.all([
       api
@@ -737,7 +744,7 @@ export function App({
         .GET('/api/v1/groupements/{groupId}/campaigns/{campaignId}/contributions', {
           params: {
             path: { groupId, campaignId },
-            query: { page, limit: 25, scope: personalMode ? 'personal' : 'group' },
+            query: { page, limit: 25, scope: personalMode ? 'personal' : 'group', sort: contributionSort },
           },
         })
         .then(unwrap),
@@ -775,7 +782,7 @@ export function App({
     return () => {
       active = false;
     };
-  }, [actor, groupId, campaignId, page, participantPage, refresh, personalMode]);
+  }, [actor, groupId, campaignId, page, participantPage, refresh, personalMode, contributionSort]);
 
   const selectGroup = useCallback(
     (id: string) => {
@@ -1681,64 +1688,157 @@ export function App({
                           </button>
                         )}
                       </div>
-                      <div className="tontine-rounds-grid">
-                        {tontineRounds.map((tr) => (
-                          <div
-                            key={tr.id}
-                            className={tr.paid ? 'tontine-card paid' : 'tontine-card'}
-                          >
-                            <div className="tontine-card-header">
-                              <span>Tour n°{tr.round_number}</span>
-                              <span className={tr.paid ? 'badge' : 'badge neutral'}>
-                                {tr.paid ? 'Cagnotte versée' : 'En attente'}
-                              </span>
-                            </div>
-                            <div>
-                              Bénéficiaire : <strong>{tr.beneficiary_name}</strong>
-                            </div>
-                            <div className="muted">Date prévue : {date(tr.expected_date)}</div>
-                            <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--green)' }}>
-                              {money(tr.payout_amount)}
-                            </div>
-                            {canManage && !tr.paid && (
-                              <button
-                                type="button"
-                                className="primary"
-                                style={{ marginTop: 6 }}
-                                disabled={busy}
-                                onClick={() =>
-                                  action(
-                                    () =>
-                                      api
-                                        .PATCH(
-                                          '/api/v1/groupements/{groupId}/campaigns/{id}/tontine/rounds/{roundNumber}/pay',
-                                          {
-                                            params: {
-                                              path: {
-                                                groupId,
-                                                id: campaignId,
-                                                roundNumber: tr.round_number,
-                                              },
-                                            },
-                                          },
-                                        )
-                                        .then(unwrap),
-                                    `Cagnotte du tour ${tr.round_number} marquée comme versée.`,
-                                  )
-                                }
-                              >
-                                <Check size={16} />
-                                Marquer comme versée
-                              </button>
+                      <div className="table-scroll">
+                        <table className="tontine-rounds-table">
+                          <thead>
+                            <tr>
+                              <th>Mois / Tour</th>
+                              <th>Montant à verser</th>
+                              <th>Montant Total Versé</th>
+                              <th>Membre qui prend</th>
+                              <th style={{ textAlign: 'right' }}>Détails</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {!tontineRounds.length ? (
+                              <tr>
+                                <td colSpan={5} style={{ textAlign: 'center', padding: '2rem', color: '#64748b' }}>
+                                  <Clock size={28} style={{ display: 'block', margin: '0 auto 8px', color: '#94a3b8' }} />
+                                  Aucun tour de tontine généré pour le moment.
+                                </td>
+                              </tr>
+                            ) : (
+                              tontineRounds.map((tr) => {
+                                const isExpanded = expandedTontineRound === tr.round_number;
+                                const roundContribs = tr.contributions || [];
+                                return (
+                                  <>
+                                    <tr key={tr.id}>
+                                      <td>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                          <Calendar size={15} color="#64748b" />
+                                          <div>
+                                            <strong>Tour n°{tr.round_number}</strong>
+                                            <div className="muted" style={{ fontSize: 11 }}>
+                                              {date(tr.expected_date)}
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </td>
+                                      <td>
+                                        <strong style={{ color: '#0f172a', fontSize: 14 }}>
+                                          {money(tr.payout_amount)}
+                                        </strong>
+                                      </td>
+                                      <td>
+                                        <strong style={{ color: '#166534', fontSize: 14 }}>
+                                          {money(tr.total_collected_amount || '0')}
+                                        </strong>
+                                      </td>
+                                      <td>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                                          <span style={{ fontWeight: 600 }}>{tr.beneficiary_name}</span>
+                                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                                            {tr.paid ? (
+                                              <span className="badge-pill-success" title="Cagnotte déjà remise">
+                                                <Check size={11} />
+                                                <span>Cagnotte versée {tr.paid_at ? `(${date(tr.paid_at)})` : ''}</span>
+                                              </span>
+                                            ) : (
+                                              <span className="badge-pill-amber" title="En attente de paiement">
+                                                <Clock size={11} />
+                                                <span>En attente</span>
+                                              </span>
+                                            )}
+                                            {canManage && !tr.paid && (
+                                              <button
+                                                type="button"
+                                                className="primary mini"
+                                                style={{ fontSize: 11, padding: '3px 8px', borderRadius: 4 }}
+                                                disabled={busy}
+                                                onClick={() =>
+                                                  action(
+                                                    () =>
+                                                      api
+                                                        .PATCH(
+                                                          '/api/v1/groupements/{groupId}/campaigns/{id}/tontine/rounds/{roundNumber}/pay',
+                                                          {
+                                                            params: {
+                                                              path: {
+                                                                groupId,
+                                                                id: campaignId,
+                                                                roundNumber: tr.round_number,
+                                                              },
+                                                            },
+                                                          },
+                                                        )
+                                                        .then(unwrap),
+                                                    `Cagnotte du tour ${tr.round_number} marquée comme versée.`,
+                                                  )
+                                                }
+                                              >
+                                                <Check size={12} /> Verser
+                                              </button>
+                                            )}
+                                          </div>
+                                        </div>
+                                      </td>
+                                      <td style={{ textAlign: 'right' }}>
+                                        <button
+                                          type="button"
+                                          className="session-expand-btn"
+                                          onClick={() =>
+                                            setExpandedTontineRound(isExpanded ? null : tr.round_number)
+                                          }
+                                        >
+                                          <span>{isExpanded ? 'Masquer' : 'Détails'}</span>
+                                          {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                                        </button>
+                                      </td>
+                                    </tr>
+                                    {isExpanded && (
+                                      <tr key={`${tr.id}-details`} className="session-details-row">
+                                        <td
+                                          colSpan={5}
+                                          style={{ background: '#f8fafc', padding: '14px 18px', borderTop: 'none' }}
+                                        >
+                                          <div
+                                            style={{
+                                              fontSize: 12,
+                                              fontWeight: 700,
+                                              marginBottom: 8,
+                                              color: '#334155',
+                                            }}
+                                          >
+                                            Cotisations enregistrées pour cette période ({roundContribs.length}) :
+                                          </div>
+                                          {!roundContribs.length ? (
+                                            <p className="muted" style={{ margin: 0, fontStyle: 'italic', fontSize: 13 }}>
+                                              Aucune cotisation enregistrée pour cette période.
+                                            </p>
+                                          ) : (
+                                            <div className="session-contributions-grid">
+                                              {roundContribs.map((c) => (
+                                                <div key={c.contribution_id} className="session-contrib-card">
+                                                  <span className="session-contrib-name">{c.member_name}</span>
+                                                  <span className="session-contrib-amount">{money(c.amount)}</span>
+                                                  <span className="session-contrib-ref">
+                                                    {c.paid_on ? date(c.paid_on) + ' · ' : ''}Réf : {c.reference}
+                                                  </span>
+                                                </div>
+                                              ))}
+                                            </div>
+                                          )}
+                                        </td>
+                                      </tr>
+                                    )}
+                                  </>
+                                );
+                              })
                             )}
-                          </div>
-                        ))}
+                          </tbody>
+                        </table>
                       </div>
-                      {!tontineRounds.length && (
-                        <div className="empty">
-                          <p>Aucun tour de tontine généré pour le moment.</p>
-                        </div>
-                      )}
                     </section>
                   )}
 
@@ -1826,6 +1926,48 @@ export function App({
                       </div>
                     )}
 
+                    {/* Barre de tri de l'Historique */}
+                    <div className="contributions-sort-bar">
+                      <span className="contributions-sort-label">
+                        <ArrowUpDown size={14} /> Trier par :
+                      </span>
+                      <button
+                        type="button"
+                        className={`sort-pill-btn ${contributionSort === 'date' ? 'active' : ''}`}
+                        onClick={() => {
+                          setContributionSort('date');
+                          setPage(1);
+                        }}
+                      >
+                        <Calendar size={13} />
+                        Date (décroissant)
+                      </button>
+                      <button
+                        type="button"
+                        className={`sort-pill-btn ${contributionSort === 'session' ? 'active' : ''}`}
+                        onClick={() => {
+                          setContributionSort('session');
+                          setPage(1);
+                        }}
+                      >
+                        <CalendarCheck size={13} />
+                        {campaign?.type_name?.toLowerCase().includes('tontine')
+                          ? 'Par période (Tontine)'
+                          : 'Par session (Épargne)'}
+                      </button>
+                      <button
+                        type="button"
+                        className={`sort-pill-btn ${contributionSort === 'member' ? 'active' : ''}`}
+                        onClick={() => {
+                          setContributionSort('member');
+                          setPage(1);
+                        }}
+                      >
+                        <Users size={13} />
+                        Par membre
+                      </button>
+                    </div>
+
                     {contributions.length ? (
                       dashboard?.personal ? (
                         <div className="mm-list">
@@ -1861,15 +2003,57 @@ export function App({
                           <table className="contribution-table">
                             <thead>
                               <tr>
-                                <th>Membre</th>
-                                <th>Date</th>
+                                <th
+                                  className="th-sortable"
+                                  onClick={() => {
+                                    setContributionSort('member');
+                                    setPage(1);
+                                  }}
+                                  title="Trier par membre"
+                                >
+                                  Membre {contributionSort === 'member' && '▲'}
+                                </th>
+                                <th
+                                  className="th-sortable"
+                                  onClick={() => {
+                                    setContributionSort(contributionSort === 'date' ? 'session' : 'date');
+                                    setPage(1);
+                                  }}
+                                  title={
+                                    campaign?.type_name?.toLowerCase().includes('tontine')
+                                      ? 'Trier par date / période'
+                                      : 'Trier par date / session'
+                                  }
+                                >
+                                  {campaign?.type_name?.toLowerCase().includes('tontine')
+                                    ? 'Date / Période'
+                                    : 'Date / Session'}
+                                  {contributionSort === 'date' && ' ▼'}
+                                  {contributionSort === 'session' && ' 🗓️'}
+                                </th>
                                 <th>Montant</th>
                                 <th>État</th>
                                 {canManage && <th>Action</th>}
                               </tr>
                             </thead>
                             <tbody>
-                              {contributions.map((c) => (
+                              {[...contributions]
+                                .sort((a, b) => {
+                                  if (contributionSort === 'member') {
+                                    const cmp = a.name.localeCompare(b.name, 'fr');
+                                    if (cmp !== 0) return cmp;
+                                    return b.paid_on.localeCompare(a.paid_on);
+                                  }
+                                  if (contributionSort === 'session') {
+                                    const cmp = b.paid_on.localeCompare(a.paid_on);
+                                    if (cmp !== 0) return cmp;
+                                    return a.name.localeCompare(b.name, 'fr');
+                                  }
+                                  const cmp = b.paid_on.localeCompare(a.paid_on);
+                                  if (cmp !== 0) return cmp;
+                                  return b.id.localeCompare(a.id);
+                                })
+                                .map((c) => (
                                 <tr key={c.id}>
                                   <td>
                                     <span className="member-cell">
@@ -2289,47 +2473,56 @@ export function App({
                                   </tr>
                                 </thead>
                                 <tbody>
-                                  {participants.map((p) => (
-                                    <tr key={p.id}>
-                                      <td>
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                                          <strong>{p.name}</strong>
-                                          <small className="muted">
-                                            {p.forfait ? `Forfait : ${money(p.forfait)}` : 'Montant libre'}
-                                          </small>
-                                        </div>
-                                      </td>
-                                      <td>
-                                        <span className="metric-pill highlight">
-                                          <CalendarCheck size={12} />
-                                          <strong>{p.months_contributed_count ?? 0}</strong> mois
-                                        </span>
-                                      </td>
-                                      <td>
-                                        {p.has_received_payout ? (
-                                          <span className="badge-pill-success" title="Paiement du tour déjà perçu">
-                                            <Check size={12} />
-                                            <span>Oui {p.payout_amount ? `(${money(p.payout_amount)})` : ''}</span>
-                                          </span>
-                                        ) : (
-                                          <span className="badge-pill-amber" title="En attente de son tour de tontine">
-                                            <Clock size={12} />
-                                            <span>En attente</span>
-                                          </span>
-                                        )}
-                                      </td>
-                                      <td>
-                                        <span className="metric-pill" style={{ fontWeight: 600 }}>
-                                          <Calendar size={12} />
-                                          {p.recovery_period
-                                            ? date(p.recovery_period)
-                                            : p.round_number
-                                              ? `Tour n°${p.round_number}`
-                                              : 'À planifier'}
-                                        </span>
+                                  {!participants.length ? (
+                                    <tr>
+                                      <td colSpan={4} style={{ textAlign: 'center', padding: '2rem', color: '#64748b' }}>
+                                        <Users size={28} style={{ display: 'block', margin: '0 auto 8px', color: '#94a3b8' }} />
+                                        Aucune participation enregistrée pour cette campagne.
                                       </td>
                                     </tr>
-                                  ))}
+                                  ) : (
+                                    participants.map((p) => (
+                                      <tr key={p.id}>
+                                        <td>
+                                          <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                                            <strong>{p.name}</strong>
+                                            <small className="muted">
+                                              {p.forfait ? `Forfait : ${money(p.forfait)}` : 'Montant libre'}
+                                            </small>
+                                          </div>
+                                        </td>
+                                        <td>
+                                          <span className="metric-pill highlight">
+                                            <CalendarCheck size={12} />
+                                            <strong>{p.months_contributed_count ?? 0}</strong> mois
+                                          </span>
+                                        </td>
+                                        <td>
+                                          {p.has_received_payout ? (
+                                            <span className="badge-pill-success" title="Paiement du tour déjà perçu">
+                                              <Check size={12} />
+                                              <span>Oui {p.payout_amount ? `(${money(p.payout_amount)})` : ''}</span>
+                                            </span>
+                                          ) : (
+                                            <span className="badge-pill-amber" title="En attente de son tour de tontine">
+                                              <Clock size={12} />
+                                              <span>En attente</span>
+                                            </span>
+                                          )}
+                                        </td>
+                                        <td>
+                                          <span className="metric-pill" style={{ fontWeight: 600 }}>
+                                            <Calendar size={12} />
+                                            {p.recovery_period
+                                              ? date(p.recovery_period)
+                                              : p.round_number
+                                                ? `Tour n°${p.round_number}`
+                                                : 'À planifier'}
+                                          </span>
+                                        </td>
+                                      </tr>
+                                    ))
+                                  )}
                                 </tbody>
                               </table>
                             ) : (
@@ -2342,40 +2535,43 @@ export function App({
                                   </tr>
                                 </thead>
                                 <tbody>
-                                  {participants.map((p) => (
-                                    <tr key={p.id}>
-                                      <td>
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                                          <strong>{p.name}</strong>
-                                          <small className="muted">
-                                            {p.forfait ? `Forfait : ${money(p.forfait)}` : 'Montant libre'}
-                                          </small>
-                                        </div>
-                                      </td>
-                                      <td>
-                                        <span className="metric-pill highlight">
-                                          <CalendarCheck size={12} />
-                                          <strong>{p.sessions_contributed_count ?? 0}</strong> séance
-                                          {(p.sessions_contributed_count ?? 0) > 1 ? 's' : ''}
-                                        </span>
-                                      </td>
-                                      <td>
-                                        <span style={{ fontSize: 13, fontWeight: 700, color: '#166534' }}>
-                                          {money(p.total_contributed_amount ?? '0')}
-                                        </span>
+                                  {!participants.length ? (
+                                    <tr>
+                                      <td colSpan={3} style={{ textAlign: 'center', padding: '2rem', color: '#64748b' }}>
+                                        <Users size={28} style={{ display: 'block', margin: '0 auto 8px', color: '#94a3b8' }} />
+                                        Aucune participation enregistrée pour cette campagne.
                                       </td>
                                     </tr>
-                                  ))}
+                                  ) : (
+                                    participants.map((p) => (
+                                      <tr key={p.id}>
+                                        <td>
+                                          <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                                            <strong>{p.name}</strong>
+                                            <small className="muted">
+                                              {p.forfait ? `Forfait : ${money(p.forfait)}` : 'Montant libre'}
+                                            </small>
+                                          </div>
+                                        </td>
+                                        <td>
+                                          <span className="metric-pill highlight">
+                                            <CalendarCheck size={12} />
+                                            <strong>{p.sessions_contributed_count ?? 0}</strong> séance
+                                            {(p.sessions_contributed_count ?? 0) > 1 ? 's' : ''}
+                                          </span>
+                                        </td>
+                                        <td>
+                                          <span style={{ fontSize: 13, fontWeight: 700, color: '#166534' }}>
+                                            {money(p.total_contributed_amount ?? '0')}
+                                          </span>
+                                        </td>
+                                      </tr>
+                                    ))
+                                  )}
                                 </tbody>
                               </table>
                             )}
                           </div>
-
-                          {!participants.length && (
-                            <div className="empty">
-                              <p>Aucune participation enregistrée pour cette campagne.</p>
-                            </div>
-                          )}
 
                           <Pager
                             page={participantPage}
@@ -2486,19 +2682,6 @@ export function App({
                           </div>
                         </>
                       )}
-
-                      <div style={{ marginTop: 16 }}>
-                        <button
-                          className="text-button"
-                          onClick={() => {
-                            setTab('overview');
-                            setPage(1);
-                          }}
-                        >
-                          Consulter les versements
-                          <ArrowRight size={16} />
-                        </button>
-                      </div>
                     </section>
                   )}
                 </>

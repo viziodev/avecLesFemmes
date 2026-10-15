@@ -41,8 +41,14 @@ export class ContributionsService {
         'SELECT count(*) FROM contributions WHERE campaign_id=$1 AND (NOT $2::boolean OR app_owns_participation(participation_id))',
         [campaignId, personal],
       );
+      let orderBy = 'x.paid_on DESC, x.created_at DESC, x.id';
+      if (page.sort === 'member') {
+        orderBy = 'm.name ASC, x.paid_on DESC, x.id';
+      } else if (page.sort === 'session' || page.sort === 'period') {
+        orderBy = 'x.paid_on DESC, m.name ASC, x.id';
+      }
       const r = await c.query(
-        'SELECT x.id,m.name,x.participation_id,x.amount::text,x.paid_on::text,x.reference,x.voided_at::text FROM contributions x JOIN participations p ON p.id=x.participation_id JOIN memberships m ON m.id=p.membership_id WHERE x.campaign_id=$1 AND (NOT $4::boolean OR app_owns_participation(x.participation_id)) ORDER BY x.paid_on DESC,x.created_at DESC,x.id LIMIT $2 OFFSET $3',
+        `SELECT x.id,m.name,x.participation_id,x.amount::text,x.paid_on::text,x.reference,x.voided_at::text FROM contributions x JOIN participations p ON p.id=x.participation_id JOIN memberships m ON m.id=p.membership_id WHERE x.campaign_id=$1 AND (NOT $4::boolean OR app_owns_participation(x.participation_id)) ORDER BY ${orderBy} LIMIT $2 OFFSET $3`,
         [campaignId, page.limit, (page.page - 1) * page.limit, personal],
       );
       return { items: r.rows, total: Number(count.rows[0].count) };

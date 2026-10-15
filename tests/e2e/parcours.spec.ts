@@ -397,7 +397,39 @@ test('tableau des campagnes actives avec métriques et onglet Archives', async (
   // Retour vers l'onglet Participantes
   await page.getByRole('button', { name: /1\. Participantes et forfaits/i }).click();
 
+  // Vérifier qu'il n'y a plus le bouton "Consulter les versements"
+  await expect(page.getByText('Consulter les versements')).toHaveCount(0);
+
   await page.screenshot({ path: 'test-results/selection-subtabs.png' });
+
+  // 1.c Vue d'ensemble : vérification du tri de l'historique des cotisations
+  await page.getByRole('button', { name: 'Vue d’ensemble', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Historique des cotisations' })).toBeVisible();
+  await expect(page.getByText('Trier par :')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Date (décroissant)' })).toBeVisible();
+  await expect(page.getByRole('button', { name: /Par session|Par période/i })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Par membre' })).toBeVisible();
+
+  // Test du changement de tri vers "Par membre"
+  await page.getByRole('button', { name: 'Par membre' }).click();
+  await expect(page.getByRole('button', { name: 'Par membre' })).toHaveClass(/active/);
+
+  // Test du retour au tri par Date
+  await page.getByRole('button', { name: 'Date (décroissant)' }).click();
+  await expect(page.getByRole('button', { name: 'Date (décroissant)' })).toHaveClass(/active/);
+  await page.screenshot({ path: 'test-results/overview-cotisations-sort.png' });
+
+  // Sélection de la campagne Épargne solidaire 2026 pour afficher le tableau des cotisations
+  const campSelect = page.getByLabel('Campagne suivie', { exact: true });
+  const epargneOption = campSelect.locator('option', { hasText: 'Épargne solidaire 2026' });
+  if (await epargneOption.count()) {
+    const val = await epargneOption.getAttribute('value');
+    if (val) {
+      await campSelect.selectOption(val);
+      await expect(page.locator('.contribution-table')).toBeVisible();
+      await page.screenshot({ path: 'test-results/overview-cotisations-data.png', fullPage: true });
+    }
+  }
 
   // 2. Onglet Archives
   await page.getByRole('button', { name: 'Archives', exact: true }).click();

@@ -45,6 +45,11 @@ export class ScopedPageDto extends PageDto {
   @IsOptional()
   @IsIn(['personal', 'group'])
   scope?: 'personal' | 'group';
+
+  @ApiPropertyOptional({ enum: ['date', 'session', 'period', 'member'] })
+  @IsOptional()
+  @IsIn(['date', 'session', 'period', 'member'])
+  sort?: 'date' | 'session' | 'period' | 'member';
 }
 
 export class CreateGroupDto {
@@ -362,6 +367,15 @@ export class DashboardView {
   @ApiProperty() updatedAt!: string;
 }
 
+export class SessionMemberContributionView {
+  @ApiProperty() contribution_id!: string;
+  @ApiProperty() member_id!: string;
+  @ApiProperty() member_name!: string;
+  @ApiProperty() amount!: string;
+  @ApiProperty() reference!: string;
+  @ApiPropertyOptional() paid_on?: string;
+}
+
 export class TontineRoundView {
   @ApiProperty() id!: string;
   @ApiProperty() round_number!: number;
@@ -371,6 +385,9 @@ export class TontineRoundView {
   @ApiProperty() payout_amount!: string;
   @ApiProperty() paid!: boolean;
   @ApiProperty({ type: String, nullable: true }) paid_at!: string | null;
+  @ApiPropertyOptional() total_collected_amount?: string;
+  @ApiPropertyOptional({ type: [SessionMemberContributionView] })
+  contributions?: SessionMemberContributionView[];
 }
 
 export class GracePeriodView {
@@ -381,14 +398,6 @@ export class GracePeriodView {
   @ApiProperty() extended_deadline!: string;
   @ApiPropertyOptional() reason?: string;
   @ApiProperty() created_at!: string;
-}
-
-export class SessionMemberContributionView {
-  @ApiProperty() contribution_id!: string;
-  @ApiProperty() member_id!: string;
-  @ApiProperty() member_name!: string;
-  @ApiProperty() amount!: string;
-  @ApiProperty() reference!: string;
 }
 
 export class CampaignSessionView {

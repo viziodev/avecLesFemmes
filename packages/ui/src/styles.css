@@ -2340,3 +2340,65 @@ textarea {
   color: #94a3b8;
 }
 
+/* Tri et filtre de l'Historique des cotisations */
+.contributions-sort-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 12px 0 16px;
+  padding: 8px 12px;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.contributions-sort-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #475569;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.sort-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #475569;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.sort-pill-btn:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+.sort-pill-btn.active {
+  background: #1e3a2b;
+  color: #ffffff;
+  border-color: #1e3a2b;
+  box-shadow: 0 1px 3px rgba(30, 58, 43, 0.2);
+}
+
+.th-sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s ease;
+}
+
+.th-sortable:hover {
+  background: #f1f5f9;
+}
+
+.tontine-rounds-table td {
+  vertical-align: middle;
+}

@@ -372,14 +372,40 @@ export class CampaignsService {
       await requireGroup(c, groupId);
       const r = await c.query(
         `SELECT tr.id, tr.round_number, tr.beneficiary_id, m.name beneficiary_name,
-                tr.expected_date::text, tr.payout_amount::text, tr.paid, tr.paid_at::text
+                tr.expected_date::text, tr.payout_amount::text, tr.paid, tr.paid_at::text,
+                coalesce((
+                  SELECT sum(cb.amount)
+                  FROM contributions cb
+                  WHERE cb.campaign_id=tr.campaign_id
+                    AND cb.voided_at IS NULL
+                    AND to_char(cb.paid_on, 'YYYY-MM') = to_char(tr.expected_date, 'YYYY-MM')
+                ), 0)::text total_collected_amount
          FROM tontine_rounds tr
          JOIN memberships m ON m.id=tr.beneficiary_id
          WHERE tr.campaign_id=$1
          ORDER BY tr.round_number`,
         [campaignId],
       );
-      return r.rows;
+      const rounds = [];
+      for (const row of r.rows) {
+        const contribs = await c.query(
+          `SELECT cb.id as contribution_id, m.id as member_id, m.name as member_name,
+                  cb.amount::text, cb.reference, cb.paid_on::text
+           FROM contributions cb
+           JOIN participations p ON p.id=cb.participation_id
+           JOIN memberships m ON m.id=p.membership_id
+           WHERE cb.campaign_id=$1
+             AND cb.voided_at IS NULL
+             AND to_char(cb.paid_on, 'YYYY-MM') = to_char($2::date, 'YYYY-MM')
+           ORDER BY cb.paid_on DESC, cb.created_at DESC`,
+          [campaignId, row.expected_date],
+        );
+        rounds.push({
+          ...row,
+          contributions: contribs.rows,
+        });
+      }
+      return rounds;
     });
   }
 
