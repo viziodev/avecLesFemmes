@@ -11,6 +11,7 @@ import {
   Min,
   MinLength,
   IsIn,
+  IsArray,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
@@ -56,6 +57,16 @@ export class CreateGroupDto {
   @MaxLength(120)
   responsible?: string;
   @ApiProperty() @IsString() @Matches(/^\+?[\d ()-]{7,25}$/) phone!: string;
+  @ApiPropertyOptional({ type: [String], description: 'IDs des types de campagne autorisés' })
+  @IsOptional()
+  @IsArray()
+  @IsUUID('4', { each: true })
+  typeIds?: string[];
+  @ApiPropertyOptional({ type: [String], description: 'IDs des événements autorisés' })
+  @IsOptional()
+  @IsArray()
+  @IsUUID('4', { each: true })
+  eventIds?: string[];
 }
 
 export class CreateMemberDto {
@@ -129,6 +140,13 @@ export class ConfigureGroupEventsDto {
 export class ConfigureGroupFunctionsDto {
   @ApiProperty({ type: [String] })
   functionIds!: string[];
+}
+
+export class ConfigureGroupTypesDto {
+  @ApiProperty({ type: [String] })
+  @IsArray()
+  @IsUUID('4', { each: true })
+  typeIds!: string[];
 }
 
 export class CreateCampaignDto {

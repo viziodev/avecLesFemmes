@@ -25,6 +25,7 @@ import {
   CampaignEventView,
   ConfigureGroupEventsDto,
   ConfigureGroupFunctionsDto,
+  ConfigureGroupTypesDto,
   CreateCampaignEventDto,
   CreateGroupDto,
   CreateMemberDto,
@@ -66,15 +67,42 @@ export class GroupementsService {
         'INSERT INTO groupements(id,name,address,responsible,phone) VALUES($1,$2,$3,$4,$5) RETURNING *',
         [id, input.name, input.address, input.responsible ?? '', input.phone],
       );
-      // Rendre disponibles les fonctions et événements par défaut
+      // Rendre disponibles les fonctions par défaut
       await c.query(
         'INSERT INTO groupment_functions(group_id, function_id) SELECT $1, id FROM group_functions ON CONFLICT DO NOTHING',
         [id],
       );
-      await c.query(
-        'INSERT INTO groupment_events(group_id, event_id, is_mandatory, default_amount) SELECT $1, id, false, 5000 FROM campaign_events ON CONFLICT DO NOTHING',
-        [id],
-      );
+
+      // Types de campagne affectés
+      if (input.typeIds && input.typeIds.length > 0) {
+        for (const typeId of input.typeIds) {
+          await c.query(
+            'INSERT INTO groupment_types(group_id, type_id) VALUES($1, $2) ON CONFLICT DO NOTHING',
+            [id, typeId],
+          );
+        }
+      } else {
+        await c.query(
+          'INSERT INTO groupment_types(group_id, type_id) SELECT $1, id FROM campaign_types ON CONFLICT DO NOTHING',
+          [id],
+        );
+      }
+
+      // Événements affectés
+      if (input.eventIds && input.eventIds.length > 0) {
+        for (const eventId of input.eventIds) {
+          await c.query(
+            'INSERT INTO groupment_events(group_id, event_id, is_mandatory, default_amount) VALUES($1, $2, false, 5000) ON CONFLICT DO NOTHING',
+            [id, eventId],
+          );
+        }
+      } else {
+        await c.query(
+          'INSERT INTO groupment_events(group_id, event_id, is_mandatory, default_amount) SELECT $1, id, false, 5000 FROM campaign_events ON CONFLICT DO NOTHING',
+          [id],
+        );
+      }
+
       await audit(c, actor, id, 'GROUP_CREATED', id);
       return { ...r.rows[0], my_role: 'SUPER', member_count: '0', campaign_count: '0' };
     });
@@ -375,6 +403,37 @@ export class GroupementsService {
     });
   }
 
+  groupTypes(actor: Actor, groupId: string) {
+    return this.db.run(actor, async (c) => {
+      await requireGroup(c, groupId);
+      const r = await c.query(
+        `SELECT t.id, t.name, t.code, t.rule_version, t.engine
+         FROM campaign_types t
+         JOIN groupment_types gt ON gt.type_id=t.id
+         WHERE gt.group_id=$1
+         ORDER BY t.name`,
+        [groupId],
+      );
+      return r.rows;
+    });
+  }
+
+  configureGroupTypes(actor: Actor, groupId: string, input: ConfigureGroupTypesDto) {
+    requireSuper(actor);
+    return this.db.run(actor, async (c) => {
+      await requireGroup(c, groupId);
+      await c.query('DELETE FROM groupment_types WHERE group_id=$1', [groupId]);
+      for (const typeId of input.typeIds) {
+        await c.query(
+          'INSERT INTO groupment_types(group_id, type_id) VALUES($1, $2) ON CONFLICT DO NOTHING',
+          [groupId, typeId],
+        );
+      }
+      await audit(c, actor, groupId, 'GROUP_TYPES_CONFIGURED', groupId, input);
+      return { ok: true, count: input.typeIds.length };
+    });
+  }
+
   types(actor: Actor) {
     return this.db.run(
       actor,
@@ -505,6 +564,23 @@ export class GroupementsController {
     @Body() input: ConfigureGroupEventsDto,
   ) {
     return this.service.configureGroupEvents(r.actor, groupId, input);
+  }
+
+  @Get(':groupId/types')
+  @ApiOperation({ operationId: 'listGroupTypes' })
+  @ApiOkResponse({ type: [TypeView] })
+  groupTypes(@Req() r: AuthRequest, @Param('groupId', ParseUUIDPipe) groupId: string) {
+    return this.service.groupTypes(r.actor, groupId);
+  }
+
+  @Put(':groupId/types')
+  @ApiOperation({ operationId: 'configureGroupTypes' })
+  configureGroupTypes(
+    @Req() r: AuthRequest,
+    @Param('groupId', ParseUUIDPipe) groupId: string,
+    @Body() input: ConfigureGroupTypesDto,
+  ) {
+    return this.service.configureGroupTypes(r.actor, groupId, input);
   }
 }
 

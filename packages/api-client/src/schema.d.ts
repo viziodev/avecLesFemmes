@@ -244,6 +244,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/groupements/{groupId}/types": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listGroupTypes"];
+        put: operations["configureGroupTypes"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/group-functions": {
         parameters: {
             query?: never;
@@ -549,6 +565,10 @@ export interface components {
             address: string;
             responsible?: string;
             phone: string;
+            /** @description IDs des types de campagne autorisés */
+            typeIds?: string[];
+            /** @description IDs des événements autorisés */
+            eventIds?: string[];
         };
         MemberView: {
             id: string;
@@ -629,6 +649,15 @@ export interface components {
         ConfigureGroupEventsDto: {
             events: components["schemas"]["GroupEventItemDto"][];
         };
+        TypeView: {
+            id: string;
+            name: string;
+            code: string;
+            rule_version: number;
+        };
+        ConfigureGroupTypesDto: {
+            typeIds: string[];
+        };
         CampaignEventView: {
             id: string;
             code: string;
@@ -640,12 +669,6 @@ export interface components {
             name: string;
             code: string;
             description?: string;
-        };
-        TypeView: {
-            id: string;
-            name: string;
-            code: string;
-            rule_version: number;
         };
         CreateTypeDto: {
             name: string;
@@ -1226,6 +1249,50 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["ConfigureGroupEventsDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    listGroupTypes: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                groupId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TypeView"][];
+                };
+            };
+        };
+    };
+    configureGroupTypes: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                groupId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConfigureGroupTypesDto"];
             };
         };
         responses: {

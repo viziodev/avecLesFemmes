@@ -787,7 +787,20 @@ export function App({
     const v = values(e);
     const campaignPath = { groupId, id: campaignId };
 
-    if (dialog === 'group')
+    if (dialog === 'group') {
+      const formData = new FormData(e.currentTarget);
+      const selectedTypeIds = formData.getAll('typeIds') as string[];
+      const selectedEventIds = formData.getAll('eventIds') as string[];
+
+      if (types.length > 0 && selectedTypeIds.length === 0) {
+        setNotice('Veuillez sélectionner au moins un type de campagne.');
+        return;
+      }
+      if (events.length > 0 && selectedEventIds.length === 0) {
+        setNotice('Veuillez sélectionner au moins un événement.');
+        return;
+      }
+
       await action(
         () =>
           api
@@ -796,11 +809,14 @@ export function App({
                 name: v.name,
                 address: v.address,
                 phone: v.phone,
+                typeIds: selectedTypeIds.length > 0 ? selectedTypeIds : undefined,
+                eventIds: selectedEventIds.length > 0 ? selectedEventIds : undefined,
               },
             })
             .then(unwrap),
-        'Groupement créé.',
+        'Groupement créé avec ses types et événements affectés.',
       );
+    }
 
     if (dialog === 'member')
       await action(
@@ -2143,7 +2159,7 @@ export function App({
               void: 'Annulation exceptionnelle d’une cotisation erronée.',
             }[dialog]
           }
-          wide={dialog === 'campaign' || dialog === 'member'}
+          wide={dialog === 'campaign' || dialog === 'member' || dialog === 'group'}
           busy={busy}
           onClose={() => setDialog('')}
         >
@@ -2160,18 +2176,96 @@ export function App({
                       placeholder="Ex: Les Femmes de Grand Yoff"
                     />
                   </Field>
-                  <Field label="Adresse">
-                    <input
-                      name="address"
-                      required
-                      minLength={2}
-                      maxLength={250}
-                      placeholder="Ex: Grand Yoff, Dakar"
-                    />
-                  </Field>
-                  <Field label="Téléphone">
-                    <input name="phone" type="tel" required placeholder="Ex: +221771234567" />
-                  </Field>
+                  <div className="form-grid">
+                    <Field label="Adresse">
+                      <input
+                        name="address"
+                        required
+                        minLength={2}
+                        maxLength={250}
+                        placeholder="Ex: Grand Yoff, Dakar"
+                      />
+                    </Field>
+                    <Field label="Téléphone">
+                      <input name="phone" type="tel" required placeholder="Ex: +221771234567" />
+                    </Field>
+                  </div>
+
+                  <div className="assignment-section">
+                    <div className="assignment-section-header">
+                      <h4>
+                        <span>🏷️</span> Types de campagne autorisés
+                      </h4>
+                      <span className="badge-soft">{types.length} disponibles</span>
+                    </div>
+                    <p className="assignment-section-desc">
+                      Sélectionnez les modèles de campagne que ce groupement aura le droit
+                      d’activer.
+                    </p>
+                    <div className="assignment-grid">
+                      {types.map((t) => (
+                        <label key={t.id} className="assignment-card">
+                          <input
+                            type="checkbox"
+                            name="typeIds"
+                            value={t.id}
+                            defaultChecked
+                            className="assignment-checkbox"
+                          />
+                          <div className="assignment-card-body">
+                            <div className="assignment-card-title">
+                              <strong>{t.name}</strong>
+                              <span className="badge-code">{t.code}</span>
+                            </div>
+                            <span className="assignment-card-sub">
+                              Modèle standard v{t.rule_version}
+                            </span>
+                          </div>
+                        </label>
+                      ))}
+                      {types.length === 0 && (
+                        <p className="assignment-card-sub">Aucun type de campagne disponible.</p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="assignment-section">
+                    <div className="assignment-section-header">
+                      <h4>
+                        <span>📅</span> Événements applicables
+                      </h4>
+                      <span className="badge-soft">{events.length} disponibles</span>
+                    </div>
+                    <p className="assignment-section-desc">
+                      Sélectionnez les événements du catalogue applicables aux campagnes du
+                      groupement.
+                    </p>
+                    <div className="assignment-grid">
+                      {events.map((ev) => (
+                        <label key={ev.id} className="assignment-card">
+                          <input
+                            type="checkbox"
+                            name="eventIds"
+                            value={ev.id}
+                            defaultChecked
+                            className="assignment-checkbox"
+                          />
+                          <div className="assignment-card-body">
+                            <div className="assignment-card-title">
+                              <strong>{ev.name}</strong>
+                              <span className="badge-code">{ev.code}</span>
+                            </div>
+                            {ev.description && (
+                              <span className="assignment-card-sub">{ev.description}</span>
+                            )}
+                          </div>
+                        </label>
+                      ))}
+                      {events.length === 0 && (
+                        <p className="assignment-card-sub">Aucun événement disponible.</p>
+                      )}
+                    </div>
+                  </div>
                 </>
               )}
               {dialog === 'member' && (

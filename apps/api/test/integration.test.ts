@@ -31,6 +31,9 @@ before(async () => {
   await pg.exec(
     await readFile(resolve('../../database/migrations/002_fonctions_tontines_qr.sql'), 'utf8'),
   );
+  await pg.exec(
+    await readFile(resolve('../../database/migrations/003_group_types_assignment.sql'), 'utf8'),
+  );
   const users = ['super', 'admin', 'member', 'other'].map((login, i) => ({
     id: randomUUID(),
     login,
@@ -587,4 +590,59 @@ test('tontine rotative, tirage au sort, séances et état de la caisse', async (
     .expect(200);
   assert.ok(superCockpit.body.total_groups >= 2);
   assert.ok(superCockpit.body.cashboxes.length >= 1);
+
+  // Création d'un groupement avec affectation de types et d'événements
+  const eventsList = await request(app.getHttpServer())
+    .get('/api/v1/campaign-events')
+    .set('Cookie', superCookie)
+    .expect(200);
+  const typesList = await request(app.getHttpServer())
+    .get('/api/v1/campaign-types')
+    .set('Cookie', superCookie)
+    .expect(200);
+
+  const customGroup = await request(app.getHttpServer())
+    .post('/api/v1/groupements')
+    .set(headers)
+    .set('Cookie', superCookie)
+    .send({
+      name: 'Groupement Types & Events',
+      address: 'Pikine, Dakar',
+      phone: '+221776543210',
+      typeIds: [typesList.body[0].id],
+      eventIds: [eventsList.body[0].id],
+    })
+    .expect(201);
+
+  // Vérifier les types affectés
+  const grpTypes = await request(app.getHttpServer())
+    .get(`/api/v1/groupements/${customGroup.body.id}/types`)
+    .set('Cookie', superCookie)
+    .expect(200);
+  assert.equal(grpTypes.body.length, 1);
+  assert.equal(grpTypes.body[0].id, typesList.body[0].id);
+
+  // Vérifier les événements affectés
+  const grpEvents = await request(app.getHttpServer())
+    .get(`/api/v1/groupements/${customGroup.body.id}/events`)
+    .set('Cookie', superCookie)
+    .expect(200);
+  assert.equal(grpEvents.body.length, 1);
+  assert.equal(grpEvents.body[0].event_id, eventsList.body[0].id);
+
+  // Modification des types affectés
+  await request(app.getHttpServer())
+    .put(`/api/v1/groupements/${customGroup.body.id}/types`)
+    .set(headers)
+    .set('Cookie', superCookie)
+    .send({
+      typeIds: typesList.body.map((t: { id: string }) => t.id),
+    })
+    .expect(200);
+
+  const updatedGrpTypes = await request(app.getHttpServer())
+    .get(`/api/v1/groupements/${customGroup.body.id}/types`)
+    .set('Cookie', superCookie)
+    .expect(200);
+  assert.equal(updatedGrpTypes.body.length, typesList.body.length);
 });

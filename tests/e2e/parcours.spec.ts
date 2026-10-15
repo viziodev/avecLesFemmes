@@ -18,10 +18,10 @@ test('super administrateur consulte, crée et active une campagne', async ({ pag
   await expect(page.getByRole('button', { name: 'Enregistrer une cotisation' })).toHaveCount(0);
   await page.getByRole('button', { name: 'Campagnes', exact: true }).click();
   await expect(page.getByText('Épargne solidaire 2026', { exact: true }).first()).toBeVisible();
-  await page.getByRole('button', { name: 'Désactiver', exact: true }).click();
-  await expect(page.getByRole('button', { name: 'Activer', exact: true })).toBeVisible();
-  await page.getByRole('button', { name: 'Activer', exact: true }).click();
-  await expect(page.getByRole('button', { name: 'Désactiver', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Désactiver', exact: true }).first().click();
+  await expect(page.getByRole('button', { name: 'Activer', exact: true }).first()).toBeVisible();
+  await page.getByRole('button', { name: 'Activer', exact: true }).first().click();
+  await expect(page.getByRole('button', { name: 'Désactiver', exact: true }).first()).toBeVisible();
   await page.getByRole('button', { name: 'Masquer', exact: true }).click();
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.screenshot({ path: 'test-results/super-admin.png', fullPage: true });
@@ -30,11 +30,22 @@ test('super administrateur consulte, crée et active une campagne', async ({ pag
   await page.getByLabel('Adresse', { exact: true }).fill('Dakar');
   await expect(page.getByLabel('Responsable', { exact: true })).toHaveCount(0);
   await page.getByLabel('Téléphone', { exact: true }).fill('+221771234567');
+  await expect(page.getByText('Types de campagne autorisés', { exact: false })).toBeVisible();
+  await expect(page.getByText('Événements applicables', { exact: false })).toBeVisible();
+  await page.screenshot({ path: 'test-results/creer-groupement-modal.png' });
   await page.getByRole('button', { name: 'Enregistrer', exact: true }).click();
   await expect(page.getByRole('status')).toContainText('Groupement créé');
 });
 test('administratrice enregistre et retrouve sa vue membre', async ({ page }) => {
   await login(page, pwa, 'admin.ndeye');
+  const campSelect = page.getByLabel('Campagne suivie', { exact: true });
+  if (await campSelect.isVisible()) {
+    const options = await campSelect.locator('option').allTextContents();
+    const epargneOption = options.find((t) => t.includes('Épargne solidaire 2026'));
+    if (epargneOption) {
+      await campSelect.selectOption({ label: epargneOption });
+    }
+  }
   await page.getByRole('button', { name: 'Enregistrer une cotisation', exact: true }).click();
   const selection = page.getByRole('combobox', { name: 'Participante', exact: true });
   // Les deux participantes du seed sont affichées dans l’ordre Awa puis Ndèye.
@@ -98,11 +109,15 @@ test('connexion par code téléphone et déconnexion', async ({ page }) => {
 test('un double envoi concurrent produit un seul versement', async ({ page }) => {
   await login(page, pwa, 'admin.ndeye');
   const groups = await (await page.request.get(pwa + '/api/v1/groupements')).json();
-  const groupId = groups.items[0].id;
+  const targetGroup =
+    groups.items.find((g: any) => g.name === 'Les Femmes de Grand Yoff') || groups.items[0];
+  const groupId = targetGroup.id;
   const campaigns = await (
     await page.request.get(pwa + `/api/v1/groupements/${groupId}/campaigns`)
   ).json();
-  const campaignId = campaigns.items[0].id;
+  const targetCampaign =
+    campaigns.items.find((c: any) => c.name === 'Épargne solidaire 2026') || campaigns.items[0];
+  const campaignId = targetCampaign.id;
   const base = pwa + `/api/v1/groupements/${groupId}/campaigns/${campaignId}`;
   const participants = await (await page.request.get(base + '/participants')).json();
   const before = await (await page.request.get(base + '/dashboard')).json();

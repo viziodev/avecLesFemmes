@@ -632,6 +632,72 @@
         ]
       }
     },
+    "/api/v1/groupements/{groupId}/types": {
+      "get": {
+        "operationId": "listGroupTypes",
+        "parameters": [
+          {
+            "name": "groupId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TypeView"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "",
+        "tags": [
+          "Groupements"
+        ]
+      },
+      "put": {
+        "operationId": "configureGroupTypes",
+        "parameters": [
+          {
+            "name": "groupId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfigureGroupTypesDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "",
+        "tags": [
+          "Groupements"
+        ]
+      }
+    },
     "/api/v1/group-functions": {
       "get": {
         "operationId": "listPlatformFunctions",
@@ -1783,6 +1849,20 @@
           },
           "phone": {
             "type": "string"
+          },
+          "typeIds": {
+            "description": "IDs des types de campagne autorisés",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "eventIds": {
+            "description": "IDs des événements autorisés",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         },
         "required": [
@@ -2062,6 +2142,43 @@
           "events"
         ]
       },
+      "TypeView": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "rule_version": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "code",
+          "rule_version"
+        ]
+      },
+      "ConfigureGroupTypesDto": {
+        "type": "object",
+        "properties": {
+          "typeIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "typeIds"
+        ]
+      },
       "CampaignEventView": {
         "type": "object",
         "properties": {
@@ -2104,29 +2221,6 @@
         "required": [
           "name",
           "code"
-        ]
-      },
-      "TypeView": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "code": {
-            "type": "string"
-          },
-          "rule_version": {
-            "type": "number"
-          }
-        },
-        "required": [
-          "id",
-          "name",
-          "code",
-          "rule_version"
         ]
       },
       "CreateTypeDto": {

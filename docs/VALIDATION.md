@@ -36,6 +36,8 @@ Exécutée le 15 octobre 2026 sur l'environnement local (PostgreSQL Docker 5433,
   - Schéma OpenAPI mis à jour (`docs/openapi.json`).
   - Typage TypeScript généré et synchronisé (`packages/api-client/src/schema.d.ts`).
   - Migration SQL `002_fonctions_tontines_qr.sql` appliquée et validée avec RLS complet (y compris politique UPDATE pour gestion membre).
+  - Migration SQL `003_group_types_assignment.sql` appliquée et validée : table `groupment_types` avec RLS, politiques de lecture/écriture et attribution des types et événements lors de la création d'un groupement.
+  - Tests E2E Playwright (6/6 réussis) validant la création de groupement avec attribution visuelle des types de campagne et événements.
 
 ---
 
