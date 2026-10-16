@@ -33,13 +33,17 @@ import { findCampaign } from '../campaigns/campaigns.module';
 export class ContributionsService {
   constructor(private readonly db: Database) {}
   list(actor: Actor, groupId: string, campaignId: string, page: ScopedPageDto) {
+    if (page.paidOn && !validDate(page.paidOn))
+      throw new BadRequestException('Date de versement invalide.');
     return this.db.run(actor, async (c) => {
       await requireGroup(c, groupId);
       await findCampaign(c, groupId, campaignId);
       const personal = page.scope === 'personal';
+      const search = (page.q || '').trim();
+      const paidOn = page.paidOn || null;
       const count = await c.query(
-        'SELECT count(*) FROM contributions WHERE campaign_id=$1 AND (NOT $2::boolean OR app_owns_participation(participation_id))',
-        [campaignId, personal],
+        `SELECT count(*) FROM contributions x JOIN participations p ON p.id=x.participation_id JOIN memberships m ON m.id=p.membership_id WHERE x.campaign_id=$1 AND (NOT $2::boolean OR app_owns_participation(x.participation_id)) AND (strpos(lower(m.name),lower($3))>0 OR strpos(coalesce(m.phone,''),$3)>0) AND ($4::date IS NULL OR x.paid_on=$4::date)`,
+        [campaignId, personal, search, paidOn],
       );
       let orderBy = 'x.paid_on DESC, x.created_at DESC, x.id';
       if (page.sort === 'member') {
@@ -48,8 +52,8 @@ export class ContributionsService {
         orderBy = 'x.paid_on DESC, m.name ASC, x.id';
       }
       const r = await c.query(
-        `SELECT x.id,m.name,x.participation_id,x.amount::text,x.paid_on::text,x.reference,x.voided_at::text FROM contributions x JOIN participations p ON p.id=x.participation_id JOIN memberships m ON m.id=p.membership_id WHERE x.campaign_id=$1 AND (NOT $4::boolean OR app_owns_participation(x.participation_id)) ORDER BY ${orderBy} LIMIT $2 OFFSET $3`,
-        [campaignId, page.limit, (page.page - 1) * page.limit, personal],
+        `SELECT x.id,m.name,x.participation_id,x.amount::text,x.paid_on::text,x.reference,x.voided_at::text FROM contributions x JOIN participations p ON p.id=x.participation_id JOIN memberships m ON m.id=p.membership_id WHERE x.campaign_id=$1 AND (NOT $4::boolean OR app_owns_participation(x.participation_id)) AND (strpos(lower(m.name),lower($5))>0 OR strpos(coalesce(m.phone,''),$5)>0) AND ($6::date IS NULL OR x.paid_on=$6::date) ORDER BY ${orderBy} LIMIT $2 OFFSET $3`,
+        [campaignId, page.limit, (page.page - 1) * page.limit, personal, search, paidOn],
       );
       return { items: r.rows, total: Number(count.rows[0].count) };
     });

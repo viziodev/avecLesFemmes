@@ -1160,6 +1160,10 @@ export interface operations {
             query?: {
                 page?: number;
                 limit?: number;
+                /** @description Recherche par nom ou téléphone, avant pagination */
+                q?: string;
+                /** @description Date exacte du versement, YYYY-MM-DD */
+                paidOn?: string;
                 scope?: "personal" | "group";
                 sort?: "date" | "session" | "period" | "member";
             };
@@ -1707,6 +1711,10 @@ export interface operations {
             query?: {
                 page?: number;
                 limit?: number;
+                /** @description Recherche par nom ou téléphone, avant pagination */
+                q?: string;
+                /** @description Date exacte du versement, YYYY-MM-DD */
+                paidOn?: string;
                 scope?: "personal" | "group";
                 sort?: "date" | "session" | "period" | "member";
             };
@@ -1987,6 +1995,10 @@ export interface operations {
             query?: {
                 page?: number;
                 limit?: number;
+                /** @description Recherche par nom ou téléphone, avant pagination */
+                q?: string;
+                /** @description Date exacte du versement, YYYY-MM-DD */
+                paidOn?: string;
                 scope?: "personal" | "group";
                 sort?: "date" | "session" | "period" | "member";
             };

@@ -752,3 +752,83 @@ test('tontine rotative, tirage au sort, séances et état de la caisse', async (
     .expect(200);
   assert.equal(reactGroup.body.active, true);
 });
+
+test('recherche serveur au-delà de 200 membres, pagination exacte et isolation', async () => {
+  await pg.exec('RESET ROLE');
+  try {
+    for (let i = 0; i < 205; i++) {
+      const membershipId = randomUUID();
+      await pg.query('INSERT INTO memberships(id,group_id,name,phone) VALUES($1,$2,$3,$4)', [
+        membershipId,
+        g,
+        `Recherche ${String(i).padStart(3, '0')}`,
+        `+22178000${String(i).padStart(4, '0')}`,
+      ]);
+      await pg.query(
+        'INSERT INTO participations(id,group_id,campaign_id,membership_id) VALUES($1,$2,$3,$4)',
+        [randomUUID(), g, camp, membershipId],
+      );
+    }
+  } finally {
+    await pg.exec('SET ROLE aveclesfemmes_app');
+  }
+  const memberSearch = await request(app.getHttpServer())
+    .get(`/api/v1/groupements/${g}/members?q=Recherche%20204&limit=1`)
+    .set('Cookie', adminCookie)
+    .expect(200);
+  assert.equal(memberSearch.body.total, 1);
+  assert.equal(memberSearch.body.items[0].name, 'Recherche 204');
+  const search = await request(app.getHttpServer())
+    .get(path() + '/participants?q=Recherche%20204&limit=1')
+    .set('Cookie', adminCookie)
+    .expect(200);
+  assert.equal(search.body.total, 1);
+  assert.equal(search.body.items[0].name, 'Recherche 204');
+  const second = await request(app.getHttpServer())
+    .get(path() + '/participants?q=Recherche%20204&limit=1&page=2')
+    .set('Cookie', adminCookie)
+    .expect(200);
+  assert.equal(second.body.total, 1);
+  assert.equal(second.body.items.length, 0);
+  const personal = await request(app.getHttpServer())
+    .get(path() + '/participants?q=Recherche&scope=personal')
+    .set('Cookie', adminCookie)
+    .expect(200);
+  assert.equal(personal.body.total, 0);
+  const otherLogin = await request(app.getHttpServer())
+    .post('/api/v1/auth/login')
+    .set(headers)
+    .send({ login: 'other', password: testPassword })
+    .expect(201);
+  otherCookie = otherLogin.headers['set-cookie'][0];
+  await request(app.getHttpServer())
+    .get(path() + '/participants?q=Recherche')
+    .set('Cookie', otherCookie)
+    .expect(404);
+  await request(app.getHttpServer())
+    .post(path() + '/contributions')
+    .set(headers)
+    .set('Cookie', adminCookie)
+    .send({
+      participationId: search.body.items[0].id,
+      amount: 375,
+      paidOn: '2026-06-02',
+      idempotencyKey: randomUUID(),
+    })
+    .expect(201);
+  const history = await request(app.getHttpServer())
+    .get(path() + '/contributions?q=Recherche%20204&paidOn=2026-06-02&limit=1')
+    .set('Cookie', adminCookie)
+    .expect(200);
+  assert.equal(history.body.total, 1);
+  assert.equal(history.body.items[0].amount, '375');
+  const missing = await request(app.getHttpServer())
+    .get(path() + '/contributions?q=Recherche%20204&paidOn=2026-06-03')
+    .set('Cookie', adminCookie)
+    .expect(200);
+  assert.equal(missing.body.total, 0);
+  await request(app.getHttpServer())
+    .get(path() + '/contributions?paidOn=2026-02-30')
+    .set('Cookie', adminCookie)
+    .expect(400);
+});

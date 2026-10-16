@@ -44,11 +44,6 @@ test('capture des interfaces Wave Membre et Admin Groupement', async ({ page }) 
   await page.waitForTimeout(500);
   await page.screenshot({ path: `${artifactDir}/wave_admin_chiffres.png` });
 
-  // Basculer sur l'onglet Semaine
-  await page.getByRole('button', { name: 'Semaine', exact: true }).click();
-  await page.waitForTimeout(400);
-  await page.screenshot({ path: `${artifactDir}/wave_admin_chiffres_semaine.png` });
-
   // Retour au dashboard
   await page.getByRole('button', { name: 'Retour', exact: true }).click();
   await page.waitForTimeout(500);

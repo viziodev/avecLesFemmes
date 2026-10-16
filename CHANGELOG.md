@@ -1,5 +1,46 @@
 # Journal des versions
 
+## 0.6.0 Reprise réseau et mises à jour PWA — lot 5
+
+- Nouvel essai d’enregistrement du service worker après échec, au retour réseau ou à la reprise de l’application.
+- Erreur de vérification de session distincte d’une déconnexion, avec bouton de reprise et nouvel essai au retour réseau.
+- Protection de sortie du navigateur pendant les formulaires et opérations ; brouillon conservé en mémoire après coupure, sans stockage local de données financières.
+- Message explicite pour une confirmation interrompue et blocage des mutations hors connexion ; nouvelle tentative manuelle avec la même clé d’idempotence.
+- Tests navigateur du cycle réel du service worker entre deux versions et de la reprise d’encaissement après interruption.
+
+## 0.5.0 Gestion et encaissement guidé — lot 4
+
+- Navigation mobile de gestion : Accueil, Encaisser, Membres et Plus.
+- Encaissement en deux étapes avec choix explicite de campagne et participante, récapitulatif puis confirmation.
+- Recherche serveur par nom ou téléphone pour membres et participantes, avec pagination ; recherche de versements par nom/téléphone et date.
+- Listes de membres, campagnes et versements présentées en cartes sur mobile.
+- Verrou de requête côté interface, conservation de la clé d’idempotence en cas d’échec et suppression des promesses de frais non calculées.
+
+## 0.4.0 Espace membre — lot 3
+
+- Navigation dédiée : Accueil, Mes campagnes, Mes versements et Mon compte.
+- Accueil personnel avec montant de la campagne, QR et règles de participation.
+- Campagnes actives et désactivées consultables ; historique en cartes avec référence et statut.
+- Masquage cohérent des montants et forfaits dans toutes les rubriques personnelles.
+- Bascule personnelle de l’administratrice sans conserver les totaux de gestion à l’écran.
+
+## 0.3.0 Socle mobile PWA — lot 2
+
+- Navigation fixe en bas sur téléphone, avec indication de la page active.
+- En-tête compact et détails du groupement repliables ; sélecteur natif accessible.
+- Cibles tactiles de 44 px minimum, champs de 16 px, prise en compte des zones sûres et des préférences de réduction des animations.
+- Dialogues adaptés à la hauteur disponible, focus contenu et restauré, défilement de fond bloqué.
+- Inclut les corrections locales 0.2.2 et la mise à jour automatique 0.2.1, pas encore publiées.
+
+## 0.2.2 Fiabilité des parcours PWA — lot 1
+
+- Chiffres limités aux totaux réels de la campagne : retrait des séries fictives, périodes et frais non calculés.
+- Distinction entre cotisations personnelles et solde de caisse ; une caisse non chargée est indiquée comme indisponible.
+- Confirmation vocale uniquement après succès serveur, erreur visible dans le formulaire conservé.
+- Retrait du scanner simulé ; présentation du QR personnel.
+- Sélection réelle de campagne dans l’historique à la place des catégories inopérantes.
+- Choix explicite de la participante et remise à zéro du montant lors du passage à une participation libre.
+
 ## 0.2.1 Mise à jour automatique de la PWA
 
 - Détection au lancement, au retour en ligne ou au premier plan et toutes les cinq minutes visibles.

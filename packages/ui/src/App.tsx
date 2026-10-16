@@ -8,6 +8,8 @@ import {
   type ReactNode,
 } from 'react';
 import QRCode from 'qrcode';
+import { confirmedAction } from './confirmed-action';
+import { MemberSpace } from './MemberSpace';
 import {
   AlertTriangle,
   Archive,
@@ -17,7 +19,6 @@ import {
   BarChart3,
   Calendar,
   CalendarCheck,
-  Camera,
   Check,
   CheckCircle2,
   ChevronDown,
@@ -62,7 +63,6 @@ import {
   VolumeX,
   Wallet,
   X,
-  Zap,
 } from 'lucide-react';
 import { api, type components } from '@aveclesfemmes/api-client';
 
@@ -170,11 +170,50 @@ function Dialog({
 }) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    function esc(e: KeyboardEvent) {
-      if (e.key === 'Escape' && !busy) onClose();
+    const previous = document.activeElement as HTMLElement | null;
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    ref.current?.focus();
+    return () => {
+      document.body.style.overflow = overflow;
+      if (previous?.isConnected) previous.focus();
+    };
+  }, []);
+  useEffect(() => {
+    function handleKey(e: KeyboardEvent) {
+      if (e.key === 'Escape' && !busy) {
+        e.preventDefault();
+        onClose();
+      }
+      if (e.key !== 'Tab') return;
+      const items = Array.from(
+        ref.current?.querySelectorAll<HTMLElement>(
+          'button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), a[href], [tabindex="0"]',
+        ) || [],
+      ).filter((el) => el.getClientRects().length > 0);
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (!first) {
+        e.preventDefault();
+        ref.current?.focus();
+        return;
+      }
+      if (
+        e.shiftKey &&
+        (document.activeElement === first || document.activeElement === ref.current)
+      ) {
+        e.preventDefault();
+        last.focus();
+      } else if (
+        !e.shiftKey &&
+        (document.activeElement === last || document.activeElement === ref.current)
+      ) {
+        e.preventDefault();
+        first.focus();
+      }
     }
-    window.addEventListener('keydown', esc);
-    return () => window.removeEventListener('keydown', esc);
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
   }, [onClose, busy]);
   return (
     <div
@@ -187,6 +226,7 @@ function Dialog({
         className={`dialog-card ${wide ? 'wide' : ''}`}
         role="dialog"
         aria-modal="true"
+        tabIndex={-1}
         aria-labelledby="dialog-title"
         ref={ref}
       >
@@ -347,208 +387,36 @@ function NumericKeypad({
   );
 }
 
-function CameraScannerOverlay({
-  onClose,
-  onScan,
-  title = 'Scanner un Code QR pour cotiser',
-}: {
-  onClose: () => void;
-  onScan: (val: string) => void;
-  title?: string;
-}) {
-  const [flashlight, setFlashlight] = useState(false);
-
-  return (
-    <div className="wave-scanner-overlay" role="dialog" aria-modal="true" aria-label="Scanner QR">
-      <div className="wave-scanner-topbar">
-        <button
-          type="button"
-          className="wave-scanner-close-btn"
-          aria-label="Fermer le scanner"
-          onClick={onClose}
-        >
-          <X size={22} />
-        </button>
-        <span style={{ fontWeight: 700, fontSize: 16 }}>Viseur Caméra</span>
-        <button
-          type="button"
-          className="wave-scanner-flash-btn"
-          aria-label="Lampe torche"
-          onClick={() => setFlashlight(!flashlight)}
-          style={{ background: flashlight ? '#10b981' : undefined }}
-        >
-          <Zap size={20} />
-        </button>
-      </div>
-
-      <div className="wave-scanner-center">
-        <div className="wave-scanner-frame">
-          <div className="wave-scanner-laser" />
-        </div>
-        <p className="wave-scanner-instruction">{title}</p>
-      </div>
-
-      <div className="wave-scanner-bottom">
-        <button
-          type="button"
-          className="wave-scanner-sim-btn"
-          onClick={() => {
-            onScan('DEMO_SCAN_CODE');
-          }}
-        >
-          <Camera
-            size={18}
-            style={{ display: 'inline', verticalAlign: 'middle', marginRight: 8 }}
-          />
-          Simuler lecture instantanée du QR Code
-        </button>
-      </div>
-    </div>
-  );
-}
-
 function WaveChiffresView({
   totalAmount,
   contributionsCount,
-  period,
-  onPeriodChange,
+  campaignName,
   onBack,
 }: {
-  totalAmount: number;
+  totalAmount: string | number;
   contributionsCount: number;
-  period: 'day' | 'week' | 'month';
-  onPeriodChange: (p: 'day' | 'week' | 'month') => void;
+  campaignName: string;
   onBack: () => void;
 }) {
-  const barData = useMemo(() => {
-    if (period === 'day') {
-      return [
-        { label: 'dim. 11', amount: 0, height: 8 },
-        { label: 'lun. 12', amount: 0, height: 8 },
-        { label: 'mar. 13', amount: 0, height: 8 },
-        { label: 'mer. 14', amount: 0, height: 8 },
-        { label: 'jeu. 15', amount: 0, height: 8 },
-        { label: 'ven. 16', amount: totalAmount, height: totalAmount > 0 ? 55 : 8, active: true },
-      ];
-    } else if (period === 'week') {
-      return [
-        { label: '14 sept.', amount: 11500, height: 75 },
-        { label: '21 sept.', amount: 12500, height: 85 },
-        { label: '28 sept.', amount: 0, height: 8 },
-        { label: '05 oct.', amount: 500, height: 22 },
-        { label: '12 oct.', amount: totalAmount, height: totalAmount > 0 ? 60 : 8, active: true },
-      ];
-    } else {
-      return [
-        { label: 'Juin', amount: 0, height: 8 },
-        { label: 'Juil.', amount: 10500, height: 50 },
-        { label: 'Août', amount: 0, height: 8 },
-        { label: 'Sept.', amount: 24077, height: 95 },
-        { label: 'Oct.', amount: totalAmount || 500, height: 35, active: true },
-      ];
-    }
-  }, [period, totalAmount]);
-
   return (
     <div className="wave-chiffres-screen">
       <div className="wave-top-header">
         <button type="button" className="wave-header-btn" aria-label="Retour" onClick={onBack}>
           <ArrowLeft size={20} />
         </button>
-        <span className="wave-header-title">Chiffres</span>
-        <div style={{ width: 42 }} />
+        <span className="wave-header-title">Chiffres de la campagne</span>
       </div>
-
+      <p>{campaignName} · Depuis le début de la campagne</p>
       <div className="wave-balance-hero">
-        <span className="wave-balance-eyebrow">Encaissements total</span>
+        <span className="wave-balance-eyebrow">Total des cotisations enregistrées</span>
         <span className="wave-balance-amount">{money(totalAmount)}</span>
       </div>
-
-      <div className="wave-segmented-control">
-        <button
-          type="button"
-          className={`wave-segmented-btn ${period === 'day' ? 'active' : ''}`}
-          onClick={() => onPeriodChange('day')}
-        >
-          Aujourd'hui
-        </button>
-        <button
-          type="button"
-          className={`wave-segmented-btn ${period === 'week' ? 'active' : ''}`}
-          onClick={() => onPeriodChange('week')}
-        >
-          Semaine
-        </button>
-        <button
-          type="button"
-          className={`wave-segmented-btn ${period === 'month' ? 'active' : ''}`}
-          onClick={() => onPeriodChange('month')}
-        >
-          Mois
-        </button>
-      </div>
-
       <div className="wave-summary-card">
-        <div className="wave-summary-card-title">
-          {period === 'day'
-            ? 'Résumé du jour'
-            : period === 'week'
-              ? 'Résumé de cette semaine'
-              : 'Résumé de ce mois-ci'}
-        </div>
-        <div className="wave-summary-row">
-          <span className="wave-summary-label">
-            {contributionsCount} paiement{contributionsCount > 1 ? 's' : ''} reçu
-            {contributionsCount > 1 ? 's' : ''}
-          </span>
-          <span className="wave-summary-val">{money(totalAmount)}</span>
-        </div>
-        <div className="wave-summary-row">
-          <span className="wave-summary-label">Frais AvecLesFemmes*</span>
-          <span className="wave-summary-val">0 FCFA</span>
-        </div>
-        <div className="wave-summary-row">
-          <span className="wave-summary-label">Revenu net</span>
-          <span className="wave-summary-val">{money(totalAmount)}</span>
-        </div>
-        <div className="wave-summary-footnote">
-          *Zéro frais jusqu'à 20.000F encaissés, puis 0% solidaire.
-          <br />
-          Gestion 100% transparente et solidaire pour les calebasses féminines.
-        </div>
-      </div>
-
-      <div className="wave-chart-section">
-        <div className="wave-chart-title">
-          {period === 'day'
-            ? 'Par rapport aux jours précédents'
-            : period === 'week'
-              ? 'Par rapport aux semaines précédentes'
-              : 'Par rapport aux mois précédents'}
-        </div>
-
-        <div className="wave-bar-chart-card">
-          <div className="wave-bar-chart-cols">
-            {barData.map((b, i) => (
-              <div
-                key={i}
-                className={`wave-bar-col ${b.active ? 'active' : ''} ${b.amount > 0 ? 'has-val' : ''}`}
-              >
-                <span className="wave-bar-amount">
-                  {b.amount === 0 ? '0F' : `${new Intl.NumberFormat('fr-SN').format(b.amount)}F`}
-                </span>
-                <div className="wave-bar-fill" style={{ height: `${b.height}%` }} />
-              </div>
-            ))}
-          </div>
-          <div className="wave-bar-labels">
-            {barData.map((b, i) => (
-              <div key={i} className={`wave-bar-label-item ${b.active ? 'active' : ''}`}>
-                {b.label}
-              </div>
-            ))}
-          </div>
-        </div>
+        <p>
+          {contributionsCount} versement{contributionsCount > 1 ? 's' : ''} valide
+          {contributionsCount > 1 ? 's' : ''}
+        </p>
+        <p>Ce total ne représente pas le solde disponible après les reversements.</p>
       </div>
     </div>
   );
@@ -1338,6 +1206,8 @@ export function App({
 }) {
   const [actor, setActor] = useState<Actor | null>(null);
   const [checking, setChecking] = useState(true);
+  const [sessionError, setSessionError] = useState(false);
+  const [sessionAttempt, setSessionAttempt] = useState(0);
   const [groups, setGroups] = useState<Group[]>([]);
   const [groupTotal, setGroupTotal] = useState(0);
   const [groupPage, setGroupPage] = useState(1);
@@ -1364,7 +1234,6 @@ export function App({
   const [tontineRounds, setTontineRounds] = useState<TontineRound[]>([]);
   const [gracePeriods, setGracePeriods] = useState<GracePeriod[]>([]);
   const [superCockpit, setSuperCockpit] = useState<SuperDashboard | null>(null);
-  const [historyFilter, setHistoryFilter] = useState('ALL');
   const [qrModal, setQrModal] = useState<{ title: string; subtitle?: string; data: string } | null>(
     null,
   );
@@ -1374,6 +1243,7 @@ export function App({
   const [editType, setEditType] = useState<S['TypeView'] | null>(null);
   const [groupSearch, setGroupSearch] = useState('');
   const [groupDropdownOpen, setGroupDropdownOpen] = useState(false);
+  const [groupDetailsOpen, setGroupDetailsOpen] = useState(false);
   const [campaignTypeId, setCampaignTypeId] = useState('');
   const [campaignDetailTab, setCampaignDetailTab] = useState<'participants' | 'sessions'>(
     'participants',
@@ -1407,6 +1277,7 @@ export function App({
   const [dialog, setDialog] = useState('');
   const [voidId, setVoidId] = useState('');
   const [notice, setNotice] = useState('');
+  const [actionError, setActionError] = useState('');
   const [loadError, setLoadError] = useState('');
   const [loading, setLoading] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -1414,15 +1285,38 @@ export function App({
   const [update, setUpdate] = useState(false);
   const idempotency = useRef(crypto.randomUUID());
   const [personalMode, setPersonalMode] = useState(false);
+  const [mobileLayout, setMobileLayout] = useState(
+    () => window.matchMedia('(max-width: 760px)').matches,
+  );
+  useEffect(() => {
+    const media = window.matchMedia('(max-width: 760px)');
+    const changed = () => setMobileLayout(media.matches);
+    media.addEventListener('change', changed);
+    return () => media.removeEventListener('change', changed);
+  }, []);
 
   // Wave UX / UI States
   const [showBalance, setShowBalance] = useState(true);
   const [adminSubView, setAdminSubView] = useState<'dashboard' | 'chiffres' | 'settings'>(
     'dashboard',
   );
-  const [statsPeriod, setStatsPeriod] = useState<'day' | 'week' | 'month'>('day');
   const [announceVoice, setAnnounceVoice] = useState(true);
-  const [scannerOpen, setScannerOpen] = useState(false);
+  const [memberQuery, setMemberQuery] = useState('');
+  const [historyQuery, setHistoryQuery] = useState('');
+  const [historyDate, setHistoryDate] = useState('');
+  const [payerQuery, setPayerQuery] = useState('');
+  const [payerPage, setPayerPage] = useState(1);
+  const [payerOptions, setPayerOptions] = useState<Participant[]>([]);
+  const [payerTotal, setPayerTotal] = useState(0);
+  const [payerLoading, setPayerLoading] = useState(false);
+  const [payerId, setPayerId] = useState('');
+  const [contributionReview, setContributionReview] = useState<{
+    participationId: string;
+    name: string;
+    amount: number;
+    paidOn: string;
+  } | null>(null);
+  const actionInFlight = useRef(false);
   const [keypadAmount, setKeypadAmount] = useState('');
 
   useEffect(() => {
@@ -1436,7 +1330,6 @@ export function App({
         !resetPinMember &&
         !editEvent &&
         !editType &&
-        !scannerOpen &&
         !qrModal,
     );
     return () => onUpdateSafetyChange?.(false);
@@ -1449,7 +1342,6 @@ export function App({
     resetPinMember,
     editEvent,
     editType,
-    scannerOpen,
     qrModal,
     onUpdateSafetyChange,
   ]);
@@ -1459,6 +1351,7 @@ export function App({
   const superAdmin = actor?.isSuper && portal === 'super';
   const campaign = campaigns.find((c) => c.id === campaignId);
   const canManage = admin && !personalMode;
+  const memberView = !superAdmin && (!admin || personalMode);
 
   const activeGroups = groups.filter((g) => g.active !== false);
   const archivedGroups = groups.filter((g) => g.active === false);
@@ -1532,40 +1425,7 @@ export function App({
   }, [participants, members, contributions]);
 
   // Filtrage combiné des cotisations selon session/période et membre
-  const filteredContributions = useMemo(() => {
-    return contributions.filter((c) => {
-      if (!isTontineCampaign && selectedSessionFilter) {
-        if (c.paid_on !== selectedSessionFilter) return false;
-      }
-      if (isTontineCampaign && selectedPeriodFilter !== null) {
-        const round = tontineRounds.find((r) => r.round_number === selectedPeriodFilter);
-        if (round && round.contributions && round.contributions.length > 0) {
-          const ids = new Set(round.contributions.map((rc) => rc.contribution_id));
-          if (!ids.has(c.id)) return false;
-        } else if (round && round.expected_date) {
-          if (
-            !c.paid_on.startsWith(round.expected_date.slice(0, 7)) &&
-            c.paid_on !== round.expected_date
-          ) {
-            return false;
-          }
-        }
-      }
-      if (selectedMemberFilter) {
-        if (c.name.toLowerCase().trim() !== selectedMemberFilter.toLowerCase().trim()) {
-          return false;
-        }
-      }
-      return true;
-    });
-  }, [
-    contributions,
-    isTontineCampaign,
-    selectedSessionFilter,
-    selectedPeriodFilter,
-    tontineRounds,
-    selectedMemberFilter,
-  ]);
+  const filteredContributions = contributions;
 
   // Tri des cotisations filtrées
   const sortedContributions = useMemo(() => {
@@ -1587,12 +1447,28 @@ export function App({
   }, [filteredContributions, contributionSort]);
 
   useEffect(() => {
+    let active = true;
+    setChecking(true);
+    setSessionError(false);
     api
       .GET('/api/v1/auth/me')
       .then((r) => {
+        if (!active) return;
         if (r.response.ok) setActor(r.data || null);
+        else if (r.response.status !== 401) setSessionError(true);
       })
-      .finally(() => setChecking(false));
+      .catch(() => {
+        if (active) setSessionError(true);
+      })
+      .finally(() => {
+        if (active) setChecking(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [sessionAttempt]);
+
+  useEffect(() => {
     const on = () => setOnline(true),
       off = () => setOnline(false),
       u = () => setUpdate(true);
@@ -1605,6 +1481,23 @@ export function App({
       window.removeEventListener('pwa-update', u);
     };
   }, []);
+
+  useEffect(() => {
+    if (!sessionError) return;
+    const retry = () => setSessionAttempt((n) => n + 1);
+    window.addEventListener('online', retry);
+    return () => window.removeEventListener('online', retry);
+  }, [sessionError]);
+
+  useEffect(() => {
+    if (!dialog && !busy && !resetPinMember && !editEvent && !editType) return;
+    const protectDraft = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = '';
+    };
+    window.addEventListener('beforeunload', protectDraft);
+    return () => window.removeEventListener('beforeunload', protectDraft);
+  }, [dialog, busy, resetPinMember, editEvent, editType]);
 
   useEffect(() => {
     if (!notice) return;
@@ -1678,7 +1571,7 @@ export function App({
           setCampaignTotal(r.total);
           setCampaignId((id) => {
             const activeItems = r.items.filter((c) => c.active !== false);
-            return activeItems.some((c) => c.id === id)
+            return r.items.some((c) => c.id === id)
               ? id
               : activeItems[0]?.id || r.items[0]?.id || '';
           });
@@ -1697,7 +1590,12 @@ export function App({
       .GET('/api/v1/groupements/{groupId}/members', {
         params: {
           path: { groupId },
-          query: { page, limit: 25, scope: personalMode ? 'personal' : 'group' },
+          query: {
+            page,
+            limit: 25,
+            scope: personalMode ? 'personal' : 'group',
+            q: memberView ? undefined : memberQuery,
+          },
         },
       })
       .then(unwrap)
@@ -1711,7 +1609,7 @@ export function App({
     return () => {
       active = false;
     };
-  }, [actor, groupId, page, refresh, personalMode]);
+  }, [actor, groupId, page, refresh, personalMode, memberView, memberQuery]);
 
   useEffect(() => {
     if (dialog !== 'participant' || !groupId) return;
@@ -1746,6 +1644,7 @@ export function App({
     }
     let active = true;
     setDashboard(null);
+    setCashbox(null);
     setContributions([]);
     setParticipants([]);
     setSessions([]);
@@ -1777,7 +1676,9 @@ export function App({
               page,
               limit: 25,
               scope: personalMode ? 'personal' : 'group',
-              sort: contributionSort,
+              sort: memberView ? 'date' : contributionSort,
+              q: memberView ? undefined : historyQuery,
+              paidOn: memberView ? undefined : historyDate || undefined,
             },
           },
         })
@@ -1806,7 +1707,7 @@ export function App({
           setParticipantTotal(p.total);
           setContributions(c.items);
           setContributionTotal(c.total);
-          if (cb) setCashbox(cb);
+          setCashbox(cb);
           if (sess) setSessions(sess);
           if (tr) setTontineRounds(tr);
           if (gp) setGracePeriods(gp);
@@ -1816,9 +1717,56 @@ export function App({
     return () => {
       active = false;
     };
-  }, [actor, groupId, campaignId, page, participantPage, refresh, personalMode, contributionSort]);
+  }, [
+    actor,
+    groupId,
+    campaignId,
+    page,
+    participantPage,
+    refresh,
+    personalMode,
+    contributionSort,
+    memberView,
+    historyQuery,
+    historyDate,
+  ]);
+
+  useEffect(() => {
+    if (dialog !== 'contribution' || !groupId || !campaignId) return;
+    let active = true;
+    setPayerLoading(true);
+    setPayerOptions([]);
+    const timer = setTimeout(() => {
+      api
+        .GET('/api/v1/groupements/{groupId}/campaigns/{id}/participants', {
+          params: {
+            path: { groupId, id: campaignId },
+            query: { page: payerPage, limit: 25, q: payerQuery, scope: 'group' },
+          },
+        })
+        .then(unwrap)
+        .then((r) => {
+          if (active) {
+            setPayerOptions(r.items);
+            setPayerTotal(r.total);
+          }
+        })
+        .catch((error) => {
+          if (active) setActionError(error.message);
+        })
+        .finally(() => {
+          if (active) setPayerLoading(false);
+        });
+    }, 200);
+    return () => {
+      active = false;
+      clearTimeout(timer);
+    };
+  }, [dialog, groupId, campaignId, payerQuery, payerPage]);
 
   const resetFilters = useCallback(() => {
+    setHistoryQuery('');
+    setHistoryDate('');
     setSelectedSessionFilter(null);
     setSessionFilterSearch('');
     setSelectedPeriodFilter(null);
@@ -1906,26 +1854,55 @@ export function App({
   }
 
   function open(name: string) {
+    setActionError('');
     idempotency.current = crypto.randomUUID();
     setOptionPage(1);
     if (name === 'campaign') {
       setCampaignTypeId(types[0]?.id || '');
     }
+    if (name === 'contribution') {
+      setKeypadAmount('');
+      setPayerQuery('');
+      setPayerPage(1);
+      setPayerId('');
+      setContributionReview(null);
+    }
     setDialog(name);
   }
 
   async function action(task: () => Promise<unknown>, message: string) {
-    if (busy) return;
+    if (actionInFlight.current) return false;
+    if (!navigator.onLine) {
+      setActionError(
+        'Vous êtes hors connexion. Gardez cette fenêtre ouverte puis confirmez au retour du réseau. Aucun envoi automatique ne sera effectué.',
+      );
+      return false;
+    }
+    actionInFlight.current = true;
+    setActionError('');
     setBusy(true);
     try {
-      await task();
-      setNotice(message);
-      setDialog('');
-      setResetPinMember(null);
-      setRefresh((n) => n + 1);
-    } catch (e) {
-      setNotice((e as Error).message);
+      return await confirmedAction(
+        task,
+        () => {
+          setNotice(message);
+          setDialog('');
+          setResetPinMember(null);
+          setRefresh((n) => n + 1);
+        },
+        (error) => {
+          const message =
+            error instanceof TypeError
+              ? 'Connexion interrompue : enregistrement non confirmé. Gardez cette fenêtre ouverte et réessayez la même saisie au retour du réseau ; la protection contre les doublons reste active.'
+              : error instanceof Error
+                ? error.message
+                : 'Enregistrement non confirmé. Vérifiez avant de réessayer.';
+          setActionError(message);
+          setNotice(message);
+        },
+      );
     } finally {
+      actionInFlight.current = false;
       setBusy(false);
     }
   }
@@ -2099,11 +2076,25 @@ export function App({
       );
 
     if (dialog === 'contribution') {
-      const pId = v.participationId;
-      const part = participants.find((p) => p.id === pId);
-      const participantName = part?.name || 'la membre';
-      const contribAmount = Number(v.amount);
-      await action(
+      if (!contributionReview) {
+        const selected = payerOptions.find((p) => p.id === v.participationId);
+        if (!selected || payerLoading) {
+          setActionError('Choisissez une participante dans les résultats.');
+          return;
+        }
+        setContributionReview({
+          participationId: selected.id,
+          name: selected.name,
+          amount: Number(v.amount),
+          paidOn: v.paidOn,
+        });
+        setActionError('');
+        return;
+      }
+      const pId = contributionReview.participationId;
+      const participantName = contributionReview.name;
+      const contribAmount = contributionReview.amount;
+      const saved = await action(
         () =>
           api
             .POST('/api/v1/groupements/{groupId}/campaigns/{campaignId}/contributions', {
@@ -2111,14 +2102,14 @@ export function App({
               body: {
                 participationId: pId,
                 amount: contribAmount,
-                paidOn: v.paidOn,
+                paidOn: contributionReview.paidOn,
                 idempotencyKey: idempotency.current,
               },
             })
             .then(unwrap),
         'Cotisation enregistrée.',
       );
-      if (announceVoice && typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      if (saved && announceVoice && typeof window !== 'undefined' && 'speechSynthesis' in window) {
         try {
           const utter = new SpeechSynthesisUtterance(
             `Cotisation de ${contribAmount} francs CFA reçue pour ${participantName}.`,
@@ -2182,6 +2173,17 @@ export function App({
       </div>
     );
 
+  if (!actor && sessionError)
+    return (
+      <div className="splash">
+        <Brand />
+        <p role="alert">Connexion au serveur impossible. Votre session n’a pas pu être vérifiée.</p>
+        <button className="primary" onClick={() => setSessionAttempt((n) => n + 1)}>
+          Réessayer la connexion
+        </button>
+      </div>
+    );
+
   if (!actor)
     return (
       <Login
@@ -2222,50 +2224,95 @@ export function App({
     );
 
   const title =
-    tab === 'members'
-      ? 'Les membres'
-      : tab === 'campaigns'
-        ? 'Les campagnes actives'
-        : tab === 'types'
-          ? 'Types de campagne'
-          : tab === 'cockpit'
-            ? 'Cockpit Plateforme 360°'
-            : tab === 'archives'
-              ? 'Archives (Groupements inactifs & Campagnes fermées)'
-              : 'Vue d’ensemble';
+    tab === 'more'
+      ? 'Gestion du groupement'
+      : memberView
+        ? tab === 'campaigns'
+          ? 'Mes campagnes'
+          : tab === 'payments'
+            ? 'Mes versements'
+            : tab === 'more'
+              ? 'Gestion du groupement'
+              : tab === 'members'
+                ? 'Mon compte'
+                : 'Vue d’ensemble'
+        : tab === 'members'
+          ? 'Les membres'
+          : tab === 'campaigns'
+            ? 'Les campagnes actives'
+            : tab === 'types'
+              ? 'Types de campagne'
+              : tab === 'cockpit'
+                ? 'Cockpit Plateforme 360°'
+                : tab === 'archives'
+                  ? 'Archives (Groupements inactifs & Campagnes fermées)'
+                  : 'Vue d’ensemble';
 
   return (
-    <div className="app-shell">
+    <div className={`app-shell ${superAdmin ? '' : 'pwa-shell'}`}>
       <aside className="sidebar">
         <Brand />
         <div className="space-label">
           {superAdmin ? 'PILOTAGE DE LA PLATEFORME' : 'MON GROUPEMENT'}
         </div>
-        <nav>
-          {[
-            ['overview', 'Vue d’ensemble', LayoutDashboard],
-            ['campaigns', 'Campagnes', FolderHeart],
-            ['members', 'Membres', Users],
-            ...(superAdmin
+        <nav aria-label="Navigation principale">
+          {(memberView
+            ? [
+                ['overview', 'Accueil', LayoutDashboard],
+                ['campaigns', 'Mes campagnes', FolderHeart],
+                ['payments', 'Mes versements', Coins],
+                ['members', 'Mon compte', Users],
+              ]
+            : canManage && mobileLayout
               ? [
-                  ['cockpit', 'Cockpit 360°', Sparkles],
-                  ['types', 'Types & Événements', Coins],
+                  ['overview', 'Accueil', LayoutDashboard],
+                  ['encaisser', 'Encaisser', Coins],
+                  ['members', 'Membres', Users],
+                  ['more', 'Plus', Settings],
                 ]
-              : []),
-            ...(superAdmin || admin ? [['archives', 'Archives', Archive]] : []),
-          ].map(([key, label, Icon]) => {
+              : [
+                  ['overview', 'Vue d’ensemble', LayoutDashboard],
+                  ['campaigns', 'Campagnes', FolderHeart],
+                  ['members', 'Membres', Users],
+                  ...(superAdmin
+                    ? [
+                        ['cockpit', 'Cockpit 360°', Sparkles],
+                        ['types', 'Types & Événements', Coins],
+                      ]
+                    : []),
+                  ...(superAdmin || admin ? [['archives', 'Archives', Archive]] : []),
+                ]
+          ).map(([key, label, Icon]) => {
             const I = Icon as typeof Users;
             return (
               <button
                 key={key as string}
                 className={tab === key ? 'nav-item active' : 'nav-item'}
+                aria-current={tab === key ? 'page' : undefined}
                 onClick={() => {
+                  if (key === 'encaisser') {
+                    if (campaign?.active) open('contribution');
+                    else {
+                      setTab('campaigns');
+                      setNotice('Sélectionnez une campagne active pour encaisser.');
+                    }
+                    return;
+                  }
                   setTab(key as string);
+                  setAdminSubView('dashboard');
                   setPage(1);
+                  window.scrollTo({ top: 0 });
                 }}
               >
                 <I size={19} />
-                {label as string}
+                <span className="nav-label-desktop">{label as string}</span>
+                <span className="nav-label-mobile">
+                  {key === 'overview'
+                    ? 'Accueil'
+                    : key === 'members' && !admin
+                      ? 'Mon compte'
+                      : (label as string)}
+                </span>
                 {tab === key && <ChevronRight size={16} />}
               </button>
             );
@@ -2378,7 +2425,8 @@ export function App({
           </div>
           {!online && (
             <div className="alert">
-              Connexion nécessaire pour consulter les données à jour et enregistrer une cotisation.
+              Hors connexion : les données affichées peuvent être anciennes. Gardez cette fenêtre
+              ouverte pour conserver votre saisie. Aucun versement ne sera envoyé automatiquement.
             </div>
           )}
           {update && (
@@ -2389,7 +2437,7 @@ export function App({
           )}
           {notice && (
             <div className="toast" role="status">
-              <Check size={18} />
+              <Info size={18} />
               {notice}
               <button className="icon-button" aria-label="Masquer" onClick={() => setNotice('')}>
                 <X size={16} />
@@ -2411,6 +2459,10 @@ export function App({
                 className={!personalMode ? 'selected' : ''}
                 onClick={() => {
                   setPersonalMode(false);
+                  setTab('overview');
+                  setAdminSubView('dashboard');
+                  setDashboard(null);
+                  setContributions([]);
                   setPage(1);
                 }}
               >
@@ -2420,6 +2472,11 @@ export function App({
                 className={personalMode ? 'selected' : ''}
                 onClick={() => {
                   setPersonalMode(true);
+                  setTab('overview');
+                  setAdminSubView('dashboard');
+                  setDashboard(null);
+                  setContributions([]);
+                  setContributionSort('date');
                   setPage(1);
                 }}
               >
@@ -2428,246 +2485,267 @@ export function App({
             </div>
           )}
           {tab !== 'types' && tab !== 'cockpit' && (
-            <>
-              <div className="group-selector">
-                <span className="group-symbol">
-                  <Users size={22} />
-                </span>
-                <div className="group-autocomplete-wrapper" ref={groupSearchRef}>
-                  <div className="group-autocomplete-label-row">
-                    <label htmlFor="group-search-input">
-                      {superAdmin ? 'Rechercher un groupement' : 'Votre groupement'}
-                    </label>
-                    {group && (
-                      <span className="current-group-badge">
-                        <Check size={12} /> Actif : <strong>{group.name}</strong>
-                      </span>
-                    )}
-                  </div>
-                  <div className="group-autocomplete-input-box">
-                    <Search size={16} className="muted" />
-                    <input
-                      id="group-search-input"
-                      type="text"
-                      placeholder="Rechercher par nom, adresse, téléphone…"
-                      value={groupSearch}
-                      onChange={(e) => {
-                        setGroupSearch(e.target.value);
-                        setGroupDropdownOpen(true);
-                      }}
-                      onFocus={() => setGroupDropdownOpen(true)}
-                    />
-                    {groupSearch && (
-                      <button
-                        type="button"
-                        className="icon-button"
-                        style={{ padding: 2 }}
-                        title="Effacer"
-                        onClick={() => {
-                          setGroupSearch('');
+            <section
+              className={`group-context ${groupDetailsOpen ? 'expanded' : ''}`}
+              aria-label="Contexte du groupement"
+            >
+              {!superAdmin && (
+                <button
+                  className="group-context-toggle"
+                  type="button"
+                  aria-expanded={groupDetailsOpen}
+                  aria-controls="group-context-details"
+                  onClick={() => setGroupDetailsOpen(!groupDetailsOpen)}
+                >
+                  <Users size={18} />
+                  <span>{group?.name || 'Choisir un groupement'}</span>
+                  <ChevronDown size={18} />
+                </button>
+              )}
+              <div id="group-context-details" className="group-context-details">
+                <div className="group-selector">
+                  <span className="group-symbol">
+                    <Users size={22} />
+                  </span>
+                  <div className="group-autocomplete-wrapper" ref={groupSearchRef}>
+                    <div className="group-autocomplete-label-row">
+                      <label htmlFor="group-search-input">
+                        {superAdmin ? 'Rechercher un groupement' : 'Votre groupement'}
+                      </label>
+                      {group && (
+                        <span className="current-group-badge">
+                          <Check size={12} /> Actif : <strong>{group.name}</strong>
+                        </span>
+                      )}
+                    </div>
+                    <div className="group-autocomplete-input-box">
+                      <Search size={16} className="muted" />
+                      <input
+                        id="group-search-input"
+                        type="text"
+                        placeholder="Rechercher par nom, adresse, téléphone…"
+                        value={groupSearch}
+                        onChange={(e) => {
+                          setGroupSearch(e.target.value);
                           setGroupDropdownOpen(true);
                         }}
+                        onFocus={() => setGroupDropdownOpen(true)}
+                      />
+                      {groupSearch && (
+                        <button
+                          type="button"
+                          className="icon-button"
+                          style={{ padding: 2 }}
+                          title="Effacer"
+                          onClick={() => {
+                            setGroupSearch('');
+                            setGroupDropdownOpen(true);
+                          }}
+                        >
+                          <X size={14} />
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        className="autocomplete-chevron-btn"
+                        title="Ouvrir la liste"
+                        onClick={() => setGroupDropdownOpen(!groupDropdownOpen)}
                       >
-                        <X size={14} />
+                        {groupDropdownOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                       </button>
-                    )}
-                    <button
-                      type="button"
-                      className="autocomplete-chevron-btn"
-                      title="Ouvrir la liste"
-                      onClick={() => setGroupDropdownOpen(!groupDropdownOpen)}
-                    >
-                      {groupDropdownOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                    </button>
-                  </div>
+                    </div>
 
-                  {groupDropdownOpen && (
-                    <div className="group-autocomplete-dropdown">
-                      <div className="group-autocomplete-guide">
-                        <span>Sélectionnez un groupement :</span>
-                        <span className="badge-count">
-                          {
-                            activeGroups.filter(
-                              (g) =>
-                                !groupSearch.trim() ||
-                                (group &&
-                                  groupSearch.trim().toLowerCase() === group.name.toLowerCase()) ||
-                                g.name.toLowerCase().includes(groupSearch.toLowerCase()) ||
-                                g.address.toLowerCase().includes(groupSearch.toLowerCase()) ||
-                                g.phone.toLowerCase().includes(groupSearch.toLowerCase()),
-                            ).length
-                          }{' '}
-                          disponible(s)
-                        </span>
-                      </div>
-                      {activeGroups
-                        .filter(
+                    {groupDropdownOpen && (
+                      <div className="group-autocomplete-dropdown">
+                        <div className="group-autocomplete-guide">
+                          <span>Sélectionnez un groupement :</span>
+                          <span className="badge-count">
+                            {
+                              activeGroups.filter(
+                                (g) =>
+                                  !groupSearch.trim() ||
+                                  (group &&
+                                    groupSearch.trim().toLowerCase() ===
+                                      group.name.toLowerCase()) ||
+                                  g.name.toLowerCase().includes(groupSearch.toLowerCase()) ||
+                                  g.address.toLowerCase().includes(groupSearch.toLowerCase()) ||
+                                  g.phone.toLowerCase().includes(groupSearch.toLowerCase()),
+                              ).length
+                            }{' '}
+                            disponible(s)
+                          </span>
+                        </div>
+                        {activeGroups
+                          .filter(
+                            (g) =>
+                              !groupSearch.trim() ||
+                              (group &&
+                                groupSearch.trim().toLowerCase() === group.name.toLowerCase()) ||
+                              g.name.toLowerCase().includes(groupSearch.toLowerCase()) ||
+                              g.address.toLowerCase().includes(groupSearch.toLowerCase()) ||
+                              g.phone.toLowerCase().includes(groupSearch.toLowerCase()),
+                          )
+                          .map((g) => (
+                            <div
+                              key={g.id}
+                              className={
+                                g.id === groupId
+                                  ? 'group-autocomplete-item selected'
+                                  : 'group-autocomplete-item'
+                              }
+                              onClick={() => {
+                                selectGroup(g.id);
+                                setGroupSearch(g.name);
+                                setGroupDropdownOpen(false);
+                              }}
+                            >
+                              <div className="group-item-avatar">
+                                <Users size={16} />
+                              </div>
+                              <div className="group-item-content">
+                                <div className="group-item-header">
+                                  <strong>{g.name}</strong>
+                                  {g.id === groupId && (
+                                    <span className="badge-selected-pill">
+                                      <Check size={11} /> Actuel
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="group-item-meta">
+                                  <span className="group-meta-sub">
+                                    <MapPin size={12} /> {g.address}
+                                  </span>
+                                  <span className="group-meta-sub">
+                                    <Phone size={12} /> {g.phone}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        {!activeGroups.some(
                           (g) =>
                             !groupSearch.trim() ||
-                            (group &&
-                              groupSearch.trim().toLowerCase() === group.name.toLowerCase()) ||
                             g.name.toLowerCase().includes(groupSearch.toLowerCase()) ||
                             g.address.toLowerCase().includes(groupSearch.toLowerCase()) ||
                             g.phone.toLowerCase().includes(groupSearch.toLowerCase()),
-                        )
-                        .map((g) => (
-                          <div
-                            key={g.id}
-                            className={
-                              g.id === groupId
-                                ? 'group-autocomplete-item selected'
-                                : 'group-autocomplete-item'
-                            }
-                            onClick={() => {
-                              selectGroup(g.id);
-                              setGroupSearch(g.name);
-                              setGroupDropdownOpen(false);
-                            }}
-                          >
-                            <div className="group-item-avatar">
-                              <Users size={16} />
-                            </div>
-                            <div className="group-item-content">
-                              <div className="group-item-header">
-                                <strong>{g.name}</strong>
-                                {g.id === groupId && (
-                                  <span className="badge-selected-pill">
-                                    <Check size={11} /> Actuel
-                                  </span>
-                                )}
-                              </div>
-                              <div className="group-item-meta">
-                                <span className="group-meta-sub">
-                                  <MapPin size={12} /> {g.address}
-                                </span>
-                                <span className="group-meta-sub">
-                                  <Phone size={12} /> {g.phone}
-                                </span>
-                              </div>
-                            </div>
+                        ) && (
+                          <div className="group-autocomplete-empty">
+                            <p>Aucun groupement actif trouvé.</p>
+                            <button
+                              type="button"
+                              className="btn-link"
+                              onClick={() => {
+                                setGroupSearch('');
+                                setGroupDropdownOpen(true);
+                              }}
+                            >
+                              Voir tous les groupements
+                            </button>
                           </div>
-                        ))}
-                      {!activeGroups.some(
-                        (g) =>
-                          !groupSearch.trim() ||
-                          g.name.toLowerCase().includes(groupSearch.toLowerCase()) ||
-                          g.address.toLowerCase().includes(groupSearch.toLowerCase()) ||
-                          g.phone.toLowerCase().includes(groupSearch.toLowerCase()),
-                      ) && (
-                        <div className="group-autocomplete-empty">
-                          <p>Aucun groupement actif trouvé.</p>
-                          <button
-                            type="button"
-                            className="btn-link"
-                            onClick={() => {
-                              setGroupSearch('');
-                              setGroupDropdownOpen(true);
-                            }}
-                          >
-                            Voir tous les groupements
-                          </button>
-                        </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="group-select-picker">
+                    <label htmlFor="group-select">Sélection directe</label>
+                    <select
+                      id="group-select"
+                      value={groupId}
+                      onChange={(e) => selectGroup(e.target.value)}
+                      aria-label="Sélectionner un groupement"
+                    >
+                      {!activeGroups.length && (
+                        <option value="">
+                          {loading ? 'Chargement…' : 'Aucun groupement actif'}
+                        </option>
                       )}
-                    </div>
+                      {activeGroups.map((g) => (
+                        <option key={g.id} value={g.id}>
+                          {g.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {groupTotal > 25 && (
+                    <Pager page={groupPage} total={groupTotal} onChange={setGroupPage} />
                   )}
                 </div>
 
-                <div className="group-select-picker">
-                  <label htmlFor="group-select">Sélection directe</label>
-                  <select
-                    id="group-select"
-                    value={groupId}
-                    onChange={(e) => selectGroup(e.target.value)}
-                    aria-label="Sélectionner un groupement"
-                  >
-                    {!activeGroups.length && (
-                      <option value="">{loading ? 'Chargement…' : 'Aucun groupement actif'}</option>
-                    )}
-                    {activeGroups.map((g) => (
-                      <option key={g.id} value={g.id}>
-                        {g.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {groupTotal > 25 && (
-                  <Pager page={groupPage} total={groupTotal} onChange={setGroupPage} />
-                )}
-              </div>
-
-              {/* Fiche détaillée du groupement sélectionné */}
-              {group && (
-                <div className="group-details-card">
-                  <div className="group-details-main">
-                    <div className="group-details-avatar">
-                      <Users size={22} />
-                    </div>
-                    <div className="group-details-info">
-                      <div className="group-details-header">
-                        <h3 className="group-details-name">{group.name}</h3>
-                        <span className="badge-pill-success">Groupement solidaire</span>
+                {/* Fiche détaillée du groupement sélectionné */}
+                {group && (
+                  <div className="group-details-card">
+                    <div className="group-details-main">
+                      <div className="group-details-avatar">
+                        <Users size={22} />
                       </div>
-                      <div className="group-details-meta">
-                        <span className="group-meta-item">
-                          <MapPin size={14} />
-                          <span>{group.address}</span>
-                        </span>
-                        <span className="group-meta-item">
-                          <Phone size={14} />
-                          <a href={`tel:${group.phone}`}>{group.phone}</a>
-                        </span>
-                        {group.responsible && (
-                          <span className="group-meta-item muted">
-                            Responsable : {group.responsible}
+                      <div className="group-details-info">
+                        <div className="group-details-header">
+                          <h3 className="group-details-name">{group.name}</h3>
+                          <span className="badge-pill-success">Groupement solidaire</span>
+                        </div>
+                        <div className="group-details-meta">
+                          <span className="group-meta-item">
+                            <MapPin size={14} />
+                            <span>{group.address}</span>
                           </span>
-                        )}
+                          <span className="group-meta-item">
+                            <Phone size={14} />
+                            <a href={`tel:${group.phone}`}>{group.phone}</a>
+                          </span>
+                          {group.responsible && (
+                            <span className="group-meta-item muted">
+                              Responsable : {group.responsible}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <div className="group-details-actions">
-                    <button
-                      type="button"
-                      className="btn-group-qr"
-                      onClick={() =>
-                        setQrModal({
-                          title: `Groupement · ${group.name}`,
-                          subtitle: `${group.address} · Tél: ${group.phone}`,
-                          data: `ALF:GROUP:${group.id}`,
-                        })
-                      }
-                    >
-                      <QrCode size={16} />
-                      <span>Code QR du Groupement</span>
-                    </button>
-                    {superAdmin && group.active !== false && (
+                    <div className="group-details-actions">
                       <button
                         type="button"
-                        className="btn-archive-group"
-                        disabled={busy}
-                        title="Archiver et désactiver ce groupement"
+                        className="btn-group-qr"
                         onClick={() =>
-                          action(
-                            () =>
-                              api
-                                .PATCH('/api/v1/groupements/{groupId}/activation', {
-                                  params: { path: { groupId: group.id } },
-                                  body: { active: false },
-                                })
-                                .then(unwrap),
-                            'Groupement archivé avec succès.',
-                          )
+                          setQrModal({
+                            title: `Groupement · ${group.name}`,
+                            subtitle: `${group.address} · Tél: ${group.phone}`,
+                            data: `ALF:GROUP:${group.id}`,
+                          })
                         }
                       >
-                        <Archive size={15} />
-                        <span>Archiver le groupement</span>
+                        <QrCode size={16} />
+                        <span>Code QR du Groupement</span>
                       </button>
-                    )}
+                      {superAdmin && group.active !== false && (
+                        <button
+                          type="button"
+                          className="btn-archive-group"
+                          disabled={busy}
+                          title="Archiver et désactiver ce groupement"
+                          onClick={() =>
+                            action(
+                              () =>
+                                api
+                                  .PATCH('/api/v1/groupements/{groupId}/activation', {
+                                    params: { path: { groupId: group.id } },
+                                    body: { active: false },
+                                  })
+                                  .then(unwrap),
+                              'Groupement archivé avec succès.',
+                            )
+                          }
+                        >
+                          <Archive size={15} />
+                          <span>Archiver le groupement</span>
+                        </button>
+                      )}
+                    </div>
                   </div>
-                </div>
-              )}
-            </>
+                )}
+              </div>
+            </section>
           )}
           {!groupId && tab !== 'types' && tab !== 'cockpit' && tab !== 'archives' && !loading ? (
             <div className="empty big">
@@ -2685,15 +2763,72 @@ export function App({
                 </button>
               )}
             </div>
+          ) : memberView ? (
+            <MemberSpace
+              tab={tab}
+              name={actor.name}
+              login={actor.login}
+              groupName={group?.name || ''}
+              campaigns={campaigns}
+              campaignId={campaignId}
+              dashboard={dashboard}
+              participants={participants}
+              contributions={contributions}
+              total={contributionTotal}
+              page={page}
+              campaignPage={campaignPage}
+              campaignTotal={campaignTotal}
+              visible={showBalance}
+              onVisibility={() => setShowBalance(!showBalance)}
+              onTab={(value) => {
+                setTab(value);
+                window.scrollTo({ top: 0 });
+              }}
+              onCampaign={(id) => {
+                if (id === campaignId) return;
+                setDashboard(null);
+                setContributions([]);
+                setCampaignId(id);
+                setPage(1);
+              }}
+              onPage={setPage}
+              onCampaignPage={setCampaignPage}
+              onQr={() =>
+                setQrModal({
+                  title: `Carte Membre · ${actor.name}`,
+                  subtitle: group?.name,
+                  data: `ALF:MEMBER:${groupId}:${actor.id}:${actor.login}`,
+                })
+              }
+            />
           ) : (
             <>
+              {tab === 'more' && canManage && (
+                <section className="member-card-list" aria-label="Gestion du groupement">
+                  <h2>Gérer mon groupement</h2>
+                  <button className="secondary" onClick={() => setTab('campaigns')}>
+                    Campagnes
+                  </button>
+                  <button className="secondary" onClick={() => setTab('archives')}>
+                    Archives
+                  </button>
+                  <button
+                    className="secondary"
+                    onClick={() => {
+                      setTab('overview');
+                      setAdminSubView('settings');
+                    }}
+                  >
+                    Paramètres du groupement
+                  </button>
+                </section>
+              )}
               {tab === 'overview' &&
                 (adminSubView === 'chiffres' ? (
                   <WaveChiffresView
-                    totalAmount={Number(dashboard?.total || 0)}
+                    totalAmount={dashboard?.total || 0}
                     contributionsCount={Number(dashboard?.payments || 0)}
-                    period={statsPeriod}
-                    onPeriodChange={setStatsPeriod}
+                    campaignName={campaign?.name || 'Aucune campagne sélectionnée'}
                     onBack={() => setAdminSubView('dashboard')}
                   />
                 ) : adminSubView === 'settings' ? (
@@ -2759,7 +2894,7 @@ export function App({
                       /* SÉRIE 1 : ESPACE MEMBRE (STYLE WAVE PARTICULIER) */
                       <div className="wave-member-hero-section">
                         <div className="wave-balance-hero">
-                          <span className="wave-balance-eyebrow">Solde d'épargne disponible</span>
+                          <span className="wave-balance-eyebrow">Mes cotisations enregistrées</span>
                           <div className="wave-balance-row">
                             <span className="wave-balance-amount">
                               {showBalance ? money(dashboard?.total || 0) : '•••••• FCFA'}
@@ -2785,10 +2920,16 @@ export function App({
                               <button
                                 type="button"
                                 className="wave-qr-scan-btn"
-                                onClick={() => setScannerOpen(true)}
+                                onClick={() =>
+                                  setQrModal({
+                                    title: `Carte Membre · ${actor?.name}`,
+                                    subtitle: group?.name || 'Groupement',
+                                    data: `ALF:MEMBER:${groupId}:${actor?.id}:${actor?.login}`,
+                                  })
+                                }
                               >
-                                <Camera size={16} />
-                                <span>Scanner</span>
+                                <QrCode size={16} />
+                                <span>Présenter mon QR</span>
                               </button>
                             </div>
                             <div className="wave-qr-mascot" title="AvecLesFemmes Solidaire">
@@ -2806,7 +2947,7 @@ export function App({
                             <div className="wave-action-circle wave-circle-blue">
                               <Coins size={24} />
                             </div>
-                            <span className="wave-action-label">Cotiser</span>
+                            <span className="wave-action-label">Mes campagnes</span>
                           </button>
 
                           <button
@@ -2851,7 +2992,13 @@ export function App({
                             className="wave-action-circle-item"
                             onClick={() => {
                               const el = document.querySelector('.tontine-rounds-table');
-                              el?.scrollIntoView({ behavior: 'smooth' });
+                              if (el) el.scrollIntoView({ behavior: 'smooth' });
+                              else {
+                                setTab('campaigns');
+                                setNotice(
+                                  'Sélectionnez une campagne de tontine pour consulter ses tours.',
+                                );
+                              }
                             }}
                           >
                             <div className="wave-action-circle wave-circle-green">
@@ -2880,7 +3027,19 @@ export function App({
                           <button
                             type="button"
                             className="wave-action-circle-item"
-                            onClick={() => setHistoryFilter('SOLIDARITE')}
+                            onClick={() => {
+                              const solidarity = activeCampaigns.find(
+                                (c) => c.event_code === 'SOLIDARITE',
+                              );
+                              if (solidarity) {
+                                setCampaignId(solidarity.id);
+                                setPage(1);
+                                setTab('campaigns');
+                              } else
+                                setNotice(
+                                  'Aucune campagne Solidarité dans cette page de campagnes. Consultez la liste des campagnes.',
+                                );
+                            }}
                           >
                             <div className="wave-action-circle wave-circle-mint">
                               <ShieldCheck size={24} />
@@ -2931,10 +3090,14 @@ export function App({
                         </div>
 
                         <div className="wave-balance-hero">
-                          <span className="wave-balance-eyebrow">SOLDE CAISSE</span>
+                          <span className="wave-balance-eyebrow">SOLDE DE LA CAMPAGNE</span>
                           <div className="wave-balance-row">
                             <span className="wave-balance-amount">
-                              {showBalance ? money(dashboard?.total || 0) : '•••••• FCFA'}
+                              {showBalance
+                                ? cashbox
+                                  ? money(cashbox.balance)
+                                  : 'Indisponible'
+                                : '•••••• FCFA'}
                             </span>
                             <button
                               type="button"
@@ -3481,541 +3644,61 @@ export function App({
                         )}
                       </div>
 
-                      {/* Filtres de style Mobile Money pour la vue membre */}
                       {dashboard?.personal && (
-                        <div className="mm-filters">
-                          {['ALL', 'AVEC', 'RAMADAN', 'TABASKI', 'SOLIDARITE', 'RENTREE'].map(
-                            (f) => (
-                              <button
-                                key={f}
-                                type="button"
-                                className={
-                                  historyFilter === f ? 'mm-filter-btn active' : 'mm-filter-btn'
-                                }
-                                onClick={() => setHistoryFilter(f)}
-                              >
-                                {f === 'ALL'
-                                  ? 'Toutes les cotisations'
-                                  : f === 'AVEC'
-                                    ? 'Calabasse AVEC'
-                                    : f === 'RAMADAN'
-                                      ? 'Épargne Ramadan'
-                                      : f === 'TABASKI'
-                                        ? 'Épargne Tabaski'
-                                        : f === 'SOLIDARITE'
-                                          ? 'Solidarité'
-                                          : 'Rentrée scolaire'}
-                              </button>
-                            ),
-                          )}
-                        </div>
+                        <Field label="Campagne de l’historique">
+                          <select
+                            value={campaignId}
+                            onChange={(e) => {
+                              setCampaignId(e.target.value);
+                              setPage(1);
+                              resetFilters();
+                            }}
+                          >
+                            {activeCampaigns.map((c) => (
+                              <option key={c.id} value={c.id}>
+                                {c.name}
+                                {c.event_name ? ` · ${c.event_name}` : ''}
+                              </option>
+                            ))}
+                          </select>
+                        </Field>
                       )}
 
-                      {/* Filtres de sélection Autocomplete pour l'Historique des cotisations */}
                       {!dashboard?.personal && (
-                        <div className="contributions-filters-card">
-                          <div className="contributions-filters-header">
-                            <div className="contributions-filters-title">
-                              <Filter size={16} />
-                              <span>Filtres de recherche</span>
-                            </div>
-                            <span className="contributions-filters-subtitle">
-                              Filtrer facilement par session/période ou par nom de membre
-                            </span>
-                          </div>
-
-                          <div className="contributions-filters-grid">
-                            {/* 1. Filtre Session (Épargne) ou Période (Tontine) */}
-                            {!isTontineCampaign ? (
-                              <div className="filter-autocomplete-wrapper" ref={sessionFilterRef}>
-                                <label htmlFor="session-filter-input">
-                                  <Calendar size={13} />
-                                  Filtrer par session passée
-                                </label>
-                                <div className="filter-autocomplete-box">
-                                  <CalendarCheck size={16} className="muted" />
-                                  <input
-                                    id="session-filter-input"
-                                    type="text"
-                                    placeholder="Rechercher une séance passée…"
-                                    value={
-                                      sessionFilterSearch ||
-                                      (selectedSessionFilter
-                                        ? `Séance du ${date(selectedSessionFilter)}`
-                                        : '')
-                                    }
-                                    onChange={(e) => {
-                                      setSessionFilterSearch(e.target.value);
-                                      setSessionFilterDropdownOpen(true);
-                                    }}
-                                    onFocus={() => setSessionFilterDropdownOpen(true)}
-                                  />
-                                  {(sessionFilterSearch || selectedSessionFilter) && (
-                                    <button
-                                      type="button"
-                                      className="filter-clear-btn"
-                                      title="Effacer ce filtre"
-                                      onClick={() => {
-                                        setSelectedSessionFilter(null);
-                                        setSessionFilterSearch('');
-                                      }}
-                                    >
-                                      <X size={14} />
-                                    </button>
-                                  )}
-                                  <button
-                                    type="button"
-                                    className="filter-chevron-btn"
-                                    title="Ouvrir la liste des séances"
-                                    onClick={() =>
-                                      setSessionFilterDropdownOpen(!sessionFilterDropdownOpen)
-                                    }
-                                  >
-                                    {sessionFilterDropdownOpen ? (
-                                      <ChevronUp size={15} />
-                                    ) : (
-                                      <ChevronDown size={15} />
-                                    )}
-                                  </button>
-                                </div>
-
-                                {sessionFilterDropdownOpen && (
-                                  <div className="filter-autocomplete-dropdown">
-                                    <div
-                                      className={`filter-dropdown-item all-item ${!selectedSessionFilter ? 'selected' : ''}`}
-                                      onClick={() => {
-                                        setSelectedSessionFilter(null);
-                                        setSessionFilterSearch('');
-                                        setSessionFilterDropdownOpen(false);
-                                      }}
-                                    >
-                                      <div className="filter-dropdown-icon">
-                                        <Calendar size={15} />
-                                      </div>
-                                      <div className="filter-dropdown-content">
-                                        <strong>Toutes les sessions passées</strong>
-                                        <span className="muted">Afficher toutes les séances</span>
-                                      </div>
-                                      {!selectedSessionFilter && (
-                                        <Check size={15} className="item-check" />
-                                      )}
-                                    </div>
-
-                                    {availableSessions
-                                      .filter((s) => {
-                                        const isFiltering =
-                                          sessionFilterSearch.trim() &&
-                                          (!selectedSessionFilter ||
-                                            sessionFilterSearch.trim().toLowerCase() !==
-                                              `séance du ${date(selectedSessionFilter)}`.toLowerCase());
-                                        if (!isFiltering) return true;
-                                        const q = sessionFilterSearch.toLowerCase();
-                                        return (
-                                          s.date.includes(q) ||
-                                          date(s.date).toLowerCase().includes(q)
-                                        );
-                                      })
-                                      .map((s) => (
-                                        <div
-                                          key={s.date}
-                                          className={`filter-dropdown-item ${selectedSessionFilter === s.date ? 'selected' : ''}`}
-                                          onClick={() => {
-                                            setSelectedSessionFilter(s.date);
-                                            setSessionFilterSearch(`Séance du ${date(s.date)}`);
-                                            setSessionFilterDropdownOpen(false);
-                                          }}
-                                        >
-                                          <div className="filter-dropdown-icon">
-                                            <CalendarCheck size={15} />
-                                          </div>
-                                          <div className="filter-dropdown-content">
-                                            <strong>Séance du {date(s.date)}</strong>
-                                            <span className="muted">
-                                              {s.count} versement{s.count > 1 ? 's' : ''} · Total :{' '}
-                                              {money(s.total)}
-                                            </span>
-                                          </div>
-                                          {selectedSessionFilter === s.date && (
-                                            <Check size={15} className="item-check" />
-                                          )}
-                                        </div>
-                                      ))}
-
-                                    {!availableSessions.some((s) => {
-                                      const isFiltering =
-                                        sessionFilterSearch.trim() &&
-                                        (!selectedSessionFilter ||
-                                          sessionFilterSearch.trim().toLowerCase() !==
-                                            `séance du ${date(selectedSessionFilter)}`.toLowerCase());
-                                      if (!isFiltering) return true;
-                                      const q = sessionFilterSearch.toLowerCase();
-                                      return (
-                                        s.date.includes(q) || date(s.date).toLowerCase().includes(q)
-                                      );
-                                    }) && (
-                                      <div className="filter-dropdown-empty">
-                                        Aucune session passée trouvée.
-                                      </div>
-                                    )}
-                                  </div>
-                                )}
-                              </div>
-                            ) : (
-                              <div className="filter-autocomplete-wrapper" ref={periodFilterRef}>
-                                <label htmlFor="period-filter-input">
-                                  <Clock size={13} />
-                                  Filtrer par période passée
-                                </label>
-                                <div className="filter-autocomplete-box">
-                                  <Clock size={16} className="muted" />
-                                  <input
-                                    id="period-filter-input"
-                                    type="text"
-                                    placeholder="Rechercher une période passée…"
-                                    value={
-                                      periodFilterSearch ||
-                                      (selectedPeriodFilter !== null
-                                        ? `Tour ${selectedPeriodFilter}`
-                                        : '')
-                                    }
-                                    onChange={(e) => {
-                                      setPeriodFilterSearch(e.target.value);
-                                      setPeriodFilterDropdownOpen(true);
-                                    }}
-                                    onFocus={() => setPeriodFilterDropdownOpen(true)}
-                                  />
-                                  {(periodFilterSearch || selectedPeriodFilter !== null) && (
-                                    <button
-                                      type="button"
-                                      className="filter-clear-btn"
-                                      title="Effacer ce filtre"
-                                      onClick={() => {
-                                        setSelectedPeriodFilter(null);
-                                        setPeriodFilterSearch('');
-                                      }}
-                                    >
-                                      <X size={14} />
-                                    </button>
-                                  )}
-                                  <button
-                                    type="button"
-                                    className="filter-chevron-btn"
-                                    title="Ouvrir la liste des périodes"
-                                    onClick={() =>
-                                      setPeriodFilterDropdownOpen(!periodFilterDropdownOpen)
-                                    }
-                                  >
-                                    {periodFilterDropdownOpen ? (
-                                      <ChevronUp size={15} />
-                                    ) : (
-                                      <ChevronDown size={15} />
-                                    )}
-                                  </button>
-                                </div>
-
-                                {periodFilterDropdownOpen && (
-                                  <div className="filter-autocomplete-dropdown">
-                                    <div
-                                      className={`filter-dropdown-item all-item ${selectedPeriodFilter === null ? 'selected' : ''}`}
-                                      onClick={() => {
-                                        setSelectedPeriodFilter(null);
-                                        setPeriodFilterSearch('');
-                                        setPeriodFilterDropdownOpen(false);
-                                      }}
-                                    >
-                                      <div className="filter-dropdown-icon">
-                                        <Clock size={15} />
-                                      </div>
-                                      <div className="filter-dropdown-content">
-                                        <strong>Toutes les périodes passées</strong>
-                                        <span className="muted">
-                                          Afficher tous les tours de tontine
-                                        </span>
-                                      </div>
-                                      {selectedPeriodFilter === null && (
-                                        <Check size={15} className="item-check" />
-                                      )}
-                                    </div>
-
-                                    {availablePeriods
-                                      .filter((p) => {
-                                        const isFiltering =
-                                          periodFilterSearch.trim() &&
-                                          (selectedPeriodFilter === null ||
-                                            !periodFilterSearch
-                                              .trim()
-                                              .toLowerCase()
-                                              .startsWith(
-                                                `tour ${selectedPeriodFilter}`.toLowerCase(),
-                                              ));
-                                        if (!isFiltering) return true;
-                                        const q = periodFilterSearch.toLowerCase();
-                                        return (
-                                          `tour ${p.roundNumber}`.includes(q) ||
-                                          p.beneficiaryName.toLowerCase().includes(q) ||
-                                          (p.expectedDate &&
-                                            date(p.expectedDate).toLowerCase().includes(q))
-                                        );
-                                      })
-                                      .map((p) => (
-                                        <div
-                                          key={p.roundNumber}
-                                          className={`filter-dropdown-item ${selectedPeriodFilter === p.roundNumber ? 'selected' : ''}`}
-                                          onClick={() => {
-                                            setSelectedPeriodFilter(p.roundNumber);
-                                            setPeriodFilterSearch(
-                                              `Tour ${p.roundNumber}${p.expectedDate ? ' · ' + date(p.expectedDate) : ''}`,
-                                            );
-                                            setPeriodFilterDropdownOpen(false);
-                                          }}
-                                        >
-                                          <div className="filter-dropdown-icon">
-                                            <Clock size={15} />
-                                          </div>
-                                          <div className="filter-dropdown-content">
-                                            <strong>
-                                              Tour {p.roundNumber}
-                                              {p.expectedDate ? ` · ${date(p.expectedDate)}` : ''}
-                                            </strong>
-                                            <span className="muted">
-                                              Bénéficiaire : {p.beneficiaryName} · Collecté :{' '}
-                                              {money(p.totalCollected)}
-                                            </span>
-                                          </div>
-                                          {selectedPeriodFilter === p.roundNumber && (
-                                            <Check size={15} className="item-check" />
-                                          )}
-                                        </div>
-                                      ))}
-
-                                    {!availablePeriods.some((p) => {
-                                      const isFiltering =
-                                        periodFilterSearch.trim() &&
-                                        (selectedPeriodFilter === null ||
-                                          !periodFilterSearch
-                                            .trim()
-                                            .toLowerCase()
-                                            .startsWith(
-                                              `tour ${selectedPeriodFilter}`.toLowerCase(),
-                                            ));
-                                      if (!isFiltering) return true;
-                                      const q = periodFilterSearch.toLowerCase();
-                                      return (
-                                        `tour ${p.roundNumber}`.includes(q) ||
-                                        p.beneficiaryName.toLowerCase().includes(q) ||
-                                        (p.expectedDate &&
-                                          date(p.expectedDate).toLowerCase().includes(q))
-                                      );
-                                    }) && (
-                                      <div className="filter-dropdown-empty">
-                                        Aucune période passée trouvée.
-                                      </div>
-                                    )}
-                                  </div>
-                                )}
-                              </div>
-                            )}
-
-                            {/* 2. Filtre Membre (Épargne & Tontine) */}
-                            <div className="filter-autocomplete-wrapper" ref={memberFilterRef}>
-                              <label htmlFor="member-filter-input">
-                                <Users size={13} />
-                                Filtrer par membre
-                              </label>
-                              <div className="filter-autocomplete-box">
-                                <Users size={16} className="muted" />
-                                <input
-                                  id="member-filter-input"
-                                  type="text"
-                                  placeholder="Rechercher ou choisir un membre…"
-                                  value={
-                                    memberFilterSearch ||
-                                    (selectedMemberFilter ? selectedMemberFilter : '')
-                                  }
-                                  onChange={(e) => {
-                                    setMemberFilterSearch(e.target.value);
-                                    setMemberFilterDropdownOpen(true);
-                                  }}
-                                  onFocus={() => setMemberFilterDropdownOpen(true)}
-                                />
-                                {(memberFilterSearch || selectedMemberFilter) && (
-                                  <button
-                                    type="button"
-                                    className="filter-clear-btn"
-                                    title="Effacer ce filtre"
-                                    onClick={() => {
-                                      setSelectedMemberFilter(null);
-                                      setMemberFilterSearch('');
-                                    }}
-                                  >
-                                    <X size={14} />
-                                  </button>
-                                )}
-                                <button
-                                  type="button"
-                                  className="filter-chevron-btn"
-                                  title="Ouvrir la liste des membres"
-                                  onClick={() =>
-                                    setMemberFilterDropdownOpen(!memberFilterDropdownOpen)
-                                  }
-                                >
-                                  {memberFilterDropdownOpen ? (
-                                    <ChevronUp size={15} />
-                                  ) : (
-                                    <ChevronDown size={15} />
-                                  )}
-                                </button>
-                              </div>
-
-                              {memberFilterDropdownOpen && (
-                                <div className="filter-autocomplete-dropdown">
-                                  <div
-                                    className={`filter-dropdown-item all-item ${!selectedMemberFilter ? 'selected' : ''}`}
-                                    onClick={() => {
-                                      setSelectedMemberFilter(null);
-                                      setMemberFilterSearch('');
-                                      setMemberFilterDropdownOpen(false);
-                                    }}
-                                  >
-                                    <div className="filter-dropdown-icon">
-                                      <Users size={15} />
-                                    </div>
-                                    <div className="filter-dropdown-content">
-                                      <strong>Tous les membres</strong>
-                                      <span className="muted">
-                                        Afficher toutes les participantes
-                                      </span>
-                                    </div>
-                                    {!selectedMemberFilter && (
-                                      <Check size={15} className="item-check" />
-                                    )}
-                                  </div>
-
-                                  {availableMembers
-                                    .filter((m) => {
-                                      const isFiltering =
-                                        memberFilterSearch.trim() &&
-                                        (!selectedMemberFilter ||
-                                          memberFilterSearch.trim().toLowerCase() !==
-                                            selectedMemberFilter.toLowerCase());
-                                      if (!isFiltering) return true;
-                                      const q = memberFilterSearch.toLowerCase();
-                                      return (
-                                        m.name.toLowerCase().includes(q) ||
-                                        (m.phone && m.phone.includes(q))
-                                      );
-                                    })
-                                    .map((m) => (
-                                      <div
-                                        key={m.name}
-                                        className={`filter-dropdown-item ${selectedMemberFilter === m.name ? 'selected' : ''}`}
-                                        onClick={() => {
-                                          setSelectedMemberFilter(m.name);
-                                          setMemberFilterSearch(m.name);
-                                          setMemberFilterDropdownOpen(false);
-                                        }}
-                                      >
-                                        <div className="filter-dropdown-avatar">
-                                          {m.name.slice(0, 1).toUpperCase()}
-                                        </div>
-                                        <div className="filter-dropdown-content">
-                                          <strong>{m.name}</strong>
-                                          <span className="muted">
-                                            {m.phone ? `${m.phone} · ` : ''}Membre de la cotisation
-                                          </span>
-                                        </div>
-                                        {selectedMemberFilter === m.name && (
-                                          <Check size={15} className="item-check" />
-                                        )}
-                                      </div>
-                                    ))}
-
-                                  {!availableMembers.some((m) => {
-                                    if (!memberFilterSearch.trim()) return true;
-                                    const q = memberFilterSearch.toLowerCase();
-                                    return (
-                                      m.name.toLowerCase().includes(q) ||
-                                      (m.phone && m.phone.includes(q))
-                                    );
-                                  }) && (
-                                    <div className="filter-dropdown-empty">
-                                      Aucun membre trouvé.
-                                    </div>
-                                  )}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-
-                          {/* Bannière récapitulative des filtres actifs */}
-                          {(selectedSessionFilter ||
-                            selectedPeriodFilter !== null ||
-                            selectedMemberFilter) && (
-                            <div className="active-filters-banner">
-                              <span className="active-filters-title">
-                                <Filter size={13} /> Filtre
-                                {selectedMemberFilter &&
-                                (selectedSessionFilter || selectedPeriodFilter !== null)
-                                  ? 's appliqués :'
-                                  : ' appliqué :'}
-                              </span>
-                              {selectedSessionFilter && (
-                                <span className="active-filter-badge">
-                                  <CalendarCheck size={12} />
-                                  <span>Session : {date(selectedSessionFilter)}</span>
-                                  <button
-                                    type="button"
-                                    onClick={() => {
-                                      setSelectedSessionFilter(null);
-                                      setSessionFilterSearch('');
-                                    }}
-                                    title="Retirer le filtre de session"
-                                  >
-                                    <X size={12} />
-                                  </button>
-                                </span>
-                              )}
-                              {selectedPeriodFilter !== null && (
-                                <span className="active-filter-badge">
-                                  <Clock size={12} />
-                                  <span>Tour {selectedPeriodFilter}</span>
-                                  <button
-                                    type="button"
-                                    onClick={() => {
-                                      setSelectedPeriodFilter(null);
-                                      setPeriodFilterSearch('');
-                                    }}
-                                    title="Retirer le filtre de période"
-                                  >
-                                    <X size={12} />
-                                  </button>
-                                </span>
-                              )}
-                              {selectedMemberFilter && (
-                                <span className="active-filter-badge">
-                                  <Users size={12} />
-                                  <span>Membre : {selectedMemberFilter}</span>
-                                  <button
-                                    type="button"
-                                    onClick={() => {
-                                      setSelectedMemberFilter(null);
-                                      setMemberFilterSearch('');
-                                    }}
-                                    title="Retirer le filtre de membre"
-                                  >
-                                    <X size={12} />
-                                  </button>
-                                </span>
-                              )}
-                              <button
-                                type="button"
-                                className="btn-clear-all-filters"
-                                onClick={resetFilters}
-                              >
-                                <RotateCcw size={12} /> Tout effacer
-                              </button>
-                            </div>
+                        <div className="form-grid admin-search">
+                          <Field label="Rechercher un versement par nom ou téléphone">
+                            <input
+                              type="search"
+                              maxLength={120}
+                              value={historyQuery}
+                              onChange={(e) => {
+                                setHistoryQuery(e.target.value);
+                                setPage(1);
+                              }}
+                            />
+                          </Field>
+                          <Field label="Date du versement recherchée">
+                            <input
+                              type="date"
+                              value={historyDate}
+                              onChange={(e) => {
+                                setHistoryDate(e.target.value);
+                                setPage(1);
+                              }}
+                            />
+                          </Field>
+                          {(historyQuery || historyDate) && (
+                            <button
+                              className="secondary"
+                              onClick={() => {
+                                resetFilters();
+                                setPage(1);
+                              }}
+                            >
+                              Effacer les filtres
+                            </button>
                           )}
+                          <p>Recherche dans tout l’historique de la campagne, avant pagination.</p>
                         </div>
                       )}
 
@@ -4147,9 +3830,11 @@ export function App({
                                       </span>
                                       <small className="reference">{c.reference}</small>
                                     </td>
-                                    <td>{date(c.paid_on)}</td>
-                                    <td className="amount">{money(c.amount)}</td>
-                                    <td>
+                                    <td data-label="Date">{date(c.paid_on)}</td>
+                                    <td data-label="Montant" className="amount">
+                                      {money(c.amount)}
+                                    </td>
+                                    <td data-label="État">
                                       <span className={c.voided_at ? 'badge neutral' : 'badge'}>
                                         {c.voided_at ? 'Annulée' : 'Enregistrée'}
                                       </span>
@@ -4899,7 +4584,7 @@ export function App({
               )}
 
               {tab === 'members' && (
-                <section className="panel">
+                <section className="panel admin-member-list">
                   <div className="section-heading">
                     <div>
                       <h2>
@@ -4918,6 +4603,17 @@ export function App({
                       </button>
                     )}
                   </div>
+                  <Field label="Rechercher une membre par nom ou téléphone">
+                    <input
+                      type="search"
+                      maxLength={120}
+                      value={memberQuery}
+                      onChange={(e) => {
+                        setMemberQuery(e.target.value);
+                        setPage(1);
+                      }}
+                    />
+                  </Field>
                   <div className="table-scroll">
                     <table>
                       <thead>
@@ -4942,8 +4638,8 @@ export function App({
                                 </small>
                               </div>
                             </td>
-                            <td>{m.phone || 'Non renseigné'}</td>
-                            <td>
+                            <td data-label="Téléphone">{m.phone || 'Non renseigné'}</td>
+                            <td data-label="Fonction">
                               <span
                                 className={
                                   m.role === 'ADMIN' ? 'badge-function bureau' : 'badge-function'
@@ -4953,8 +4649,8 @@ export function App({
                                   (m.role === 'ADMIN' ? 'Administratrice' : 'Membre simple')}
                               </span>
                             </td>
-                            <td>{m.address || '—'}</td>
-                            <td>
+                            <td data-label="Adresse">{m.address || '—'}</td>
+                            <td data-label="État">
                               {m.is_blocked ? (
                                 <span className="badge-blocked">Bloquée</span>
                               ) : (
@@ -4962,7 +4658,7 @@ export function App({
                               )}
                             </td>
                             {(canManage || superAdmin) && (
-                              <td>
+                              <td data-label="Actions">
                                 <div style={{ display: 'flex', gap: 6 }}>
                                   <button
                                     type="button"
@@ -5023,7 +4719,7 @@ export function App({
                   {!members.length && (
                     <div className="empty">
                       <Users size={32} />
-                      <p>Aucune membre enregistrée.</p>
+                      <p>Aucune membre trouvée pour cette recherche.</p>
                     </div>
                   )}
                   <Pager page={page} total={memberTotal} onChange={setPage} />
@@ -5417,6 +5113,11 @@ export function App({
           onClose={() => setDialog('')}
         >
           <form onSubmit={submit}>
+            {actionError && (
+              <div className="alert" role="alert">
+                {actionError}
+              </div>
+            )}
             <fieldset disabled={busy}>
               {dialog === 'group' && (
                 <>
@@ -5874,6 +5575,9 @@ export function App({
                 <>
                   <Field label="Membre bénéficiaire">
                     <select name="membershipId" required defaultValue={graceMemberId}>
+                      <option value="" disabled>
+                        Choisir une participante
+                      </option>
                       {participants.map((p) => (
                         <option key={p.membership_id} value={p.membership_id}>
                           {p.name}
@@ -5942,70 +5646,141 @@ export function App({
               )}
               {dialog === 'contribution' && (
                 <>
-                  <Field label="Participante">
-                    <select
-                      name="participationId"
-                      required
-                      onChange={(e) => {
-                        const chosen = participants.find((p) => p.id === e.target.value);
-                        if (chosen?.forfait) {
-                          setKeypadAmount(String(chosen.forfait));
-                        }
-                      }}
-                    >
-                      {participants.map((p) => (
-                        <option key={p.id} value={p.id}>
-                          {p.name} · {p.forfait ? money(p.forfait) : 'Libre'}
-                        </option>
-                      ))}
-                    </select>
-                  </Field>
-                  <div className="form-grid">
-                    <Field label="Montant réellement versé en FCFA">
+                  <p>
+                    <strong>Campagne : {campaign?.name}</strong>
+                  </p>
+                  <p>
+                    {contributionReview
+                      ? 'Étape 2 sur 2 · Vérifier et confirmer'
+                      : 'Étape 1 sur 2 · Membre et versement'}
+                  </p>
+                  <div hidden={!!contributionReview}>
+                    <Field label="Campagne de l’encaissement">
+                      <select
+                        value={campaignId}
+                        onChange={(e) => {
+                          setCampaignId(e.target.value);
+                          setPayerId('');
+                          setPayerQuery('');
+                          setPayerPage(1);
+                          setKeypadAmount('');
+                          setActionError('');
+                        }}
+                      >
+                        {activeCampaigns.map((c) => (
+                          <option key={c.id} value={c.id}>
+                            {c.name}
+                          </option>
+                        ))}
+                      </select>
+                    </Field>
+                    <Field label="Rechercher une participante par nom ou téléphone">
                       <input
-                        type="number"
-                        name="amount"
-                        min="1"
-                        required
-                        placeholder="Ex: 5000"
-                        value={keypadAmount}
-                        onChange={(e) => setKeypadAmount(e.target.value)}
+                        type="search"
+                        maxLength={120}
+                        value={payerQuery}
+                        onChange={(e) => {
+                          setPayerQuery(e.target.value);
+                          setPayerPage(1);
+                          setPayerId('');
+                          setKeypadAmount('');
+                        }}
                       />
                     </Field>
-                    <Field label="Date du versement">
-                      <input
-                        type="date"
-                        name="paidOn"
-                        defaultValue={new Date().toISOString().slice(0, 10)}
-                        required
-                      />
-                    </Field>
-                  </div>
+                    {payerLoading && <p role="status">Recherche des participantes…</p>}
 
-                  {/* Pavé tactile géant et raccourcis rapides */}
-                  <NumericKeypad
-                    amount={keypadAmount}
-                    onChange={setKeypadAmount}
-                    onAddQuick={(add) => {
-                      const cur = Number(keypadAmount) || 0;
-                      setKeypadAmount(String(cur + add));
-                    }}
-                  />
-                  <div
-                    style={{
-                      textAlign: 'center',
-                      marginTop: 10,
-                      fontSize: 12,
-                      color: '#0f766e',
-                      fontWeight: 600,
-                    }}
-                  >
-                    <ShieldCheck
-                      size={14}
-                      style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }}
+                    <Field label="Participante">
+                      <select
+                        name="participationId"
+                        value={payerId}
+                        disabled={payerLoading}
+                        required
+                        onChange={(e) => {
+                          setPayerId(e.target.value);
+                          const chosen = payerOptions.find((p) => p.id === e.target.value);
+                          setKeypadAmount(chosen?.forfait ? String(chosen.forfait) : '');
+                        }}
+                      >
+                        <option value="" disabled>
+                          Choisir une participante
+                        </option>
+                        {payerOptions.map((p) => (
+                          <option key={p.id} value={p.id}>
+                            {p.name} · {p.forfait ? money(p.forfait) : 'Libre'}
+                          </option>
+                        ))}
+                      </select>
+                    </Field>
+                    {!payerLoading && !payerOptions.length && (
+                      <p>Aucune participante trouvée. Vérifiez son inscription à cette campagne.</p>
+                    )}
+                    {payerTotal > 25 && (
+                      <Pager
+                        page={payerPage}
+                        total={payerTotal}
+                        onChange={(p) => {
+                          setPayerPage(p);
+                          setPayerId('');
+                          setKeypadAmount('');
+                        }}
+                      />
+                    )}
+                    <div className="form-grid">
+                      <Field label="Montant réellement versé en FCFA">
+                        <input
+                          type="number"
+                          name="amount"
+                          min="1"
+                          required
+                          placeholder="Ex: 5000"
+                          value={keypadAmount}
+                          onChange={(e) => setKeypadAmount(e.target.value)}
+                        />
+                      </Field>
+                      <Field label="Date du versement">
+                        <input
+                          type="date"
+                          name="paidOn"
+                          defaultValue={new Date().toISOString().slice(0, 10)}
+                          required
+                        />
+                      </Field>
+                    </div>
+
+                    {/* Pavé tactile géant et raccourcis rapides */}
+                    <NumericKeypad
+                      amount={keypadAmount}
+                      onChange={setKeypadAmount}
+                      onAddQuick={(add) => {
+                        const cur = Number(keypadAmount) || 0;
+                        setKeypadAmount(String(cur + add));
+                      }}
                     />
-                    Frais AvecLesFemmes = 0% · Calebasse 100% Solidaire
                   </div>
+                  {contributionReview && (
+                    <section
+                      className="member-info-card"
+                      aria-label="Récapitulatif de la cotisation"
+                    >
+                      <h3>Confirmer le versement reçu</h3>
+                      <dl>
+                        <dt>Membre</dt>
+                        <dd>{contributionReview.name}</dd>
+                        <dt>Montant</dt>
+                        <dd>{money(contributionReview.amount)}</dd>
+                        <dt>Date</dt>
+                        <dd>{date(contributionReview.paidOn)}</dd>
+                      </dl>
+                      <p>Vérifiez ces informations avec la membre avant de confirmer.</p>
+                      <button
+                        type="button"
+                        className="secondary"
+                        onClick={() => setContributionReview(null)}
+                      >
+                        Modifier la saisie
+                      </button>
+                    </section>
+                  )}
                 </>
               )}
               {dialog === 'void' && (
@@ -6032,31 +5807,22 @@ export function App({
                 <button
                   className="primary"
                   type="submit"
-                  disabled={!online || (dialog === 'contribution' && !participants.length)}
+                  disabled={!online || (dialog === 'contribution' && (!payerId || payerLoading))}
                 >
                   {busy
                     ? 'Enregistrement…'
-                    : dialog === 'void'
-                      ? 'Confirmer l’annulation'
-                      : 'Enregistrer'}
+                    : dialog === 'contribution'
+                      ? contributionReview
+                        ? 'Confirmer la cotisation'
+                        : 'Vérifier la cotisation'
+                      : dialog === 'void'
+                        ? 'Confirmer l’annulation'
+                        : 'Enregistrer'}
                 </button>
               </div>
             </fieldset>
           </form>
         </Dialog>
-      )}
-
-      {scannerOpen && (
-        <CameraScannerOverlay
-          onClose={() => setScannerOpen(false)}
-          onScan={(_scanned) => {
-            setScannerOpen(false);
-            setNotice('Code QR scanné avec succès.');
-            if (canManage) {
-              open('contribution');
-            }
-          }}
-        />
       )}
     </div>
   );

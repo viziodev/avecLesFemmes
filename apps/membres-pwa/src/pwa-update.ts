@@ -60,34 +60,32 @@ export function startPwaUpdates() {
   });
   async function check() {
     gate.flush();
-    if (!registration || checking || !navigator.onLine || document.visibilityState !== 'visible')
-      return;
+    if (checking || !navigator.onLine || document.visibilityState !== 'visible') return;
     checking = true;
     try {
-      await registration.update();
-      if (registration.waiting) gate.waiting();
+      if (!registration) {
+        registration = await serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`, {
+          updateViaCache: 'none',
+        });
+        const observeInstalling = () => {
+          const worker = registration?.installing;
+          worker?.addEventListener('statechange', () => {
+            if (controlled && worker.state === 'installed' && registration?.waiting) gate.waiting();
+          });
+        };
+        registration.addEventListener('updatefound', observeInstalling);
+        observeInstalling();
+      } else {
+        await registration.update();
+      }
+      if (controlled && registration.waiting) gate.waiting();
     } catch {
-      // Offline or transient server error: keep the current application usable.
+      // Retry registration as well as updates on reconnect, focus or the next interval.
     } finally {
       checking = false;
     }
   }
-  void serviceWorker
-    .register(`${import.meta.env.BASE_URL}sw.js`, { updateViaCache: 'none' })
-    .then((value) => {
-      registration = value;
-      if (value.waiting) gate.waiting();
-      value.addEventListener('updatefound', () => {
-        const worker = value.installing;
-        worker?.addEventListener('statechange', () => {
-          if (worker.state === 'installed' && value.waiting) gate.waiting();
-        });
-      });
-      void check();
-    })
-    .catch(() => {
-      // Registration can fail offline on the first visit; retry at next launch.
-    });
+  void check();
   window.addEventListener('online', check);
   window.addEventListener('focus', check);
   document.addEventListener('visibilitychange', check);

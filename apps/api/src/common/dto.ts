@@ -41,6 +41,17 @@ export class ScopeDto {
 }
 
 export class ScopedPageDto extends PageDto {
+  @ApiPropertyOptional({ description: 'Recherche par nom ou téléphone, avant pagination' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(120)
+  q?: string;
+
+  @ApiPropertyOptional({ description: 'Date exacte du versement, YYYY-MM-DD' })
+  @IsOptional()
+  @Matches(/^\d{4}-\d{2}-\d{2}$/)
+  paidOn?: string;
+
   @ApiPropertyOptional({ enum: ['personal', 'group'] })
   @IsOptional()
   @IsIn(['personal', 'group'])

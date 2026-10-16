@@ -313,6 +313,24 @@
             }
           },
           {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "description": "Recherche par nom ou téléphone, avant pagination",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "paidOn",
+            "required": false,
+            "in": "query",
+            "description": "Date exacte du versement, YYYY-MM-DD",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "scope",
             "required": false,
             "in": "query",
@@ -1191,6 +1209,24 @@
             }
           },
           {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "description": "Recherche par nom ou téléphone, avant pagination",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "paidOn",
+            "required": false,
+            "in": "query",
+            "description": "Date exacte du versement, YYYY-MM-DD",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "scope",
             "required": false,
             "in": "query",
@@ -1735,6 +1771,24 @@
             "schema": {
               "default": 25,
               "type": "number"
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "description": "Recherche par nom ou téléphone, avant pagination",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "paidOn",
+            "required": false,
+            "in": "query",
+            "description": "Date exacte du versement, YYYY-MM-DD",
+            "schema": {
+              "type": "string"
             }
           },
           {

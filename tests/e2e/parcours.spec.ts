@@ -55,11 +55,14 @@ test('administratrice enregistre et retrouve sa vue membre', async ({ page }) =>
   }
   await page.getByRole('button', { name: 'Enregistrer une cotisation', exact: true }).click();
   const selection = page.getByRole('combobox', { name: 'Participante', exact: true });
-  // Les deux participantes du seed sont affichées dans l’ordre Awa puis Ndèye.
-  await selection.selectOption({ index: 1 });
+  await expect(selection).toHaveValue('');
+  const ndeye = await selection.locator('option', { hasText: 'Ndèye' }).getAttribute('value');
+  await selection.selectOption(ndeye!);
   await page.getByLabel('Montant réellement versé en FCFA').fill('2000');
-  await page.getByLabel('Date du versement').fill('2026-06-02');
-  await page.getByRole('button', { name: 'Enregistrer', exact: true }).click();
+  await page.getByLabel('Date du versement', { exact: true }).fill('2026-06-02');
+  await page.getByRole('button', { name: 'Vérifier la cotisation', exact: true }).click();
+  await expect(page.getByRole('region', { name: 'Récapitulatif de la cotisation' })).toBeVisible();
+  await page.getByRole('button', { name: 'Confirmer la cotisation', exact: true }).click();
   await expect(page.getByRole('status')).toContainText('Cotisation enregistrée');
   await page.getByRole('button', { name: 'Mon épargne personnelle', exact: true }).click();
   await expect(page.getByText('Mon montant versé', { exact: true })).toBeVisible();
@@ -83,7 +86,8 @@ test('membre sur téléphone et manifest PWA', async ({ page }) => {
   const manifest = await page.request.get(pwa + '/manifest.webmanifest');
   expect(manifest.ok()).toBeTruthy();
   expect((await manifest.json()).display).toBe('standalone');
-  await page.getByRole('button', { name: 'Campagnes', exact: true }).click();
+  await page.getByRole('button', { name: 'Mes campagnes', exact: true }).click();
+  await page.getByRole('button', { name: 'Ma participation', exact: true }).first().click();
   await expect(page.getByRole('heading', { name: 'Ma participation', exact: true })).toBeVisible();
 });
 test('connexion par code téléphone et déconnexion', async ({ page }) => {
@@ -464,91 +468,27 @@ test('tableau des campagnes actives avec métriques et onglet Archives', async (
   await expect(page.getByRole('heading', { name: 'Bienvenue dans votre espace' })).toBeVisible();
 });
 
-test('filtres autocomplete cotisations (session, periode, membre) et recherche de groupement accessible', async ({
-  page,
-}) => {
+test('recherche de versements côté serveur et réinitialisation', async ({ page }) => {
   await login(page, './', 'superadmin');
-
-  // 1. Expérience enrichie de recherche de groupement par autocomplétion
-  const groupInput = page.locator('#group-search-input');
-  await expect(groupInput).toBeVisible();
-
-  // Test du bouton chevron pour dérouler sans saisie
-  const chevronBtn = page.locator('.autocomplete-chevron-btn').first();
-  await chevronBtn.click();
-  await expect(page.locator('.group-autocomplete-dropdown')).toBeVisible();
-  await expect(page.locator('.group-autocomplete-guide')).toBeVisible();
-  await page.screenshot({ path: 'test-results/group-autocomplete-dropdown-open.png' });
-
-  // Sélection d'un groupement
-  await page.locator('.group-autocomplete-item', { hasText: 'Les Femmes de Grand Yoff' }).click();
-  await expect(page.locator('.current-group-badge')).toContainText('Les Femmes de Grand Yoff');
-  await page.screenshot({ path: 'test-results/group-autocomplete-experience.png' });
-
-  // 2. Cotisation : Type Épargne (filtre session autocomplete + filtre membre autocomplete)
-  const campSelect = page.getByLabel('Campagne suivie', { exact: true });
-  const epargneOption = campSelect.locator('option', { hasText: 'Épargne solidaire 2026' });
-  await expect(epargneOption).toBeAttached();
-  const epargneVal = await epargneOption.getAttribute('value');
-  if (epargneVal) {
-    await campSelect.selectOption(epargneVal);
-  }
-
-  // Vérifier la présence des 2 filtres autocomplete pour l'Épargne
-  const sessionInput = page.locator('#session-filter-input');
-  const memberInput = page.locator('#member-filter-input');
-  await expect(sessionInput).toBeVisible();
-  await expect(memberInput).toBeVisible();
-
-  // Tester l'ouverture de l'autocomplete session
-  await sessionInput.click();
-  await expect(page.locator('.filter-autocomplete-dropdown')).toBeVisible();
-  await page.screenshot({ path: 'test-results/epargne-session-dropdown-open.png' });
-  // Sélectionner la première option de session passée ou "Toutes les sessions"
-  await page.locator('.filter-dropdown-item').first().click();
-
-  // Tester l'autocomplete membre
-  await memberInput.click();
-  await expect(page.locator('.filter-autocomplete-dropdown')).toBeVisible();
-  // Saisir un filtre de recherche membre
-  await memberInput.fill('Awa');
-  const awaItem = page.locator('.filter-dropdown-item', { hasText: 'Awa' });
-  if (await awaItem.count()) {
-    await awaItem.first().click();
-    await expect(page.locator('.active-filters-banner')).toBeVisible();
-    await expect(page.locator('.active-filter-badge')).toContainText('Awa');
-    await page.screenshot({ path: 'test-results/epargne-member-filter-applied.png' });
-  }
-
-  // Réinitialiser les filtres
-  const clearAllBtn = page.locator('.btn-clear-all-filters');
-  if (await clearAllBtn.count()) {
-    await clearAllBtn.first().click();
-  }
-  await page.screenshot({ path: 'test-results/epargne-autocomplete-filters.png' });
-
-  // 3. Cotisation : Type Tontine (filtre période autocomplete)
-  const tontineOption = campSelect.locator('option', { hasText: 'Tontine solidaire 2026' });
-  if (await tontineOption.count()) {
-    const tontineVal = await tontineOption.getAttribute('value');
-    if (tontineVal) {
-      await campSelect.selectOption(tontineVal);
-      // Pour une tontine, le champ de filtre par période doit être affiché
-      const periodInput = page.locator('#period-filter-input');
-      await expect(periodInput).toBeVisible();
-
-      // Tester l'ouverture de l'autocomplete période
-      await periodInput.click();
-      await expect(page.locator('.filter-autocomplete-dropdown')).toBeVisible();
-      await page.screenshot({ path: 'test-results/tontine-period-dropdown-open.png' });
-      await page.locator('.filter-dropdown-item').first().click();
-      await page.screenshot({ path: 'test-results/tontine-autocomplete-filters.png' });
-    }
-  }
-
-  // Déconnexion
-  await page.getByRole('button', { name: 'Se déconnecter', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Bienvenue dans votre espace' })).toBeVisible();
+  await page.locator('#group-select').selectOption({ label: 'Les Femmes de Grand Yoff' });
+  const campaigns = page.getByLabel('Campagne suivie', { exact: true });
+  await campaigns.selectOption(
+    (await campaigns
+      .locator('option', { hasText: 'Épargne solidaire 2026' })
+      .getAttribute('value'))!,
+  );
+  const search = page.getByLabel('Rechercher un versement par nom ou téléphone');
+  const response = page.waitForResponse(
+    (r) => r.url().includes('/contributions?') && r.url().includes('q=Awa') && r.status() === 200,
+  );
+  await search.fill('Awa');
+  const data = await (await response).json();
+  expect(data.items.every((c: { name: string }) => c.name.includes('Awa'))).toBe(true);
+  const date = page.getByLabel('Date du versement recherchée');
+  await date.fill('2026-06-02');
+  await page.getByRole('button', { name: 'Effacer les filtres', exact: true }).click();
+  await expect(search).toHaveValue('');
+  await expect(date).toHaveValue('');
 });
 
 test('informations de connexion et préremplissage automatique sur les pages de connexion', async ({
@@ -619,4 +559,230 @@ test('informations de connexion et préremplissage automatique sur les pages de 
   // Déconnexion
   await page.getByRole('button', { name: 'Se déconnecter', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Bienvenue dans votre espace' })).toBeVisible();
+});
+
+test('un refus de cotisation reste visible et conserve la saisie', async ({ page }) => {
+  await login(page, pwa, 'admin.ndeye');
+  const campaigns = page.getByLabel('Campagne suivie', { exact: true });
+  const id = await campaigns
+    .locator('option', { hasText: 'Épargne solidaire 2026' })
+    .getAttribute('value');
+  await campaigns.selectOption(id!);
+  await page.getByRole('button', { name: 'Enregistrer une cotisation', exact: true }).click();
+  const selection = page.getByRole('combobox', { name: 'Participante', exact: true });
+  await expect(selection).toHaveValue('');
+  const member = await selection.locator('option', { hasText: 'Awa' }).getAttribute('value');
+  await selection.selectOption(member!);
+  await page.getByLabel('Montant réellement versé en FCFA').fill('2000');
+  await page.route('**/contributions', async (route) => {
+    if (route.request().method() === 'POST') {
+      await route.fulfill({
+        status: 403,
+        contentType: 'application/json',
+        body: JSON.stringify({ message: 'Membre bloquée (test)' }),
+      });
+    } else await route.continue();
+  });
+  await page.getByRole('button', { name: 'Vérifier la cotisation', exact: true }).click();
+  await expect(page.getByRole('region', { name: 'Récapitulatif de la cotisation' })).toBeVisible();
+  await page.getByRole('button', { name: 'Confirmer la cotisation', exact: true }).click();
+  await expect(page.getByRole('dialog').getByRole('alert')).toContainText('Membre bloquée');
+  await page.getByRole('button', { name: 'Modifier la saisie' }).click();
+  await expect(page.getByLabel('Montant réellement versé en FCFA')).toHaveValue('2000');
+  await expect(page.getByRole('status')).not.toContainText('Cotisation enregistrée');
+});
+
+for (const width of [360, 390, 430]) {
+  for (const user of ['admin.ndeye', 'membre.awa']) {
+    test(`socle mobile ${user} à ${width}px : navigation et dialogue`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 844 });
+      await login(page, pwa, user);
+      const nav = page.getByRole('navigation', { name: 'Navigation principale' });
+      await expect(nav.getByRole('button', { name: 'Accueil', exact: true })).toBeVisible();
+      const bounds = await nav.boundingBox();
+      expect(bounds!.y).toBeGreaterThan(700);
+      expect(bounds!.y + bounds!.height).toBeLessThanOrEqual(844);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
+        width,
+      );
+      await expect(page.getByLabel('Sélectionner un groupement')).toBeHidden();
+      if (user === 'admin.ndeye') {
+        const encaisser = page.getByRole('button', {
+          name: 'Enregistrer une cotisation',
+          exact: true,
+        });
+        await expect(encaisser).toBeVisible();
+        const action = await encaisser.boundingBox();
+        expect(action!.y + action!.height).toBeLessThan(bounds!.y);
+      }
+      const qr = page.getByRole('button', { name: 'Mon Code QR', exact: true });
+      await qr.click();
+      const dialog = page.getByRole('dialog');
+      await expect(dialog).toBeFocused();
+      await page.keyboard.press('Shift+Tab');
+      expect(await dialog.evaluate((el) => el.contains(document.activeElement))).toBe(true);
+      await page.keyboard.press('Tab');
+      expect(await dialog.evaluate((el) => el.contains(document.activeElement))).toBe(true);
+      await page.keyboard.press('Escape');
+      await expect(dialog).toHaveCount(0);
+      await expect(qr).toBeFocused();
+    });
+  }
+}
+
+test.describe('Consultation personnelle avec réponses contrôlées', () => {
+  test.use({ serviceWorkers: 'block' });
+  test('membre : campagne désactivée, historique personnel et confidentialité', async ({
+    page,
+  }) => {
+    await page.route('**/campaigns?*', async (route) => {
+      const response = await route.fetch();
+      const body = await response.json();
+      body.items = body.items.map((c: { active: boolean }) => ({ ...c, active: false }));
+      await route.fulfill({ response, json: body });
+    });
+    await page.route('**/contributions?*', async (route) => {
+      await route.fulfill({
+        json: {
+          items: [
+            {
+              id: 'test-versement',
+              name: 'Awa Fall',
+              participation_id: 'test',
+              amount: '2500',
+              paid_on: '2026-06-02',
+              reference: 'TEST-MEMBRE-001',
+              voided_at: null,
+            },
+          ],
+          total: 1,
+        },
+      });
+    });
+    await page.setViewportSize({ width: 390, height: 844 });
+    await login(page, pwa, 'membre.awa');
+    const nav = page.getByRole('navigation', { name: 'Navigation principale' });
+    await nav.getByRole('button', { name: 'Mes campagnes', exact: true }).click();
+    await expect(page.getByText('Désactivée', { exact: true }).first()).toBeVisible();
+    await page.getByRole('button', { name: 'Ma participation', exact: true }).first().click();
+    await expect(
+      page.getByRole('heading', { name: 'Ma participation', exact: true }),
+    ).toBeVisible();
+    await nav.getByRole('button', { name: 'Mes versements', exact: true }).click();
+    await expect(page.getByText('Référence : TEST-MEMBRE-001')).toBeVisible();
+    await expect(page.locator('.member-payment-heading strong')).toContainText('2');
+    await page.getByRole('button', { name: 'Masquer les montants', exact: true }).click();
+    await expect(page.locator('.member-payment-heading strong')).toHaveText('•••••• FCFA');
+    await nav.getByRole('button', { name: 'Accueil', exact: true }).click();
+    await expect(page.locator('.member-balance-card > strong')).toHaveText('•••••• FCFA');
+    await nav.getByRole('button', { name: 'Mon compte', exact: true }).click();
+    await expect(page.getByRole('heading', { name: 'Mon adhésion' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Enregistrer une cotisation' })).toHaveCount(0);
+  });
+});
+
+test('gestion mobile : recherche globale et récapitulatif sans enregistrement anticipé', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await login(page, pwa, 'admin.ndeye');
+  const nav = page.getByRole('navigation', { name: 'Navigation principale' });
+  await nav.getByRole('button', { name: 'Membres', exact: true }).click();
+  await page.getByLabel('Rechercher une membre par nom ou téléphone').fill('Awa');
+  await expect(page.locator('.admin-member-list tbody tr')).toHaveCount(1);
+  await expect(page.locator('.admin-member-list tbody')).toContainText('Awa');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+  await nav.getByRole('button', { name: 'Accueil', exact: true }).click();
+  const campaign = page.getByLabel('Campagne suivie', { exact: true });
+  const id = await campaign
+    .locator('option', { hasText: 'Épargne solidaire 2026' })
+    .getAttribute('value');
+  await campaign.selectOption(id!);
+  await nav.getByRole('button', { name: 'Encaisser', exact: true }).click();
+  await page.getByLabel('Rechercher une participante par nom ou téléphone').fill('Awa');
+  const payer = page.getByRole('combobox', { name: 'Participante', exact: true });
+  const option = payer.locator('option', { hasText: 'Awa' });
+  await expect(option).toBeAttached();
+  await payer.selectOption((await option.getAttribute('value'))!);
+  await page.getByLabel('Montant réellement versé en FCFA').fill('750');
+  let writes = 0;
+  page.on('request', (r) => {
+    if (r.method() === 'POST' && r.url().includes('/contributions')) writes++;
+  });
+  await page.getByRole('button', { name: 'Vérifier la cotisation', exact: true }).click();
+  const review = page.getByRole('region', { name: 'Récapitulatif de la cotisation' });
+  await expect(review).toContainText('Awa');
+  await expect(review).toContainText('750');
+  expect(writes).toBe(0);
+  await page.getByRole('button', { name: 'Modifier la saisie' }).click();
+  await expect(page.getByLabel('Montant réellement versé en FCFA')).toHaveValue('750');
+  await page.getByRole('dialog').getByRole('button', { name: 'Annuler', exact: true }).click();
+});
+
+test.describe('Reprise réseau du lot 5', () => {
+  test.use({ serviceWorkers: 'block' });
+  test('coupure pendant la confirmation : saisie et clé conservées sans envoi automatique', async ({
+    page,
+    context,
+  }) => {
+    await login(page, pwa, 'admin.ndeye');
+    const campaigns = page.getByLabel('Campagne suivie', { exact: true });
+    await campaigns.selectOption(
+      (await campaigns
+        .locator('option', { hasText: 'Épargne solidaire 2026' })
+        .getAttribute('value'))!,
+    );
+    await page.getByRole('button', { name: 'Enregistrer une cotisation', exact: true }).click();
+    const selection = page.getByRole('combobox', { name: 'Participante', exact: true });
+    await selection.selectOption(
+      (await selection.locator('option', { hasText: 'Awa' }).getAttribute('value'))!,
+    );
+    await page.getByLabel('Montant réellement versé en FCFA').fill('750');
+    const attempts: Record<string, unknown>[] = [];
+    await page.route('**/contributions', async (route) => {
+      if (route.request().method() !== 'POST') return route.continue();
+      attempts.push(route.request().postDataJSON());
+      // Simulate a lost response, then an acknowledged retry; no local money is recorded.
+      if (attempts.length === 1) await route.abort('connectionreset');
+      else await route.fulfill({ status: 201, json: { id: 'network-retry-test' } });
+    });
+    await page.getByRole('button', { name: 'Vérifier la cotisation', exact: true }).click();
+    await page.getByRole('button', { name: 'Confirmer la cotisation', exact: true }).click();
+    await expect(page.getByRole('dialog').getByRole('alert')).toContainText(
+      'enregistrement non confirmé',
+    );
+    await context.setOffline(true);
+    await expect(
+      page.getByRole('button', { name: 'Confirmer la cotisation', exact: true }),
+    ).toBeDisabled();
+    await context.setOffline(false);
+    await expect(
+      page.getByRole('button', { name: 'Confirmer la cotisation', exact: true }),
+    ).toBeEnabled();
+    expect(attempts).toHaveLength(1);
+    await page.screenshot({ path: 'test-results/lot5-reprise-reseau.png', fullPage: false });
+    await expect(
+      page.getByRole('region', { name: 'Récapitulatif de la cotisation' }),
+    ).toContainText('750');
+    await page.getByRole('button', { name: 'Confirmer la cotisation', exact: true }).click();
+    await expect(page.getByRole('status')).toContainText('Cotisation enregistrée');
+    expect(attempts).toHaveLength(2);
+    expect(attempts[1]).toEqual(attempts[0]);
+    expect(attempts[0].idempotencyKey).toBeTruthy();
+  });
+
+  test('session inaccessible au démarrage : reprise explicite sans fausse déconnexion', async ({
+    page,
+  }) => {
+    let unavailable = true;
+    await page.route('**/auth/me', async (route) => {
+      if (unavailable) await route.abort('connectionreset');
+      else await route.continue();
+    });
+    await page.goto(pwa);
+    await expect(page.getByRole('alert')).toContainText('session n’a pas pu être vérifiée');
+    unavailable = false;
+    await page.getByRole('button', { name: 'Réessayer la connexion' }).click();
+    await expect(page.getByRole('heading', { name: 'Bienvenue dans votre espace' })).toBeVisible();
+  });
 });

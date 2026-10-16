@@ -127,17 +127,18 @@ export class GroupementsService {
     return this.db.run(actor, async (c) => {
       await requireGroup(c, groupId);
       const personal = page.scope === 'personal';
+      const search = (page.q || '').trim();
       const count = await c.query(
-        'SELECT count(*) FROM memberships WHERE group_id=$1 AND (NOT $2::boolean OR app_owns_membership(id))',
-        [groupId, personal],
+        `SELECT count(*) FROM memberships WHERE group_id=$1 AND (NOT $2::boolean OR app_owns_membership(id)) AND (strpos(lower(name),lower($3))>0 OR strpos(coalesce(phone,''),$3)>0)`,
+        [groupId, personal, search],
       );
       const r = await c.query(
         `SELECT m.id,m.name,m.phone,m.role,m.active,m.address,m.gender,m.function_id,f.name function_name,m.is_blocked
          FROM memberships m
          LEFT JOIN group_functions f ON f.id=m.function_id
-         WHERE m.group_id=$1 AND (NOT $4::boolean OR app_owns_membership(m.id))
+         WHERE m.group_id=$1 AND (NOT $4::boolean OR app_owns_membership(m.id)) AND (strpos(lower(m.name),lower($5))>0 OR strpos(coalesce(m.phone,''),$5)>0)
          ORDER BY m.created_at DESC,m.id LIMIT $2 OFFSET $3`,
-        [groupId, page.limit, (page.page - 1) * page.limit, personal],
+        [groupId, page.limit, (page.page - 1) * page.limit, personal, search],
       );
       return { items: r.rows, total: Number(count.rows[0].count) };
     });

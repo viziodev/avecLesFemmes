@@ -179,9 +179,10 @@ export class CampaignsService {
       await requireGroup(c, groupId);
       await findCampaign(c, groupId, id);
       const personal = page.scope === 'personal';
+      const search = (page.q || '').trim();
       const count = await c.query(
-        'SELECT count(*) FROM participations WHERE campaign_id=$1 AND (NOT $2::boolean OR app_owns_membership(membership_id))',
-        [id, personal],
+        `SELECT count(*) FROM participations p JOIN memberships m ON m.id=p.membership_id WHERE p.campaign_id=$1 AND (NOT $2::boolean OR app_owns_membership(p.membership_id)) AND (strpos(lower(m.name),lower($3))>0 OR strpos(coalesce(m.phone,''),$3)>0)`,
+        [id, personal, search],
       );
       const r = await c.query(
         `SELECT p.id, p.membership_id, m.name, p.forfait::text, p.is_random, p.round_number,
@@ -208,9 +209,9 @@ export class CampaignsService {
                  ORDER BY tr.round_number LIMIT 1) AS payout_amount
          FROM participations p
          JOIN memberships m ON m.id=p.membership_id
-         WHERE p.campaign_id=$1 AND (NOT $4::boolean OR app_owns_membership(p.membership_id))
+         WHERE p.campaign_id=$1 AND (NOT $4::boolean OR app_owns_membership(p.membership_id)) AND (strpos(lower(m.name),lower($5))>0 OR strpos(coalesce(m.phone,''),$5)>0)
          ORDER BY m.name, p.id LIMIT $2 OFFSET $3`,
-        [id, page.limit, (page.page - 1) * page.limit, personal],
+        [id, page.limit, (page.page - 1) * page.limit, personal, search],
       );
       return { items: r.rows, total: Number(count.rows[0].count) };
     });

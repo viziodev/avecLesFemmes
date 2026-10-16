@@ -23,7 +23,7 @@ jobs:
       - run: npm run format:check
       - run: npm run version:check
       - run: npm run test:version
-      - run: node --test scripts/deploy-render.test.mjs scripts/pwa-update.test.mjs
+      - run: node --test scripts/deploy-render.test.mjs scripts/pwa-update.test.mjs scripts/ui-reliability.test.mjs
       - name: Vérifier la version de la modification
         if: github.event_name == 'pull_request'
         env:

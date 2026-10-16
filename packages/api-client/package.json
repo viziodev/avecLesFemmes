@@ -1,6 +1,6 @@
 {
   "name": "@aveclesfemmes/api-client",
-  "version": "0.2.1",
+  "version": "0.6.0",
   "private": true,
   "type": "module",
   "exports": {
