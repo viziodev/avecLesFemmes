@@ -44,13 +44,23 @@ Références : [protection des branches](https://docs.github.com/en/repositories
 
 ## Déploiement automatique Render
 
+Les environnements de la stratégie de livraison sont :
+
+- **Local :** PostgreSQL du service `db` de `compose.yaml`, avec volume `postgres_data`. Cet environnement sert au développement et à la validation locale.
+- **Recette :** conteneur unique sur Render gratuit et base Neon de recette.
+- **Production :** VPS Dokploy et base Neon dédiée à la production.
+
+Les données et secrets de ces environnements restent séparés.
+
+La recette utilise un seul conteneur sur Render gratuit et une base PostgreSQL Neon externe, avec TLS vérifié et rôle applicatif isolé par RLS. Aucune base PostgreSQL n’est hébergée sur Render. La consigne de tests locaux et d’autorisation `VIZIODEPLOIE` définie dans [IMPLEMENTATION.md](IMPLEMENTATION.md) s’applique avant tout déclenchement distant.
+
 L’environnement GitHub `render-test` autorise main et les tags v*. Variables : `RENDER_SERVICE_ID=srv-db7s4l6i0phs73af6520` et `RENDER_PUBLIC_URL=https://aveclesfemmes-test.onrender.com`. Ajouter le secret d’environnement `RENDER_API_KEY` depuis le compte Render ; aucun identifiant PostgreSQL propriétaire n’est transmis au workflow de déploiement.
 
 Le déploiement vérifie le manifeste (version, commit et registre), refuse une cible autre que le service web gratuit, conserve l’empreinte précédente dans le résumé GitHub, met à jour la référence persistante du service puis déclenche Render. Il attend le statut live, la version attendue et la readiness PostgreSQL. Les déploiements sont sérialisés et un commit antérieur à la version active est refusé. Un échec est signalé ; aucun retour arrière de base n’est exécuté automatiquement.
 
 Si de nouvelles migrations sont présentes depuis la version en ligne, le déploiement s’arrête avant modification du service. Les appliquer dans une tâche isolée puis renseigner `MIGRATIONS_READY_VERSION` avec la version exacte pour autoriser cette livraison. Sur le plan gratuit, ni tâche ponctuelle Render ni commande pre-deploy ne sont disponibles ; cette étape reste contrôlée. Relancer uniquement le job de déploiement échoué, sans republier les images.
 
-Lors du tout premier déploiement du service (ou suite à la réinitialisation de la base PostgreSQL gratuite après 30 jours d'inactivité), aucune version n'est encore active pour le contrôle d'écart. Renseigner alors la variable d’environnement `INITIAL_DEPLOY=true` ainsi que `MIGRATIONS_READY_VERSION=version` pour autoriser la première mise en service après avoir appliqué les migrations initiales.
+Lors du tout premier déploiement du service ou après une réinitialisation volontaire de la base Neon de recette, aucune version n'est encore active pour le contrôle d'écart. Renseigner alors la variable d’environnement `INITIAL_DEPLOY=true` ainsi que `MIGRATIONS_READY_VERSION=version` pour autoriser la première mise en service après avoir appliqué les migrations initiales.
 
 L’image combinée Render est une exception de recette gratuite, avec l’API sur loopback, PWA à la racine et administration sous /admin/. Elle ne qualifie pas à elle seule la topologie de production à trois images : cette dernière doit être testée avant promotion vers Dokploy.
 

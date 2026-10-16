@@ -67,6 +67,16 @@ L'incrément 2 porte le produit à la version **0.2.0** (SemVer monorepo). Il in
 
 ## Stratégie de versionnement et de déploiement
 
+### Environnements retenus
+
+| Environnement  | Hébergement applicatif               | Base de données                                                                                                   |
+| -------------- | ------------------------------------ | ----------------------------------------------------------------------------------------------------------------- |
+| **Local**      | Docker Compose (`compose.yaml`)      | PostgreSQL du service **`db`** de ce même Compose, volume persistant `postgres_data`, accès hôte `localhost:5433` |
+| **Recette**    | **Render gratuit**, conteneur unique | **Neon**, base dédiée à la recette, connexion TLS et isolation RLS                                                |
+| **Production** | **VPS avec Dokploy**                 | **Base Neon dédiée à la production**, distincte de la recette                                                     |
+
+En local, les conteneurs utilisent `db:5432` ; les outils exécutés sur la machine utilisent `localhost:5433`. Les migrations et données de démonstration locales ciblent cette base Docker Compose. Chaque environnement possède ses propres données, comptes et secrets.
+
 La stratégie de livraison ([VERSIONING.md](VERSIONING.md) et [ADR 014](adr/014-deploiement-render-dokploy.md)) repose sur des artefacts immuables promus sans reconstruction :
 
 1. **Cycle de version (SemVer monorepo) :**
@@ -79,8 +89,8 @@ La stratégie de livraison ([VERSIONING.md](VERSIONING.md) et [ADR 014](adr/014-
    - Archivage du manifeste `.releases/v0.1.3.registry.json` avec les empreintes `sha256` exactes (aucun tag flottant `latest`).
 3. **Répartition des bases de données selon les environnements :**
    - **Local (Développement)** : PostgreSQL conteneurisé via le service `db` de [compose.yaml](../compose.yaml) (port 5433, volume persistant `postgres_data`).
-   - **Recette (Render)** : PostgreSQL managé cloud **Neon.tech** (`veclesfemmes_app`), permanent sans expiration de 30 jours, SSL requis, avec compte applicatif `aveclesfemmes_app` bridé par RLS.
-   - **Production (VPS avec Dokploy)** : Base dédiée à définir lors du déploiement serveur (PostgreSQL géré par Dokploy avec volume persistant ou base managée externe).
+   - **Recette (Render)** : PostgreSQL managé **Neon**, distinct du conteneur unique Render gratuit, TLS avec vérification du certificat, avec compte applicatif `aveclesfemmes_app` bridé par RLS.
+   - **Production (VPS avec Dokploy)** : Base Neon dédiée à la production, isolée de la recette par ses données, ses comptes et ses secrets.
 4. **Déploiement automatique Render :**
    - Piloté par `scripts/deploy-render.mjs` sous le groupe de concurrence GitHub `render-test-deployment`.
    - Vérification préalable des migrations et support de la première mise en service via `INITIAL_DEPLOY=true`.
