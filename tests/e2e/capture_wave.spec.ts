@@ -4,7 +4,8 @@ config({ path: '.env', quiet: true });
 
 const password = process.env.DEMO_PASSWORD || 'Secret123!';
 const pwa = process.env.PWA_URL || 'http://localhost:8086';
-const artifactDir = '/Users/douvewane/.gemini/antigravity-ide/brain/b57b82e7-be24-4ec8-844a-0189236e4483';
+const artifactDir =
+  '/Users/douvewane/.gemini/antigravity-ide/brain/b57b82e7-be24-4ec8-844a-0189236e4483';
 
 test('capture des interfaces Wave Membre et Admin Groupement', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });

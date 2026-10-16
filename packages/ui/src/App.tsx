@@ -1,4 +1,12 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type FormEvent,
+  type ReactNode,
+} from 'react';
 import QRCode from 'qrcode';
 import {
   AlertTriangle,
@@ -388,7 +396,10 @@ function CameraScannerOverlay({
             onScan('DEMO_SCAN_CODE');
           }}
         >
-          <Camera size={18} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 8 }} />
+          <Camera
+            size={18}
+            style={{ display: 'inline', verticalAlign: 'middle', marginRight: 8 }}
+          />
           Simuler lecture instantanée du QR Code
         </button>
       </div>
@@ -441,12 +452,7 @@ function WaveChiffresView({
   return (
     <div className="wave-chiffres-screen">
       <div className="wave-top-header">
-        <button
-          type="button"
-          className="wave-header-btn"
-          aria-label="Retour"
-          onClick={onBack}
-        >
+        <button type="button" className="wave-header-btn" aria-label="Retour" onClick={onBack}>
           <ArrowLeft size={20} />
         </button>
         <span className="wave-header-title">Chiffres</span>
@@ -492,7 +498,8 @@ function WaveChiffresView({
         </div>
         <div className="wave-summary-row">
           <span className="wave-summary-label">
-            {contributionsCount} paiement{contributionsCount > 1 ? 's' : ''} reçu{contributionsCount > 1 ? 's' : ''}
+            {contributionsCount} paiement{contributionsCount > 1 ? 's' : ''} reçu
+            {contributionsCount > 1 ? 's' : ''}
           </span>
           <span className="wave-summary-val">{money(totalAmount)}</span>
         </div>
@@ -536,10 +543,7 @@ function WaveChiffresView({
           </div>
           <div className="wave-bar-labels">
             {barData.map((b, i) => (
-              <div
-                key={i}
-                className={`wave-bar-label-item ${b.active ? 'active' : ''}`}
-              >
+              <div key={i} className={`wave-bar-label-item ${b.active ? 'active' : ''}`}>
                 {b.label}
               </div>
             ))}
@@ -574,12 +578,7 @@ function WaveSettingsView({
   return (
     <div className="wave-settings-screen">
       <div className="wave-top-header">
-        <button
-          type="button"
-          className="wave-header-btn"
-          aria-label="Retour"
-          onClick={onBack}
-        >
+        <button type="button" className="wave-header-btn" aria-label="Retour" onClick={onBack}>
           <ArrowLeft size={20} />
         </button>
         <span className="wave-header-title">Paramètres</span>
@@ -597,16 +596,13 @@ function WaveSettingsView({
               <span>Annoncer les paiements</span>
             </div>
             <label className="wave-switch">
-              <input
-                type="checkbox"
-                checked={announceVoice}
-                onChange={onToggleVoice}
-              />
+              <input type="checkbox" checked={announceVoice} onChange={onToggleVoice} />
               <span className="wave-switch-slider" />
             </label>
           </div>
           <div className="wave-settings-hint">
-            Pour entendre les paiements à voix haute, activez les notifications, désactivez le mode silencieux et augmentez le volume.
+            Pour entendre les paiements à voix haute, activez les notifications, désactivez le mode
+            silencieux et augmentez le volume.
           </div>
         </div>
       </div>
@@ -1069,7 +1065,8 @@ function Login({ portal, onLogin }: { portal: 'super' | 'member'; onLogin: (a: A
           </div>
 
           <p className="login-demo-instructions">
-            💡 Cliquez sur <strong>« Remplir »</strong> pour renseigner automatiquement le formulaire sans saisie manuelle.
+            💡 Cliquez sur <strong>« Remplir »</strong> pour renseigner automatiquement le
+            formulaire sans saisie manuelle.
           </p>
 
           <div className="login-demo-accounts">
@@ -1095,7 +1092,11 @@ function Login({ portal, onLogin }: { portal: 'super' | 'member'; onLogin: (a: A
                       title="Copier l'identifiant"
                       onClick={() => copyToClipboard('superadmin', 'superadmin-login')}
                     >
-                      {copiedKey === 'superadmin-login' ? <Check size={12} color="#1c4b28" /> : <Copy size={12} />}
+                      {copiedKey === 'superadmin-login' ? (
+                        <Check size={12} color="#1c4b28" />
+                      ) : (
+                        <Copy size={12} />
+                      )}
                     </button>
                   </div>
                   <div className="login-demo-field-pill">
@@ -1107,7 +1108,11 @@ function Login({ portal, onLogin }: { portal: 'super' | 'member'; onLogin: (a: A
                       title="Copier le numéro"
                       onClick={() => copyToClipboard('+221770000001', 'superadmin-phone')}
                     >
-                      {copiedKey === 'superadmin-phone' ? <Check size={12} color="#1c4b28" /> : <Copy size={12} />}
+                      {copiedKey === 'superadmin-phone' ? (
+                        <Check size={12} color="#1c4b28" />
+                      ) : (
+                        <Copy size={12} />
+                      )}
                     </button>
                   </div>
                 </div>
@@ -1153,7 +1158,11 @@ function Login({ portal, onLogin }: { portal: 'super' | 'member'; onLogin: (a: A
                         title="Copier l'identifiant"
                         onClick={() => copyToClipboard('admin.ndeye', 'admin-ndeye-login')}
                       >
-                        {copiedKey === 'admin-ndeye-login' ? <Check size={12} color="#1c4b28" /> : <Copy size={12} />}
+                        {copiedKey === 'admin-ndeye-login' ? (
+                          <Check size={12} color="#1c4b28" />
+                        ) : (
+                          <Copy size={12} />
+                        )}
                       </button>
                     </div>
                     <div className="login-demo-field-pill">
@@ -1165,7 +1174,11 @@ function Login({ portal, onLogin }: { portal: 'super' | 'member'; onLogin: (a: A
                         title="Copier le numéro"
                         onClick={() => copyToClipboard('+221770000002', 'admin-ndeye-phone')}
                       >
-                        {copiedKey === 'admin-ndeye-phone' ? <Check size={12} color="#1c4b28" /> : <Copy size={12} />}
+                        {copiedKey === 'admin-ndeye-phone' ? (
+                          <Check size={12} color="#1c4b28" />
+                        ) : (
+                          <Copy size={12} />
+                        )}
                       </button>
                     </div>
                   </div>
@@ -1210,7 +1223,11 @@ function Login({ portal, onLogin }: { portal: 'super' | 'member'; onLogin: (a: A
                         title="Copier l'identifiant"
                         onClick={() => copyToClipboard('membre.awa', 'membre-awa-login')}
                       >
-                        {copiedKey === 'membre-awa-login' ? <Check size={12} color="#1c4b28" /> : <Copy size={12} />}
+                        {copiedKey === 'membre-awa-login' ? (
+                          <Check size={12} color="#1c4b28" />
+                        ) : (
+                          <Copy size={12} />
+                        )}
                       </button>
                     </div>
                     <div className="login-demo-field-pill">
@@ -1222,7 +1239,11 @@ function Login({ portal, onLogin }: { portal: 'super' | 'member'; onLogin: (a: A
                         title="Copier le numéro"
                         onClick={() => copyToClipboard('+221770000003', 'membre-awa-phone')}
                       >
-                        {copiedKey === 'membre-awa-phone' ? <Check size={12} color="#1c4b28" /> : <Copy size={12} />}
+                        {copiedKey === 'membre-awa-phone' ? (
+                          <Check size={12} color="#1c4b28" />
+                        ) : (
+                          <Copy size={12} />
+                        )}
                       </button>
                     </div>
                   </div>
@@ -1271,7 +1292,11 @@ function Login({ portal, onLogin }: { portal: 'super' | 'member'; onLogin: (a: A
                 title="Copier le mot de passe"
                 onClick={() => copyToClipboard(demoPassword, 'password-val')}
               >
-                {copiedKey === 'password-val' ? <Check size={13} color="#1c4b28" /> : <Copy size={13} />}
+                {copiedKey === 'password-val' ? (
+                  <Check size={13} color="#1c4b28" />
+                ) : (
+                  <Copy size={13} />
+                )}
               </button>
             </div>
             {copiedKey === 'password-val' && (
@@ -1283,12 +1308,14 @@ function Login({ portal, onLogin }: { portal: 'super' | 'member'; onLogin: (a: A
             {portal === 'super' ? (
               <span>
                 💡 Vous souhaitez tester l’espace membre ou groupement ? Rendez-vous sur la{' '}
-                <strong>PWA Membre</strong> (port 8086 ou 5174) avec les comptes <code>admin.ndeye</code> ou <code>membre.awa</code>.
+                <strong>PWA Membre</strong> (port 8086 ou 5174) avec les comptes{' '}
+                <code>admin.ndeye</code> ou <code>membre.awa</code>.
               </span>
             ) : (
               <span>
                 💡 Vous êtes Super Administrateur ? Rendez-vous sur la{' '}
-                <strong>Console Super Admin</strong> (port 8085 ou 5173) avec le compte <code>superadmin</code>.
+                <strong>Console Super Admin</strong> (port 8085 ou 5173) avec le compte{' '}
+                <code>superadmin</code>.
               </span>
             )}
           </div>
@@ -1348,7 +1375,9 @@ export function App({
   const [groupSearch, setGroupSearch] = useState('');
   const [groupDropdownOpen, setGroupDropdownOpen] = useState(false);
   const [campaignTypeId, setCampaignTypeId] = useState('');
-  const [campaignDetailTab, setCampaignDetailTab] = useState<'participants' | 'sessions'>('participants');
+  const [campaignDetailTab, setCampaignDetailTab] = useState<'participants' | 'sessions'>(
+    'participants',
+  );
   const [expandedSessionDate, setExpandedSessionDate] = useState<string | null>(null);
   const [contributionSort, setContributionSort] = useState<'date' | 'session' | 'member'>('date');
   const [expandedTontineRound, setExpandedTontineRound] = useState<number | null>(null);
@@ -1388,7 +1417,9 @@ export function App({
 
   // Wave UX / UI States
   const [showBalance, setShowBalance] = useState(true);
-  const [adminSubView, setAdminSubView] = useState<'dashboard' | 'chiffres' | 'settings'>('dashboard');
+  const [adminSubView, setAdminSubView] = useState<'dashboard' | 'chiffres' | 'settings'>(
+    'dashboard',
+  );
   const [statsPeriod, setStatsPeriod] = useState<'day' | 'week' | 'month'>('day');
   const [announceVoice, setAnnounceVoice] = useState(true);
   const [scannerOpen, setScannerOpen] = useState(false);
@@ -1483,7 +1514,10 @@ export function App({
           const ids = new Set(round.contributions.map((rc) => rc.contribution_id));
           if (!ids.has(c.id)) return false;
         } else if (round && round.expected_date) {
-          if (!c.paid_on.startsWith(round.expected_date.slice(0, 7)) && c.paid_on !== round.expected_date) {
+          if (
+            !c.paid_on.startsWith(round.expected_date.slice(0, 7)) &&
+            c.paid_on !== round.expected_date
+          ) {
             return false;
           }
         }
@@ -1495,7 +1529,14 @@ export function App({
       }
       return true;
     });
-  }, [contributions, isTontineCampaign, selectedSessionFilter, selectedPeriodFilter, tontineRounds, selectedMemberFilter]);
+  }, [
+    contributions,
+    isTontineCampaign,
+    selectedSessionFilter,
+    selectedPeriodFilter,
+    tontineRounds,
+    selectedMemberFilter,
+  ]);
 
   // Tri des cotisations filtrées
   const sortedContributions = useMemo(() => {
@@ -1703,7 +1744,12 @@ export function App({
         .GET('/api/v1/groupements/{groupId}/campaigns/{campaignId}/contributions', {
           params: {
             path: { groupId, campaignId },
-            query: { page, limit: 25, scope: personalMode ? 'personal' : 'group', sort: contributionSort },
+            query: {
+              page,
+              limit: 25,
+              scope: personalMode ? 'personal' : 'group',
+              sort: contributionSort,
+            },
           },
         })
         .then(unwrap),
@@ -1984,17 +2030,20 @@ export function App({
               body: {
                 name: v.name,
                 typeId: v.typeId,
-                startDate: isRotative ? (v.startDate || todayStr) : v.startDate,
-                endDate: isRotative ? (v.endDate || nextYearStr) : v.endDate,
+                startDate: isRotative ? v.startDate || todayStr : v.startDate,
+                endDate: isRotative ? v.endDate || nextYearStr : v.endDate,
                 weekday: isRotative ? (v.weekday ? Number(v.weekday) : 2) : Number(v.weekday || 2),
                 intervalWeeks: isRotative
-                  ? (v.intervalWeeks ? Number(v.intervalWeeks) : 1)
+                  ? v.intervalWeeks
+                    ? Number(v.intervalWeeks)
+                    : 1
                   : Number(v.intervalWeeks || 1),
                 isMandatory: v.isMandatory === 'on',
                 eventId: v.eventId || undefined,
-                standardAmount: !isRotative && v.standardAmount ? Number(v.standardAmount) : undefined,
+                standardAmount:
+                  !isRotative && v.standardAmount ? Number(v.standardAmount) : undefined,
                 rotationInterval: isRotative
-                  ? ((v.rotationInterval as 'WEEKLY' | 'BIWEEKLY' | 'MONTHLY') || 'MONTHLY')
+                  ? (v.rotationInterval as 'WEEKLY' | 'BIWEEKLY' | 'MONTHLY') || 'MONTHLY'
                   : undefined,
                 dueDay: isRotative && v.dueDay ? Number(v.dueDay) : undefined,
               },
@@ -2416,7 +2465,8 @@ export function App({
                             activeGroups.filter(
                               (g) =>
                                 !groupSearch.trim() ||
-                                (group && groupSearch.trim().toLowerCase() === group.name.toLowerCase()) ||
+                                (group &&
+                                  groupSearch.trim().toLowerCase() === group.name.toLowerCase()) ||
                                 g.name.toLowerCase().includes(groupSearch.toLowerCase()) ||
                                 g.address.toLowerCase().includes(groupSearch.toLowerCase()) ||
                                 g.phone.toLowerCase().includes(groupSearch.toLowerCase()),
@@ -2429,7 +2479,8 @@ export function App({
                         .filter(
                           (g) =>
                             !groupSearch.trim() ||
-                            (group && groupSearch.trim().toLowerCase() === group.name.toLowerCase()) ||
+                            (group &&
+                              groupSearch.trim().toLowerCase() === group.name.toLowerCase()) ||
                             g.name.toLowerCase().includes(groupSearch.toLowerCase()) ||
                             g.address.toLowerCase().includes(groupSearch.toLowerCase()) ||
                             g.phone.toLowerCase().includes(groupSearch.toLowerCase()),
@@ -2611,8 +2662,8 @@ export function App({
             </div>
           ) : (
             <>
-              {tab === 'overview' && (
-                adminSubView === 'chiffres' ? (
+              {tab === 'overview' &&
+                (adminSubView === 'chiffres' ? (
                   <WaveChiffresView
                     totalAmount={Number(dashboard?.total || 0)}
                     contributionsCount={Number(dashboard?.payments || 0)}
@@ -2657,781 +2708,915 @@ export function App({
                     onBack={() => setAdminSubView('dashboard')}
                   />
                 ) : (
-                <>
-                  {superAdmin ? (
-                    <section className="welcome-panel">
-                      <div>
-                        <span className="eyebrow">CHAQUE CONTRIBUTION COMPTE</span>
-                        <h2>
-                          Ensemble, les projets
-                          <br />
-                          prennent vie.
-                        </h2>
-                        <p>
-                          {group?.name} · Consultation des campagnes
-                        </p>
-                      </div>
-                      <div className="welcome-art" aria-hidden="true">
-                        <div className="coin coin-one">
-                          <Leaf size={48} />
+                  <>
+                    {superAdmin ? (
+                      <section className="welcome-panel">
+                        <div>
+                          <span className="eyebrow">CHAQUE CONTRIBUTION COMPTE</span>
+                          <h2>
+                            Ensemble, les projets
+                            <br />
+                            prennent vie.
+                          </h2>
+                          <p>{group?.name} · Consultation des campagnes</p>
                         </div>
-                        <div className="coin coin-two">
-                          <Coins size={48} />
+                        <div className="welcome-art" aria-hidden="true">
+                          <div className="coin coin-one">
+                            <Leaf size={48} />
+                          </div>
+                          <div className="coin coin-two">
+                            <Coins size={48} />
+                          </div>
+                          <span className="art-spark">✦</span>
                         </div>
-                        <span className="art-spark">✦</span>
-                      </div>
-                    </section>
-                  ) : dashboard?.personal ? (
-                    /* SÉRIE 1 : ESPACE MEMBRE (STYLE WAVE PARTICULIER) */
-                    <div className="wave-member-hero-section">
-                      <div className="wave-balance-hero">
-                        <span className="wave-balance-eyebrow">Solde d'épargne disponible</span>
-                        <div className="wave-balance-row">
-                          <span className="wave-balance-amount">
-                            {showBalance ? money(dashboard?.total || 0) : '•••••• FCFA'}
-                          </span>
-                          <button
-                            type="button"
-                            className="wave-eye-toggle"
-                            aria-label={showBalance ? 'Masquer le solde' : 'Afficher le solde'}
-                            onClick={() => setShowBalance(!showBalance)}
-                          >
-                            {showBalance ? <Eye size={22} /> : <EyeOff size={22} />}
-                          </button>
-                        </div>
-                      </div>
-
-                      <div className="wave-qr-card-container">
-                        <div className="wave-qr-card">
-                          <div className="wave-qr-white-box">
-                            <VectorQrView
-                              data={`ALF:MEMBER:${groupId}:${actor?.id}:${actor?.login}`}
-                              width={160}
-                            />
+                      </section>
+                    ) : dashboard?.personal ? (
+                      /* SÉRIE 1 : ESPACE MEMBRE (STYLE WAVE PARTICULIER) */
+                      <div className="wave-member-hero-section">
+                        <div className="wave-balance-hero">
+                          <span className="wave-balance-eyebrow">Solde d'épargne disponible</span>
+                          <div className="wave-balance-row">
+                            <span className="wave-balance-amount">
+                              {showBalance ? money(dashboard?.total || 0) : '•••••• FCFA'}
+                            </span>
                             <button
                               type="button"
-                              className="wave-qr-scan-btn"
-                              onClick={() => setScannerOpen(true)}
+                              className="wave-eye-toggle"
+                              aria-label={showBalance ? 'Masquer le solde' : 'Afficher le solde'}
+                              onClick={() => setShowBalance(!showBalance)}
                             >
-                              <Camera size={16} />
-                              <span>Scanner</span>
+                              {showBalance ? <Eye size={22} /> : <EyeOff size={22} />}
                             </button>
                           </div>
-                          <div className="wave-qr-mascot" title="AvecLesFemmes Solidaire">
-                            🐧
+                        </div>
+
+                        <div className="wave-qr-card-container">
+                          <div className="wave-qr-card">
+                            <div className="wave-qr-white-box">
+                              <VectorQrView
+                                data={`ALF:MEMBER:${groupId}:${actor?.id}:${actor?.login}`}
+                                width={160}
+                              />
+                              <button
+                                type="button"
+                                className="wave-qr-scan-btn"
+                                onClick={() => setScannerOpen(true)}
+                              >
+                                <Camera size={16} />
+                                <span>Scanner</span>
+                              </button>
+                            </div>
+                            <div className="wave-qr-mascot" title="AvecLesFemmes Solidaire">
+                              🐧
+                            </div>
                           </div>
                         </div>
+
+                        <div className="wave-actions-grid">
+                          <button
+                            type="button"
+                            className="wave-action-circle-item"
+                            onClick={() => setTab('campaigns')}
+                          >
+                            <div className="wave-action-circle wave-circle-blue">
+                              <Coins size={24} />
+                            </div>
+                            <span className="wave-action-label">Cotiser</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            className="wave-action-circle-item"
+                            aria-label="Paiements et Campagnes"
+                            onClick={() => setTab('campaigns')}
+                          >
+                            <div className="wave-action-circle wave-circle-orange">
+                              <FolderHeart size={24} />
+                            </div>
+                            <span className="wave-action-label">Paiements</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            className="wave-action-circle-item"
+                            onClick={() => setTab('campaigns')}
+                          >
+                            <div className="wave-action-circle wave-circle-sky">
+                              <Wallet size={24} />
+                            </div>
+                            <span className="wave-action-label">Forfaits</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            className="wave-action-circle-item"
+                            onClick={() => {
+                              const el = document.getElementById('contributions-history-anchor');
+                              el?.scrollIntoView({ behavior: 'smooth' });
+                            }}
+                          >
+                            <div className="wave-action-circle wave-circle-pink">
+                              <Lock size={24} />
+                            </div>
+                            <span className="wave-action-label">Calebasse</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            className="wave-action-circle-item"
+                            onClick={() => {
+                              const el = document.querySelector('.tontine-rounds-table');
+                              el?.scrollIntoView({ behavior: 'smooth' });
+                            }}
+                          >
+                            <div className="wave-action-circle wave-circle-green">
+                              <Sparkles size={24} />
+                            </div>
+                            <span className="wave-action-label">Tontines</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            className="wave-action-circle-item"
+                            onClick={() =>
+                              setQrModal({
+                                title: `Carte Membre · ${actor?.name}`,
+                                subtitle: `${group?.name || 'Groupement'} · ${actor?.login}`,
+                                data: `ALF:MEMBER:${groupId}:${actor?.id}:${actor?.login}`,
+                              })
+                            }
+                          >
+                            <div className="wave-action-circle wave-circle-purple">
+                              <QrCode size={24} />
+                            </div>
+                            <span className="wave-action-label">Mon QR</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            className="wave-action-circle-item"
+                            onClick={() => setHistoryFilter('SOLIDARITE')}
+                          >
+                            <div className="wave-action-circle wave-circle-mint">
+                              <ShieldCheck size={24} />
+                            </div>
+                            <span className="wave-action-label">Solidarité</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            className="wave-action-circle-item"
+                            onClick={() => {
+                              const el = document.getElementById('contributions-history-anchor');
+                              el?.scrollIntoView({ behavior: 'smooth' });
+                            }}
+                          >
+                            <div className="wave-action-circle wave-circle-slate">
+                              <Clock size={24} />
+                            </div>
+                            <span className="wave-action-label">Historique</span>
+                          </button>
+                        </div>
                       </div>
-
-                      <div className="wave-actions-grid">
-                        <button
-                          type="button"
-                          className="wave-action-circle-item"
-                          onClick={() => setTab('campaigns')}
-                        >
-                          <div className="wave-action-circle wave-circle-blue">
-                            <Coins size={24} />
-                          </div>
-                          <span className="wave-action-label">Cotiser</span>
-                        </button>
-
-                        <button
-                          type="button"
-                          className="wave-action-circle-item"
-                          aria-label="Paiements et Campagnes"
-                          onClick={() => setTab('campaigns')}
-                        >
-                          <div className="wave-action-circle wave-circle-orange">
-                            <FolderHeart size={24} />
-                          </div>
-                          <span className="wave-action-label">Paiements</span>
-                        </button>
-
-                        <button
-                          type="button"
-                          className="wave-action-circle-item"
-                          onClick={() => setTab('campaigns')}
-                        >
-                          <div className="wave-action-circle wave-circle-sky">
-                            <Wallet size={24} />
-                          </div>
-                          <span className="wave-action-label">Forfaits</span>
-                        </button>
-
-                        <button
-                          type="button"
-                          className="wave-action-circle-item"
-                          onClick={() => {
-                            const el = document.getElementById('contributions-history-anchor');
-                            el?.scrollIntoView({ behavior: 'smooth' });
-                          }}
-                        >
-                          <div className="wave-action-circle wave-circle-pink">
-                            <Lock size={24} />
-                          </div>
-                          <span className="wave-action-label">Calebasse</span>
-                        </button>
-
-                        <button
-                          type="button"
-                          className="wave-action-circle-item"
-                          onClick={() => {
-                            const el = document.querySelector('.tontine-rounds-table');
-                            el?.scrollIntoView({ behavior: 'smooth' });
-                          }}
-                        >
-                          <div className="wave-action-circle wave-circle-green">
-                            <Sparkles size={24} />
-                          </div>
-                          <span className="wave-action-label">Tontines</span>
-                        </button>
-
-                        <button
-                          type="button"
-                          className="wave-action-circle-item"
-                          onClick={() =>
-                            setQrModal({
-                              title: `Carte Membre · ${actor?.name}`,
-                              subtitle: `${group?.name || 'Groupement'} · ${actor?.login}`,
-                              data: `ALF:MEMBER:${groupId}:${actor?.id}:${actor?.login}`,
-                            })
-                          }
-                        >
-                          <div className="wave-action-circle wave-circle-purple">
-                            <QrCode size={24} />
-                          </div>
-                          <span className="wave-action-label">Mon QR</span>
-                        </button>
-
-                        <button
-                          type="button"
-                          className="wave-action-circle-item"
-                          onClick={() => setHistoryFilter('SOLIDARITE')}
-                        >
-                          <div className="wave-action-circle wave-circle-mint">
-                            <ShieldCheck size={24} />
-                          </div>
-                          <span className="wave-action-label">Solidarité</span>
-                        </button>
-
-                        <button
-                          type="button"
-                          className="wave-action-circle-item"
-                          onClick={() => {
-                            const el = document.getElementById('contributions-history-anchor');
-                            el?.scrollIntoView({ behavior: 'smooth' });
-                          }}
-                        >
-                          <div className="wave-action-circle wave-circle-slate">
-                            <Clock size={24} />
-                          </div>
-                          <span className="wave-action-label">Historique</span>
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    /* SÉRIE 2 : ESPACE ADMIN GROUPEMENT (STYLE WAVE BUSINESS) */
-                    <div className="wave-admin-hero-section">
-                      <div className="wave-top-header">
-                        <button
-                          type="button"
-                          className="wave-header-btn"
-                          aria-label="Paramètres du groupement"
-                          title="Paramètres"
-                          onClick={() => setAdminSubView('settings')}
-                        >
-                          <Settings size={20} />
-                        </button>
-                        <span className="wave-header-title">{group?.name || 'Mon Groupement'}</span>
-                        <button
-                          type="button"
-                          className="wave-header-btn"
-                          aria-label="Afficher les chiffres"
-                          title="Chiffres"
-                          onClick={() => setAdminSubView('chiffres')}
-                        >
-                          <BarChart3 size={20} />
-                        </button>
-                      </div>
-
-                      <div className="wave-balance-hero">
-                        <span className="wave-balance-eyebrow">SOLDE CAISSE</span>
-                        <div className="wave-balance-row">
-                          <span className="wave-balance-amount">
-                            {showBalance ? money(dashboard?.total || 0) : '•••••• FCFA'}
+                    ) : (
+                      /* SÉRIE 2 : ESPACE ADMIN GROUPEMENT (STYLE WAVE BUSINESS) */
+                      <div className="wave-admin-hero-section">
+                        <div className="wave-top-header">
+                          <button
+                            type="button"
+                            className="wave-header-btn"
+                            aria-label="Paramètres du groupement"
+                            title="Paramètres"
+                            onClick={() => setAdminSubView('settings')}
+                          >
+                            <Settings size={20} />
+                          </button>
+                          <span className="wave-header-title">
+                            {group?.name || 'Mon Groupement'}
                           </span>
                           <button
                             type="button"
-                            className="wave-eye-toggle"
-                            aria-label={showBalance ? 'Masquer le solde' : 'Afficher le solde'}
-                            onClick={() => setShowBalance(!showBalance)}
+                            className="wave-header-btn"
+                            aria-label="Afficher les chiffres"
+                            title="Chiffres"
+                            onClick={() => setAdminSubView('chiffres')}
                           >
-                            {showBalance ? <Eye size={22} /> : <EyeOff size={22} />}
+                            <BarChart3 size={20} />
                           </button>
                         </div>
-                      </div>
 
-                      {/* Bouton géant d'encaissement WAVE Business */}
-                      {canManage && campaign?.active && (
-                        <div className="wave-giant-cta-wrapper">
-                          <button
-                            type="button"
-                            className="wave-giant-cta"
-                            aria-label="Enregistrer une cotisation"
-                            disabled={!online || busy}
-                            onClick={() => open('contribution')}
-                          >
-                            <span className="wave-giant-cta-icon">
-                              <QrCode size={22} />
+                        <div className="wave-balance-hero">
+                          <span className="wave-balance-eyebrow">SOLDE CAISSE</span>
+                          <div className="wave-balance-row">
+                            <span className="wave-balance-amount">
+                              {showBalance ? money(dashboard?.total || 0) : '•••••• FCFA'}
                             </span>
-                            <span className="wave-giant-cta-text">ENCAISSER UNE MEMBRE</span>
-                          </button>
+                            <button
+                              type="button"
+                              className="wave-eye-toggle"
+                              aria-label={showBalance ? 'Masquer le solde' : 'Afficher le solde'}
+                              onClick={() => setShowBalance(!showBalance)}
+                            >
+                              {showBalance ? <Eye size={22} /> : <EyeOff size={22} />}
+                            </button>
+                          </div>
                         </div>
-                      )}
 
-                      <div className="wave-actions-grid">
-                        <button
-                          type="button"
-                          className="wave-action-circle-item"
-                          onClick={() => setTab('members')}
-                        >
-                          <div className="wave-action-circle wave-circle-blue">
-                            <Users size={24} />
-                          </div>
-                          <span className="wave-action-label">Membres</span>
-                        </button>
-
-                        <button
-                          type="button"
-                          className="wave-action-circle-item"
-                          onClick={() => setTab('campaigns')}
-                        >
-                          <div className="wave-action-circle wave-circle-orange">
-                            <FolderHeart size={24} />
-                            <span className="wave-action-pill-badge">Actives</span>
-                          </div>
-                          <span className="wave-action-label">Campagnes</span>
-                        </button>
-
-                        <button
-                          type="button"
-                          className="wave-action-circle-item"
-                          onClick={() => {
-                            const el = document.querySelector('.tontine-rounds-table');
-                            el?.scrollIntoView({ behavior: 'smooth' });
-                          }}
-                        >
-                          <div className="wave-action-circle wave-circle-sky">
-                            <Shuffle size={24} />
-                          </div>
-                          <span className="wave-action-label">Tontines</span>
-                        </button>
-
-                        <button
-                          type="button"
-                          className="wave-action-circle-item"
-                          onClick={() => setAdminSubView('chiffres')}
-                        >
-                          <div className="wave-action-circle wave-circle-purple">
-                            <BarChart3 size={24} />
-                          </div>
-                          <span className="wave-action-label">Chiffres</span>
-                        </button>
-
-                        <button
-                          type="button"
-                          className="wave-action-circle-item"
-                          onClick={() => {
-                            const el = document.querySelector('.cashbox-grid');
-                            el?.scrollIntoView({ behavior: 'smooth' });
-                          }}
-                        >
-                          <div className="wave-action-circle wave-circle-pink">
-                            <Lock size={24} />
-                          </div>
-                          <span className="wave-action-label">Coffre</span>
-                        </button>
-
-                        <button
-                          type="button"
-                          className="wave-action-circle-item"
-                          onClick={() => {
-                            if (group) {
-                              setQrModal({
-                                title: `Groupement · ${group.name}`,
-                                subtitle: `${group.address || 'Sénégal'} · ${group.phone}`,
-                                data: `ALF:GROUP:${group.id}:${group.name}`,
-                              });
-                            }
-                          }}
-                        >
-                          <div className="wave-action-circle wave-circle-mint">
-                            <QrCode size={24} />
-                          </div>
-                          <span className="wave-action-label">Code QR</span>
-                        </button>
-
-                        <button
-                          type="button"
-                          className="wave-action-circle-item"
-                          onClick={() => setTab('archives')}
-                        >
-                          <div className="wave-action-circle wave-circle-slate">
-                            <Archive size={24} />
-                          </div>
-                          <span className="wave-action-label">Archives</span>
-                        </button>
-
-                        <button
-                          type="button"
-                          className="wave-action-circle-item"
-                          onClick={() => open('member')}
-                        >
-                          <div className="wave-action-circle wave-circle-green">
-                            <UserPlus size={24} />
-                          </div>
-                          <span className="wave-action-label">+ Membre</span>
-                        </button>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* État de la caisse pour l'administration du groupement */}
-                  {canManage && cashbox && (
-                    <div className="cashbox-grid">
-                      <div className="cashbox-card highlight">
-                        <div className="cashbox-label">Solde en caisse disponible</div>
-                        <div className="cashbox-value">{money(cashbox.balance)}</div>
-                      </div>
-                      <div className="cashbox-card">
-                        <div className="cashbox-label">Total encaissé</div>
-                        <div className="cashbox-value">{money(cashbox.total_collected)}</div>
-                      </div>
-                      <div className="cashbox-card">
-                        <div className="cashbox-label">Total cagnottes reversées</div>
-                        <div className="cashbox-value">{money(cashbox.total_paid_out)}</div>
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="section-heading">
-                    <h2>{dashboard?.personal ? 'Mon épargne' : 'Suivi de campagne'}</h2>
-                    <select
-                      aria-label="Campagne suivie"
-                      value={campaignId}
-                      onChange={(e) => {
-                        setCampaignId(e.target.value);
-                        setPage(1);
-                      }}
-                    >
-                      {!activeCampaigns.length && <option value="">Aucune campagne active</option>}
-                      {activeCampaigns.map((c) => (
-                        <option key={c.id} value={c.id}>
-                          {c.name} {c.event_name ? `(${c.event_name})` : ''}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  {campaignTotal > 25 && (
-                    <Pager page={campaignPage} total={campaignTotal} onChange={setCampaignPage} />
-                  )}
-                  <div className="stats">
-                    <article>
-                      <span className="stat-icon">
-                        <Coins size={21} />
-                      </span>
-                      <span>
-                        {dashboard?.personal ? 'Mon montant versé' : 'Montant total versé'}
-                      </span>
-                      <strong>{dashboard ? money(dashboard.total) : '—'}</strong>
-                      <small>Versements valides · FCFA</small>
-                    </article>
-                    <article>
-                      <span className="stat-icon sand">
-                        <FolderHeart size={21} />
-                      </span>
-                      <span>Cotisations enregistrées</span>
-                      <strong>{dashboard?.payments || '—'}</strong>
-                      <small>
-                        {dashboard?.personal ? 'Mes cotisations' : 'Dans cette campagne'}
-                      </small>
-                    </article>
-                    <article>
-                      <span className="stat-icon lilac">
-                        <Users size={21} />
-                      </span>
-                      <span>
-                        {dashboard?.personal ? 'Ma participation' : 'Participantes inscrites'}
-                      </span>
-                      <strong>{dashboard?.participants || '—'}</strong>
-                      <small>
-                        {campaign
-                          ? `${days[campaign.weekday]} · toutes les ${campaign.interval_weeks} semaine(s)`
-                          : 'Ajoutez une campagne pour commencer'}
-                      </small>
-                    </article>
-                  </div>
-                  {dashboard && (
-                    <p className="updated">
-                      Actualisé le {new Date(dashboard.updatedAt).toLocaleString('fr-SN')}
-                    </p>
-                  )}
-
-                  {/* Tontine rotative - tours et tirage au sort */}
-                  {campaign?.type_name?.toLowerCase().includes('tontine') && (
-                    <section className="panel" style={{ marginTop: 20 }}>
-                      <div className="section-heading">
-                        <div>
-                          <h2>Tontine Rotative · Tirage au sort</h2>
-                          <p className="muted">
-                            Attribution des cagnottes ({campaign.rotation_interval || 'Mensuel'})
-                          </p>
-                        </div>
-                        {canManage && (
-                          <button
-                            type="button"
-                            className="secondary"
-                            disabled={busy || participants.length < 2}
-                            onClick={() =>
-                              action(
-                                () =>
-                                  api
-                                    .POST(
-                                      '/api/v1/groupements/{groupId}/campaigns/{id}/tontine/draw',
-                                      {
-                                        params: { path: { groupId, id: campaignId } },
-                                      },
-                                    )
-                                    .then(unwrap),
-                                'Tirage au sort effectué.',
-                              )
-                            }
-                          >
-                            <Shuffle size={16} />
-                            Tirage au sort
-                          </button>
-                        )}
-                      </div>
-                      <div className="table-scroll">
-                        <table className="tontine-rounds-table">
-                          <thead>
-                            <tr>
-                              <th>Mois / Tour</th>
-                              <th>Montant à verser</th>
-                              <th>Montant Total Versé</th>
-                              <th>Membre qui prend</th>
-                              <th style={{ textAlign: 'right' }}>Détails</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {!tontineRounds.length ? (
-                              <tr>
-                                <td colSpan={5} style={{ textAlign: 'center', padding: '2rem', color: '#64748b' }}>
-                                  <Clock size={28} style={{ display: 'block', margin: '0 auto 8px', color: '#94a3b8' }} />
-                                  Aucun tour de tontine généré pour le moment.
-                                </td>
-                              </tr>
-                            ) : (
-                              tontineRounds.map((tr) => {
-                                const isExpanded = expandedTontineRound === tr.round_number;
-                                const roundContribs = tr.contributions || [];
-                                return (
-                                  <>
-                                    <tr key={tr.id}>
-                                      <td>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                          <Calendar size={15} color="#64748b" />
-                                          <div>
-                                            <strong>Tour n°{tr.round_number}</strong>
-                                            <div className="muted" style={{ fontSize: 11 }}>
-                                              {date(tr.expected_date)}
-                                            </div>
-                                          </div>
-                                        </div>
-                                      </td>
-                                      <td>
-                                        <strong style={{ color: '#0f172a', fontSize: 14 }}>
-                                          {money(tr.payout_amount)}
-                                        </strong>
-                                      </td>
-                                      <td>
-                                        <strong style={{ color: '#166534', fontSize: 14 }}>
-                                          {money(tr.total_collected_amount || '0')}
-                                        </strong>
-                                      </td>
-                                      <td>
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                                          <span style={{ fontWeight: 600 }}>{tr.beneficiary_name}</span>
-                                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-                                            {tr.paid ? (
-                                              <span className="badge-pill-success" title="Cagnotte déjà remise">
-                                                <Check size={11} />
-                                                <span>Cagnotte versée {tr.paid_at ? `(${date(tr.paid_at)})` : ''}</span>
-                                              </span>
-                                            ) : (
-                                              <span className="badge-pill-amber" title="En attente de paiement">
-                                                <Clock size={11} />
-                                                <span>En attente</span>
-                                              </span>
-                                            )}
-                                            {canManage && !tr.paid && (
-                                              <button
-                                                type="button"
-                                                className="primary mini"
-                                                style={{ fontSize: 11, padding: '3px 8px', borderRadius: 4 }}
-                                                disabled={busy}
-                                                onClick={() =>
-                                                  action(
-                                                    () =>
-                                                      api
-                                                        .PATCH(
-                                                          '/api/v1/groupements/{groupId}/campaigns/{id}/tontine/rounds/{roundNumber}/pay',
-                                                          {
-                                                            params: {
-                                                              path: {
-                                                                groupId,
-                                                                id: campaignId,
-                                                                roundNumber: tr.round_number,
-                                                              },
-                                                            },
-                                                          },
-                                                        )
-                                                        .then(unwrap),
-                                                    `Cagnotte du tour ${tr.round_number} marquée comme versée.`,
-                                                  )
-                                                }
-                                              >
-                                                <Check size={12} /> Verser
-                                              </button>
-                                            )}
-                                          </div>
-                                        </div>
-                                      </td>
-                                      <td style={{ textAlign: 'right' }}>
-                                        <button
-                                          type="button"
-                                          className="session-expand-btn"
-                                          onClick={() =>
-                                            setExpandedTontineRound(isExpanded ? null : tr.round_number)
-                                          }
-                                        >
-                                          <span>{isExpanded ? 'Masquer' : 'Détails'}</span>
-                                          {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-                                        </button>
-                                      </td>
-                                    </tr>
-                                    {isExpanded && (
-                                      <tr key={`${tr.id}-details`} className="session-details-row">
-                                        <td
-                                          colSpan={5}
-                                          style={{ background: '#f8fafc', padding: '14px 18px', borderTop: 'none' }}
-                                        >
-                                          <div
-                                            style={{
-                                              fontSize: 12,
-                                              fontWeight: 700,
-                                              marginBottom: 8,
-                                              color: '#334155',
-                                            }}
-                                          >
-                                            Cotisations enregistrées pour cette période ({roundContribs.length}) :
-                                          </div>
-                                          {!roundContribs.length ? (
-                                            <p className="muted" style={{ margin: 0, fontStyle: 'italic', fontSize: 13 }}>
-                                              Aucune cotisation enregistrée pour cette période.
-                                            </p>
-                                          ) : (
-                                            <div className="session-contributions-grid">
-                                              {roundContribs.map((c) => (
-                                                <div key={c.contribution_id} className="session-contrib-card">
-                                                  <span className="session-contrib-name">{c.member_name}</span>
-                                                  <span className="session-contrib-amount">{money(c.amount)}</span>
-                                                  <span className="session-contrib-ref">
-                                                    {c.paid_on ? date(c.paid_on) + ' · ' : ''}Réf : {c.reference}
-                                                  </span>
-                                                </div>
-                                              ))}
-                                            </div>
-                                          )}
-                                        </td>
-                                      </tr>
-                                    )}
-                                  </>
-                                );
-                              })
-                            )}
-                          </tbody>
-                        </table>
-                      </div>
-                    </section>
-                  )}
-
-                  {/* Cahier de séance pour l'administratrice */}
-                  {canManage && sessions.length > 0 && (
-                    <section className="panel" style={{ marginTop: 20 }}>
-                      <div className="section-heading">
-                        <div>
-                          <h2>Cahier de séance</h2>
-                          <p className="muted">
-                            Total encaissé et détail des cotisations par séance
-                          </p>
-                        </div>
-                      </div>
-                      <div className="session-ledger">
-                        {sessions.map((s) => (
-                          <div key={s.session_date} className="session-card">
-                            <div className="session-header">
-                              <span className="session-date">Séance du {date(s.session_date)}</span>
-                              <span className="session-total">
-                                Total séance : {money(s.total_amount)} ({s.count} versement
-                                {s.count > 1 ? 's' : ''})
+                        {/* Bouton géant d'encaissement WAVE Business */}
+                        {canManage && campaign?.active && (
+                          <div className="wave-giant-cta-wrapper">
+                            <button
+                              type="button"
+                              className="wave-giant-cta"
+                              aria-label="Enregistrer une cotisation"
+                              disabled={!online || busy}
+                              onClick={() => open('contribution')}
+                            >
+                              <span className="wave-giant-cta-icon">
+                                <QrCode size={22} />
                               </span>
-                            </div>
-                            <div className="session-breakdown">
-                              {s.contributions.map((cb) => (
-                                <div key={cb.contribution_id} className="session-member-entry">
-                                  <span>{cb.member_name}</span>
-                                  <strong>{money(cb.amount)}</strong>
-                                </div>
-                              ))}
-                            </div>
+                              <span className="wave-giant-cta-text">ENCAISSER UNE MEMBRE</span>
+                            </button>
                           </div>
-                        ))}
-                      </div>
-                    </section>
-                  )}
+                        )}
 
-                  {/* Historique des cotisations */}
-                  <section className="panel" style={{ marginTop: 20 }}>
-                    <div className="section-heading">
-                      <div>
-                        <h2>
-                          {dashboard?.personal ? 'Mes versements' : 'Historique des cotisations'}
-                        </h2>
-                        <p className="muted">{campaign?.name || 'Aucune campagne sélectionnée'}</p>
-                      </div>
-                      {canManage && campaign?.active && (
-                        <button
-                          className="secondary"
-                          disabled={!online || busy}
-                          onClick={() => open('contribution')}
-                        >
-                          <Plus size={17} />
-                          Encaisser
-                        </button>
-                      )}
-                    </div>
-
-                    {/* Filtres de style Mobile Money pour la vue membre */}
-                    {dashboard?.personal && (
-                      <div className="mm-filters">
-                        {['ALL', 'AVEC', 'RAMADAN', 'TABASKI', 'SOLIDARITE', 'RENTREE'].map((f) => (
+                        <div className="wave-actions-grid">
                           <button
-                            key={f}
                             type="button"
-                            className={
-                              historyFilter === f ? 'mm-filter-btn active' : 'mm-filter-btn'
-                            }
-                            onClick={() => setHistoryFilter(f)}
+                            className="wave-action-circle-item"
+                            onClick={() => setTab('members')}
                           >
-                            {f === 'ALL'
-                              ? 'Toutes les cotisations'
-                              : f === 'AVEC'
-                                ? 'Calabasse AVEC'
-                                : f === 'RAMADAN'
-                                  ? 'Épargne Ramadan'
-                                  : f === 'TABASKI'
-                                    ? 'Épargne Tabaski'
-                                    : f === 'SOLIDARITE'
-                                      ? 'Solidarité'
-                                      : 'Rentrée scolaire'}
+                            <div className="wave-action-circle wave-circle-blue">
+                              <Users size={24} />
+                            </div>
+                            <span className="wave-action-label">Membres</span>
                           </button>
-                        ))}
+
+                          <button
+                            type="button"
+                            className="wave-action-circle-item"
+                            onClick={() => setTab('campaigns')}
+                          >
+                            <div className="wave-action-circle wave-circle-orange">
+                              <FolderHeart size={24} />
+                              <span className="wave-action-pill-badge">Actives</span>
+                            </div>
+                            <span className="wave-action-label">Campagnes</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            className="wave-action-circle-item"
+                            onClick={() => {
+                              const el = document.querySelector('.tontine-rounds-table');
+                              el?.scrollIntoView({ behavior: 'smooth' });
+                            }}
+                          >
+                            <div className="wave-action-circle wave-circle-sky">
+                              <Shuffle size={24} />
+                            </div>
+                            <span className="wave-action-label">Tontines</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            className="wave-action-circle-item"
+                            onClick={() => setAdminSubView('chiffres')}
+                          >
+                            <div className="wave-action-circle wave-circle-purple">
+                              <BarChart3 size={24} />
+                            </div>
+                            <span className="wave-action-label">Chiffres</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            className="wave-action-circle-item"
+                            onClick={() => {
+                              const el = document.querySelector('.cashbox-grid');
+                              el?.scrollIntoView({ behavior: 'smooth' });
+                            }}
+                          >
+                            <div className="wave-action-circle wave-circle-pink">
+                              <Lock size={24} />
+                            </div>
+                            <span className="wave-action-label">Coffre</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            className="wave-action-circle-item"
+                            onClick={() => {
+                              if (group) {
+                                setQrModal({
+                                  title: `Groupement · ${group.name}`,
+                                  subtitle: `${group.address || 'Sénégal'} · ${group.phone}`,
+                                  data: `ALF:GROUP:${group.id}:${group.name}`,
+                                });
+                              }
+                            }}
+                          >
+                            <div className="wave-action-circle wave-circle-mint">
+                              <QrCode size={24} />
+                            </div>
+                            <span className="wave-action-label">Code QR</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            className="wave-action-circle-item"
+                            onClick={() => setTab('archives')}
+                          >
+                            <div className="wave-action-circle wave-circle-slate">
+                              <Archive size={24} />
+                            </div>
+                            <span className="wave-action-label">Archives</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            className="wave-action-circle-item"
+                            onClick={() => open('member')}
+                          >
+                            <div className="wave-action-circle wave-circle-green">
+                              <UserPlus size={24} />
+                            </div>
+                            <span className="wave-action-label">+ Membre</span>
+                          </button>
+                        </div>
                       </div>
                     )}
 
-                    {/* Filtres de sélection Autocomplete pour l'Historique des cotisations */}
-                    {!dashboard?.personal && (
-                      <div className="contributions-filters-card">
-                        <div className="contributions-filters-header">
-                          <div className="contributions-filters-title">
-                            <Filter size={16} />
-                            <span>Filtres de recherche</span>
-                          </div>
-                          <span className="contributions-filters-subtitle">
-                            Filtrer facilement par session/période ou par nom de membre
-                          </span>
+                    {/* État de la caisse pour l'administration du groupement */}
+                    {canManage && cashbox && (
+                      <div className="cashbox-grid">
+                        <div className="cashbox-card highlight">
+                          <div className="cashbox-label">Solde en caisse disponible</div>
+                          <div className="cashbox-value">{money(cashbox.balance)}</div>
                         </div>
+                        <div className="cashbox-card">
+                          <div className="cashbox-label">Total encaissé</div>
+                          <div className="cashbox-value">{money(cashbox.total_collected)}</div>
+                        </div>
+                        <div className="cashbox-card">
+                          <div className="cashbox-label">Total cagnottes reversées</div>
+                          <div className="cashbox-value">{money(cashbox.total_paid_out)}</div>
+                        </div>
+                      </div>
+                    )}
 
-                        <div className="contributions-filters-grid">
-                          {/* 1. Filtre Session (Épargne) ou Période (Tontine) */}
-                          {!isTontineCampaign ? (
-                            <div className="filter-autocomplete-wrapper" ref={sessionFilterRef}>
-                              <label htmlFor="session-filter-input">
-                                <Calendar size={13} />
-                                Filtrer par session passée
-                              </label>
-                              <div className="filter-autocomplete-box">
-                                <CalendarCheck size={16} className="muted" />
-                                <input
-                                  id="session-filter-input"
-                                  type="text"
-                                  placeholder="Rechercher une séance passée…"
-                                  value={
-                                    sessionFilterSearch ||
-                                    (selectedSessionFilter ? `Séance du ${date(selectedSessionFilter)}` : '')
-                                  }
-                                  onChange={(e) => {
-                                    setSessionFilterSearch(e.target.value);
-                                    setSessionFilterDropdownOpen(true);
-                                  }}
-                                  onFocus={() => setSessionFilterDropdownOpen(true)}
-                                />
-                                {(sessionFilterSearch || selectedSessionFilter) && (
+                    <div className="section-heading">
+                      <h2>{dashboard?.personal ? 'Mon épargne' : 'Suivi de campagne'}</h2>
+                      <select
+                        aria-label="Campagne suivie"
+                        value={campaignId}
+                        onChange={(e) => {
+                          setCampaignId(e.target.value);
+                          setPage(1);
+                        }}
+                      >
+                        {!activeCampaigns.length && (
+                          <option value="">Aucune campagne active</option>
+                        )}
+                        {activeCampaigns.map((c) => (
+                          <option key={c.id} value={c.id}>
+                            {c.name} {c.event_name ? `(${c.event_name})` : ''}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    {campaignTotal > 25 && (
+                      <Pager page={campaignPage} total={campaignTotal} onChange={setCampaignPage} />
+                    )}
+                    <div className="stats">
+                      <article>
+                        <span className="stat-icon">
+                          <Coins size={21} />
+                        </span>
+                        <span>
+                          {dashboard?.personal ? 'Mon montant versé' : 'Montant total versé'}
+                        </span>
+                        <strong>{dashboard ? money(dashboard.total) : '—'}</strong>
+                        <small>Versements valides · FCFA</small>
+                      </article>
+                      <article>
+                        <span className="stat-icon sand">
+                          <FolderHeart size={21} />
+                        </span>
+                        <span>Cotisations enregistrées</span>
+                        <strong>{dashboard?.payments || '—'}</strong>
+                        <small>
+                          {dashboard?.personal ? 'Mes cotisations' : 'Dans cette campagne'}
+                        </small>
+                      </article>
+                      <article>
+                        <span className="stat-icon lilac">
+                          <Users size={21} />
+                        </span>
+                        <span>
+                          {dashboard?.personal ? 'Ma participation' : 'Participantes inscrites'}
+                        </span>
+                        <strong>{dashboard?.participants || '—'}</strong>
+                        <small>
+                          {campaign
+                            ? `${days[campaign.weekday]} · toutes les ${campaign.interval_weeks} semaine(s)`
+                            : 'Ajoutez une campagne pour commencer'}
+                        </small>
+                      </article>
+                    </div>
+                    {dashboard && (
+                      <p className="updated">
+                        Actualisé le {new Date(dashboard.updatedAt).toLocaleString('fr-SN')}
+                      </p>
+                    )}
+
+                    {/* Tontine rotative - tours et tirage au sort */}
+                    {campaign?.type_name?.toLowerCase().includes('tontine') && (
+                      <section className="panel" style={{ marginTop: 20 }}>
+                        <div className="section-heading">
+                          <div>
+                            <h2>Tontine Rotative · Tirage au sort</h2>
+                            <p className="muted">
+                              Attribution des cagnottes ({campaign.rotation_interval || 'Mensuel'})
+                            </p>
+                          </div>
+                          {canManage && (
+                            <button
+                              type="button"
+                              className="secondary"
+                              disabled={busy || participants.length < 2}
+                              onClick={() =>
+                                action(
+                                  () =>
+                                    api
+                                      .POST(
+                                        '/api/v1/groupements/{groupId}/campaigns/{id}/tontine/draw',
+                                        {
+                                          params: { path: { groupId, id: campaignId } },
+                                        },
+                                      )
+                                      .then(unwrap),
+                                  'Tirage au sort effectué.',
+                                )
+                              }
+                            >
+                              <Shuffle size={16} />
+                              Tirage au sort
+                            </button>
+                          )}
+                        </div>
+                        <div className="table-scroll">
+                          <table className="tontine-rounds-table">
+                            <thead>
+                              <tr>
+                                <th>Mois / Tour</th>
+                                <th>Montant à verser</th>
+                                <th>Montant Total Versé</th>
+                                <th>Membre qui prend</th>
+                                <th style={{ textAlign: 'right' }}>Détails</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {!tontineRounds.length ? (
+                                <tr>
+                                  <td
+                                    colSpan={5}
+                                    style={{
+                                      textAlign: 'center',
+                                      padding: '2rem',
+                                      color: '#64748b',
+                                    }}
+                                  >
+                                    <Clock
+                                      size={28}
+                                      style={{
+                                        display: 'block',
+                                        margin: '0 auto 8px',
+                                        color: '#94a3b8',
+                                      }}
+                                    />
+                                    Aucun tour de tontine généré pour le moment.
+                                  </td>
+                                </tr>
+                              ) : (
+                                tontineRounds.map((tr) => {
+                                  const isExpanded = expandedTontineRound === tr.round_number;
+                                  const roundContribs = tr.contributions || [];
+                                  return (
+                                    <>
+                                      <tr key={tr.id}>
+                                        <td>
+                                          <div
+                                            style={{
+                                              display: 'flex',
+                                              alignItems: 'center',
+                                              gap: 8,
+                                            }}
+                                          >
+                                            <Calendar size={15} color="#64748b" />
+                                            <div>
+                                              <strong>Tour n°{tr.round_number}</strong>
+                                              <div className="muted" style={{ fontSize: 11 }}>
+                                                {date(tr.expected_date)}
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </td>
+                                        <td>
+                                          <strong style={{ color: '#0f172a', fontSize: 14 }}>
+                                            {money(tr.payout_amount)}
+                                          </strong>
+                                        </td>
+                                        <td>
+                                          <strong style={{ color: '#166534', fontSize: 14 }}>
+                                            {money(tr.total_collected_amount || '0')}
+                                          </strong>
+                                        </td>
+                                        <td>
+                                          <div
+                                            style={{
+                                              display: 'flex',
+                                              flexDirection: 'column',
+                                              gap: 4,
+                                            }}
+                                          >
+                                            <span style={{ fontWeight: 600 }}>
+                                              {tr.beneficiary_name}
+                                            </span>
+                                            <div
+                                              style={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: 6,
+                                                flexWrap: 'wrap',
+                                              }}
+                                            >
+                                              {tr.paid ? (
+                                                <span
+                                                  className="badge-pill-success"
+                                                  title="Cagnotte déjà remise"
+                                                >
+                                                  <Check size={11} />
+                                                  <span>
+                                                    Cagnotte versée{' '}
+                                                    {tr.paid_at ? `(${date(tr.paid_at)})` : ''}
+                                                  </span>
+                                                </span>
+                                              ) : (
+                                                <span
+                                                  className="badge-pill-amber"
+                                                  title="En attente de paiement"
+                                                >
+                                                  <Clock size={11} />
+                                                  <span>En attente</span>
+                                                </span>
+                                              )}
+                                              {canManage && !tr.paid && (
+                                                <button
+                                                  type="button"
+                                                  className="primary mini"
+                                                  style={{
+                                                    fontSize: 11,
+                                                    padding: '3px 8px',
+                                                    borderRadius: 4,
+                                                  }}
+                                                  disabled={busy}
+                                                  onClick={() =>
+                                                    action(
+                                                      () =>
+                                                        api
+                                                          .PATCH(
+                                                            '/api/v1/groupements/{groupId}/campaigns/{id}/tontine/rounds/{roundNumber}/pay',
+                                                            {
+                                                              params: {
+                                                                path: {
+                                                                  groupId,
+                                                                  id: campaignId,
+                                                                  roundNumber: tr.round_number,
+                                                                },
+                                                              },
+                                                            },
+                                                          )
+                                                          .then(unwrap),
+                                                      `Cagnotte du tour ${tr.round_number} marquée comme versée.`,
+                                                    )
+                                                  }
+                                                >
+                                                  <Check size={12} /> Verser
+                                                </button>
+                                              )}
+                                            </div>
+                                          </div>
+                                        </td>
+                                        <td style={{ textAlign: 'right' }}>
+                                          <button
+                                            type="button"
+                                            className="session-expand-btn"
+                                            onClick={() =>
+                                              setExpandedTontineRound(
+                                                isExpanded ? null : tr.round_number,
+                                              )
+                                            }
+                                          >
+                                            <span>{isExpanded ? 'Masquer' : 'Détails'}</span>
+                                            {isExpanded ? (
+                                              <ChevronUp size={14} />
+                                            ) : (
+                                              <ChevronDown size={14} />
+                                            )}
+                                          </button>
+                                        </td>
+                                      </tr>
+                                      {isExpanded && (
+                                        <tr
+                                          key={`${tr.id}-details`}
+                                          className="session-details-row"
+                                        >
+                                          <td
+                                            colSpan={5}
+                                            style={{
+                                              background: '#f8fafc',
+                                              padding: '14px 18px',
+                                              borderTop: 'none',
+                                            }}
+                                          >
+                                            <div
+                                              style={{
+                                                fontSize: 12,
+                                                fontWeight: 700,
+                                                marginBottom: 8,
+                                                color: '#334155',
+                                              }}
+                                            >
+                                              Cotisations enregistrées pour cette période (
+                                              {roundContribs.length}) :
+                                            </div>
+                                            {!roundContribs.length ? (
+                                              <p
+                                                className="muted"
+                                                style={{
+                                                  margin: 0,
+                                                  fontStyle: 'italic',
+                                                  fontSize: 13,
+                                                }}
+                                              >
+                                                Aucune cotisation enregistrée pour cette période.
+                                              </p>
+                                            ) : (
+                                              <div className="session-contributions-grid">
+                                                {roundContribs.map((c) => (
+                                                  <div
+                                                    key={c.contribution_id}
+                                                    className="session-contrib-card"
+                                                  >
+                                                    <span className="session-contrib-name">
+                                                      {c.member_name}
+                                                    </span>
+                                                    <span className="session-contrib-amount">
+                                                      {money(c.amount)}
+                                                    </span>
+                                                    <span className="session-contrib-ref">
+                                                      {c.paid_on ? date(c.paid_on) + ' · ' : ''}Réf
+                                                      : {c.reference}
+                                                    </span>
+                                                  </div>
+                                                ))}
+                                              </div>
+                                            )}
+                                          </td>
+                                        </tr>
+                                      )}
+                                    </>
+                                  );
+                                })
+                              )}
+                            </tbody>
+                          </table>
+                        </div>
+                      </section>
+                    )}
+
+                    {/* Cahier de séance pour l'administratrice */}
+                    {canManage && sessions.length > 0 && (
+                      <section className="panel" style={{ marginTop: 20 }}>
+                        <div className="section-heading">
+                          <div>
+                            <h2>Cahier de séance</h2>
+                            <p className="muted">
+                              Total encaissé et détail des cotisations par séance
+                            </p>
+                          </div>
+                        </div>
+                        <div className="session-ledger">
+                          {sessions.map((s) => (
+                            <div key={s.session_date} className="session-card">
+                              <div className="session-header">
+                                <span className="session-date">
+                                  Séance du {date(s.session_date)}
+                                </span>
+                                <span className="session-total">
+                                  Total séance : {money(s.total_amount)} ({s.count} versement
+                                  {s.count > 1 ? 's' : ''})
+                                </span>
+                              </div>
+                              <div className="session-breakdown">
+                                {s.contributions.map((cb) => (
+                                  <div key={cb.contribution_id} className="session-member-entry">
+                                    <span>{cb.member_name}</span>
+                                    <strong>{money(cb.amount)}</strong>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </section>
+                    )}
+
+                    {/* Historique des cotisations */}
+                    <section className="panel" style={{ marginTop: 20 }}>
+                      <div className="section-heading">
+                        <div>
+                          <h2>
+                            {dashboard?.personal ? 'Mes versements' : 'Historique des cotisations'}
+                          </h2>
+                          <p className="muted">
+                            {campaign?.name || 'Aucune campagne sélectionnée'}
+                          </p>
+                        </div>
+                        {canManage && campaign?.active && (
+                          <button
+                            className="secondary"
+                            disabled={!online || busy}
+                            onClick={() => open('contribution')}
+                          >
+                            <Plus size={17} />
+                            Encaisser
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Filtres de style Mobile Money pour la vue membre */}
+                      {dashboard?.personal && (
+                        <div className="mm-filters">
+                          {['ALL', 'AVEC', 'RAMADAN', 'TABASKI', 'SOLIDARITE', 'RENTREE'].map(
+                            (f) => (
+                              <button
+                                key={f}
+                                type="button"
+                                className={
+                                  historyFilter === f ? 'mm-filter-btn active' : 'mm-filter-btn'
+                                }
+                                onClick={() => setHistoryFilter(f)}
+                              >
+                                {f === 'ALL'
+                                  ? 'Toutes les cotisations'
+                                  : f === 'AVEC'
+                                    ? 'Calabasse AVEC'
+                                    : f === 'RAMADAN'
+                                      ? 'Épargne Ramadan'
+                                      : f === 'TABASKI'
+                                        ? 'Épargne Tabaski'
+                                        : f === 'SOLIDARITE'
+                                          ? 'Solidarité'
+                                          : 'Rentrée scolaire'}
+                              </button>
+                            ),
+                          )}
+                        </div>
+                      )}
+
+                      {/* Filtres de sélection Autocomplete pour l'Historique des cotisations */}
+                      {!dashboard?.personal && (
+                        <div className="contributions-filters-card">
+                          <div className="contributions-filters-header">
+                            <div className="contributions-filters-title">
+                              <Filter size={16} />
+                              <span>Filtres de recherche</span>
+                            </div>
+                            <span className="contributions-filters-subtitle">
+                              Filtrer facilement par session/période ou par nom de membre
+                            </span>
+                          </div>
+
+                          <div className="contributions-filters-grid">
+                            {/* 1. Filtre Session (Épargne) ou Période (Tontine) */}
+                            {!isTontineCampaign ? (
+                              <div className="filter-autocomplete-wrapper" ref={sessionFilterRef}>
+                                <label htmlFor="session-filter-input">
+                                  <Calendar size={13} />
+                                  Filtrer par session passée
+                                </label>
+                                <div className="filter-autocomplete-box">
+                                  <CalendarCheck size={16} className="muted" />
+                                  <input
+                                    id="session-filter-input"
+                                    type="text"
+                                    placeholder="Rechercher une séance passée…"
+                                    value={
+                                      sessionFilterSearch ||
+                                      (selectedSessionFilter
+                                        ? `Séance du ${date(selectedSessionFilter)}`
+                                        : '')
+                                    }
+                                    onChange={(e) => {
+                                      setSessionFilterSearch(e.target.value);
+                                      setSessionFilterDropdownOpen(true);
+                                    }}
+                                    onFocus={() => setSessionFilterDropdownOpen(true)}
+                                  />
+                                  {(sessionFilterSearch || selectedSessionFilter) && (
+                                    <button
+                                      type="button"
+                                      className="filter-clear-btn"
+                                      title="Effacer ce filtre"
+                                      onClick={() => {
+                                        setSelectedSessionFilter(null);
+                                        setSessionFilterSearch('');
+                                      }}
+                                    >
+                                      <X size={14} />
+                                    </button>
+                                  )}
                                   <button
                                     type="button"
-                                    className="filter-clear-btn"
-                                    title="Effacer ce filtre"
-                                    onClick={() => {
-                                      setSelectedSessionFilter(null);
-                                      setSessionFilterSearch('');
-                                    }}
+                                    className="filter-chevron-btn"
+                                    title="Ouvrir la liste des séances"
+                                    onClick={() =>
+                                      setSessionFilterDropdownOpen(!sessionFilterDropdownOpen)
+                                    }
                                   >
-                                    <X size={14} />
+                                    {sessionFilterDropdownOpen ? (
+                                      <ChevronUp size={15} />
+                                    ) : (
+                                      <ChevronDown size={15} />
+                                    )}
                                   </button>
-                                )}
-                                <button
-                                  type="button"
-                                  className="filter-chevron-btn"
-                                  title="Ouvrir la liste des séances"
-                                  onClick={() => setSessionFilterDropdownOpen(!sessionFilterDropdownOpen)}
-                                >
-                                  {sessionFilterDropdownOpen ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
-                                </button>
-                              </div>
+                                </div>
 
-                              {sessionFilterDropdownOpen && (
-                                <div className="filter-autocomplete-dropdown">
-                                  <div
-                                    className={`filter-dropdown-item all-item ${!selectedSessionFilter ? 'selected' : ''}`}
-                                    onClick={() => {
-                                      setSelectedSessionFilter(null);
-                                      setSessionFilterSearch('');
-                                      setSessionFilterDropdownOpen(false);
-                                    }}
-                                  >
-                                    <div className="filter-dropdown-icon">
-                                      <Calendar size={15} />
+                                {sessionFilterDropdownOpen && (
+                                  <div className="filter-autocomplete-dropdown">
+                                    <div
+                                      className={`filter-dropdown-item all-item ${!selectedSessionFilter ? 'selected' : ''}`}
+                                      onClick={() => {
+                                        setSelectedSessionFilter(null);
+                                        setSessionFilterSearch('');
+                                        setSessionFilterDropdownOpen(false);
+                                      }}
+                                    >
+                                      <div className="filter-dropdown-icon">
+                                        <Calendar size={15} />
+                                      </div>
+                                      <div className="filter-dropdown-content">
+                                        <strong>Toutes les sessions passées</strong>
+                                        <span className="muted">Afficher toutes les séances</span>
+                                      </div>
+                                      {!selectedSessionFilter && (
+                                        <Check size={15} className="item-check" />
+                                      )}
                                     </div>
-                                    <div className="filter-dropdown-content">
-                                      <strong>Toutes les sessions passées</strong>
-                                      <span className="muted">Afficher toutes les séances</span>
-                                    </div>
-                                    {!selectedSessionFilter && <Check size={15} className="item-check" />}
-                                  </div>
 
-                                  {availableSessions
-                                    .filter((s) => {
+                                    {availableSessions
+                                      .filter((s) => {
+                                        const isFiltering =
+                                          sessionFilterSearch.trim() &&
+                                          (!selectedSessionFilter ||
+                                            sessionFilterSearch.trim().toLowerCase() !==
+                                              `séance du ${date(selectedSessionFilter)}`.toLowerCase());
+                                        if (!isFiltering) return true;
+                                        const q = sessionFilterSearch.toLowerCase();
+                                        return (
+                                          s.date.includes(q) ||
+                                          date(s.date).toLowerCase().includes(q)
+                                        );
+                                      })
+                                      .map((s) => (
+                                        <div
+                                          key={s.date}
+                                          className={`filter-dropdown-item ${selectedSessionFilter === s.date ? 'selected' : ''}`}
+                                          onClick={() => {
+                                            setSelectedSessionFilter(s.date);
+                                            setSessionFilterSearch(`Séance du ${date(s.date)}`);
+                                            setSessionFilterDropdownOpen(false);
+                                          }}
+                                        >
+                                          <div className="filter-dropdown-icon">
+                                            <CalendarCheck size={15} />
+                                          </div>
+                                          <div className="filter-dropdown-content">
+                                            <strong>Séance du {date(s.date)}</strong>
+                                            <span className="muted">
+                                              {s.count} versement{s.count > 1 ? 's' : ''} · Total :{' '}
+                                              {money(s.total)}
+                                            </span>
+                                          </div>
+                                          {selectedSessionFilter === s.date && (
+                                            <Check size={15} className="item-check" />
+                                          )}
+                                        </div>
+                                      ))}
+
+                                    {!availableSessions.some((s) => {
                                       const isFiltering =
                                         sessionFilterSearch.trim() &&
                                         (!selectedSessionFilter ||
@@ -3439,78 +3624,203 @@ export function App({
                                             `séance du ${date(selectedSessionFilter)}`.toLowerCase());
                                       if (!isFiltering) return true;
                                       const q = sessionFilterSearch.toLowerCase();
-                                      return s.date.includes(q) || date(s.date).toLowerCase().includes(q);
-                                    })
-                                    .map((s) => (
-                                      <div
-                                        key={s.date}
-                                        className={`filter-dropdown-item ${selectedSessionFilter === s.date ? 'selected' : ''}`}
-                                        onClick={() => {
-                                          setSelectedSessionFilter(s.date);
-                                          setSessionFilterSearch(`Séance du ${date(s.date)}`);
-                                          setSessionFilterDropdownOpen(false);
-                                        }}
-                                      >
-                                        <div className="filter-dropdown-icon">
-                                          <CalendarCheck size={15} />
-                                        </div>
-                                        <div className="filter-dropdown-content">
-                                          <strong>Séance du {date(s.date)}</strong>
-                                          <span className="muted">
-                                            {s.count} versement{s.count > 1 ? 's' : ''} · Total : {money(s.total)}
-                                          </span>
-                                        </div>
-                                        {selectedSessionFilter === s.date && <Check size={15} className="item-check" />}
+                                      return (
+                                        s.date.includes(q) || date(s.date).toLowerCase().includes(q)
+                                      );
+                                    }) && (
+                                      <div className="filter-dropdown-empty">
+                                        Aucune session passée trouvée.
                                       </div>
-                                    ))}
-
-                                  {!availableSessions.some((s) => {
-                                    const isFiltering =
-                                      sessionFilterSearch.trim() &&
-                                      (!selectedSessionFilter ||
-                                        sessionFilterSearch.trim().toLowerCase() !==
-                                          `séance du ${date(selectedSessionFilter)}`.toLowerCase());
-                                    if (!isFiltering) return true;
-                                    const q = sessionFilterSearch.toLowerCase();
-                                    return s.date.includes(q) || date(s.date).toLowerCase().includes(q);
-                                  }) && (
-                                    <div className="filter-dropdown-empty">
-                                      Aucune session passée trouvée.
-                                    </div>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            ) : (
+                              <div className="filter-autocomplete-wrapper" ref={periodFilterRef}>
+                                <label htmlFor="period-filter-input">
+                                  <Clock size={13} />
+                                  Filtrer par période passée
+                                </label>
+                                <div className="filter-autocomplete-box">
+                                  <Clock size={16} className="muted" />
+                                  <input
+                                    id="period-filter-input"
+                                    type="text"
+                                    placeholder="Rechercher une période passée…"
+                                    value={
+                                      periodFilterSearch ||
+                                      (selectedPeriodFilter !== null
+                                        ? `Tour ${selectedPeriodFilter}`
+                                        : '')
+                                    }
+                                    onChange={(e) => {
+                                      setPeriodFilterSearch(e.target.value);
+                                      setPeriodFilterDropdownOpen(true);
+                                    }}
+                                    onFocus={() => setPeriodFilterDropdownOpen(true)}
+                                  />
+                                  {(periodFilterSearch || selectedPeriodFilter !== null) && (
+                                    <button
+                                      type="button"
+                                      className="filter-clear-btn"
+                                      title="Effacer ce filtre"
+                                      onClick={() => {
+                                        setSelectedPeriodFilter(null);
+                                        setPeriodFilterSearch('');
+                                      }}
+                                    >
+                                      <X size={14} />
+                                    </button>
                                   )}
+                                  <button
+                                    type="button"
+                                    className="filter-chevron-btn"
+                                    title="Ouvrir la liste des périodes"
+                                    onClick={() =>
+                                      setPeriodFilterDropdownOpen(!periodFilterDropdownOpen)
+                                    }
+                                  >
+                                    {periodFilterDropdownOpen ? (
+                                      <ChevronUp size={15} />
+                                    ) : (
+                                      <ChevronDown size={15} />
+                                    )}
+                                  </button>
                                 </div>
-                              )}
-                            </div>
-                          ) : (
-                            <div className="filter-autocomplete-wrapper" ref={periodFilterRef}>
-                              <label htmlFor="period-filter-input">
-                                <Clock size={13} />
-                                Filtrer par période passée
+
+                                {periodFilterDropdownOpen && (
+                                  <div className="filter-autocomplete-dropdown">
+                                    <div
+                                      className={`filter-dropdown-item all-item ${selectedPeriodFilter === null ? 'selected' : ''}`}
+                                      onClick={() => {
+                                        setSelectedPeriodFilter(null);
+                                        setPeriodFilterSearch('');
+                                        setPeriodFilterDropdownOpen(false);
+                                      }}
+                                    >
+                                      <div className="filter-dropdown-icon">
+                                        <Clock size={15} />
+                                      </div>
+                                      <div className="filter-dropdown-content">
+                                        <strong>Toutes les périodes passées</strong>
+                                        <span className="muted">
+                                          Afficher tous les tours de tontine
+                                        </span>
+                                      </div>
+                                      {selectedPeriodFilter === null && (
+                                        <Check size={15} className="item-check" />
+                                      )}
+                                    </div>
+
+                                    {availablePeriods
+                                      .filter((p) => {
+                                        const isFiltering =
+                                          periodFilterSearch.trim() &&
+                                          (selectedPeriodFilter === null ||
+                                            !periodFilterSearch
+                                              .trim()
+                                              .toLowerCase()
+                                              .startsWith(
+                                                `tour ${selectedPeriodFilter}`.toLowerCase(),
+                                              ));
+                                        if (!isFiltering) return true;
+                                        const q = periodFilterSearch.toLowerCase();
+                                        return (
+                                          `tour ${p.roundNumber}`.includes(q) ||
+                                          p.beneficiaryName.toLowerCase().includes(q) ||
+                                          (p.expectedDate &&
+                                            date(p.expectedDate).toLowerCase().includes(q))
+                                        );
+                                      })
+                                      .map((p) => (
+                                        <div
+                                          key={p.roundNumber}
+                                          className={`filter-dropdown-item ${selectedPeriodFilter === p.roundNumber ? 'selected' : ''}`}
+                                          onClick={() => {
+                                            setSelectedPeriodFilter(p.roundNumber);
+                                            setPeriodFilterSearch(
+                                              `Tour ${p.roundNumber}${p.expectedDate ? ' · ' + date(p.expectedDate) : ''}`,
+                                            );
+                                            setPeriodFilterDropdownOpen(false);
+                                          }}
+                                        >
+                                          <div className="filter-dropdown-icon">
+                                            <Clock size={15} />
+                                          </div>
+                                          <div className="filter-dropdown-content">
+                                            <strong>
+                                              Tour {p.roundNumber}
+                                              {p.expectedDate ? ` · ${date(p.expectedDate)}` : ''}
+                                            </strong>
+                                            <span className="muted">
+                                              Bénéficiaire : {p.beneficiaryName} · Collecté :{' '}
+                                              {money(p.totalCollected)}
+                                            </span>
+                                          </div>
+                                          {selectedPeriodFilter === p.roundNumber && (
+                                            <Check size={15} className="item-check" />
+                                          )}
+                                        </div>
+                                      ))}
+
+                                    {!availablePeriods.some((p) => {
+                                      const isFiltering =
+                                        periodFilterSearch.trim() &&
+                                        (selectedPeriodFilter === null ||
+                                          !periodFilterSearch
+                                            .trim()
+                                            .toLowerCase()
+                                            .startsWith(
+                                              `tour ${selectedPeriodFilter}`.toLowerCase(),
+                                            ));
+                                      if (!isFiltering) return true;
+                                      const q = periodFilterSearch.toLowerCase();
+                                      return (
+                                        `tour ${p.roundNumber}`.includes(q) ||
+                                        p.beneficiaryName.toLowerCase().includes(q) ||
+                                        (p.expectedDate &&
+                                          date(p.expectedDate).toLowerCase().includes(q))
+                                      );
+                                    }) && (
+                                      <div className="filter-dropdown-empty">
+                                        Aucune période passée trouvée.
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            )}
+
+                            {/* 2. Filtre Membre (Épargne & Tontine) */}
+                            <div className="filter-autocomplete-wrapper" ref={memberFilterRef}>
+                              <label htmlFor="member-filter-input">
+                                <Users size={13} />
+                                Filtrer par membre
                               </label>
                               <div className="filter-autocomplete-box">
-                                <Clock size={16} className="muted" />
+                                <Users size={16} className="muted" />
                                 <input
-                                  id="period-filter-input"
+                                  id="member-filter-input"
                                   type="text"
-                                  placeholder="Rechercher une période passée…"
+                                  placeholder="Rechercher ou choisir un membre…"
                                   value={
-                                    periodFilterSearch ||
-                                    (selectedPeriodFilter !== null ? `Tour ${selectedPeriodFilter}` : '')
+                                    memberFilterSearch ||
+                                    (selectedMemberFilter ? selectedMemberFilter : '')
                                   }
                                   onChange={(e) => {
-                                    setPeriodFilterSearch(e.target.value);
-                                    setPeriodFilterDropdownOpen(true);
+                                    setMemberFilterSearch(e.target.value);
+                                    setMemberFilterDropdownOpen(true);
                                   }}
-                                  onFocus={() => setPeriodFilterDropdownOpen(true)}
+                                  onFocus={() => setMemberFilterDropdownOpen(true)}
                                 />
-                                {(periodFilterSearch || selectedPeriodFilter !== null) && (
+                                {(memberFilterSearch || selectedMemberFilter) && (
                                   <button
                                     type="button"
                                     className="filter-clear-btn"
                                     title="Effacer ce filtre"
                                     onClick={() => {
-                                      setSelectedPeriodFilter(null);
-                                      setPeriodFilterSearch('');
+                                      setSelectedMemberFilter(null);
+                                      setMemberFilterSearch('');
                                     }}
                                   >
                                     <X size={14} />
@@ -3519,471 +3829,354 @@ export function App({
                                 <button
                                   type="button"
                                   className="filter-chevron-btn"
-                                  title="Ouvrir la liste des périodes"
-                                  onClick={() => setPeriodFilterDropdownOpen(!periodFilterDropdownOpen)}
+                                  title="Ouvrir la liste des membres"
+                                  onClick={() =>
+                                    setMemberFilterDropdownOpen(!memberFilterDropdownOpen)
+                                  }
                                 >
-                                  {periodFilterDropdownOpen ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
+                                  {memberFilterDropdownOpen ? (
+                                    <ChevronUp size={15} />
+                                  ) : (
+                                    <ChevronDown size={15} />
+                                  )}
                                 </button>
                               </div>
 
-                              {periodFilterDropdownOpen && (
+                              {memberFilterDropdownOpen && (
                                 <div className="filter-autocomplete-dropdown">
                                   <div
-                                    className={`filter-dropdown-item all-item ${selectedPeriodFilter === null ? 'selected' : ''}`}
+                                    className={`filter-dropdown-item all-item ${!selectedMemberFilter ? 'selected' : ''}`}
                                     onClick={() => {
-                                      setSelectedPeriodFilter(null);
-                                      setPeriodFilterSearch('');
-                                      setPeriodFilterDropdownOpen(false);
+                                      setSelectedMemberFilter(null);
+                                      setMemberFilterSearch('');
+                                      setMemberFilterDropdownOpen(false);
                                     }}
                                   >
                                     <div className="filter-dropdown-icon">
-                                      <Clock size={15} />
+                                      <Users size={15} />
                                     </div>
                                     <div className="filter-dropdown-content">
-                                      <strong>Toutes les périodes passées</strong>
-                                      <span className="muted">Afficher tous les tours de tontine</span>
+                                      <strong>Tous les membres</strong>
+                                      <span className="muted">
+                                        Afficher toutes les participantes
+                                      </span>
                                     </div>
-                                    {selectedPeriodFilter === null && <Check size={15} className="item-check" />}
+                                    {!selectedMemberFilter && (
+                                      <Check size={15} className="item-check" />
+                                    )}
                                   </div>
 
-                                  {availablePeriods
-                                    .filter((p) => {
+                                  {availableMembers
+                                    .filter((m) => {
                                       const isFiltering =
-                                        periodFilterSearch.trim() &&
-                                        (selectedPeriodFilter === null ||
-                                          !periodFilterSearch
-                                            .trim()
-                                            .toLowerCase()
-                                            .startsWith(`tour ${selectedPeriodFilter}`.toLowerCase()));
+                                        memberFilterSearch.trim() &&
+                                        (!selectedMemberFilter ||
+                                          memberFilterSearch.trim().toLowerCase() !==
+                                            selectedMemberFilter.toLowerCase());
                                       if (!isFiltering) return true;
-                                      const q = periodFilterSearch.toLowerCase();
+                                      const q = memberFilterSearch.toLowerCase();
                                       return (
-                                        `tour ${p.roundNumber}`.includes(q) ||
-                                        p.beneficiaryName.toLowerCase().includes(q) ||
-                                        (p.expectedDate && date(p.expectedDate).toLowerCase().includes(q))
+                                        m.name.toLowerCase().includes(q) ||
+                                        (m.phone && m.phone.includes(q))
                                       );
                                     })
-                                    .map((p) => (
+                                    .map((m) => (
                                       <div
-                                        key={p.roundNumber}
-                                        className={`filter-dropdown-item ${selectedPeriodFilter === p.roundNumber ? 'selected' : ''}`}
+                                        key={m.name}
+                                        className={`filter-dropdown-item ${selectedMemberFilter === m.name ? 'selected' : ''}`}
                                         onClick={() => {
-                                          setSelectedPeriodFilter(p.roundNumber);
-                                          setPeriodFilterSearch(
-                                            `Tour ${p.roundNumber}${p.expectedDate ? ' · ' + date(p.expectedDate) : ''}`,
-                                          );
-                                          setPeriodFilterDropdownOpen(false);
+                                          setSelectedMemberFilter(m.name);
+                                          setMemberFilterSearch(m.name);
+                                          setMemberFilterDropdownOpen(false);
                                         }}
                                       >
-                                        <div className="filter-dropdown-icon">
-                                          <Clock size={15} />
+                                        <div className="filter-dropdown-avatar">
+                                          {m.name.slice(0, 1).toUpperCase()}
                                         </div>
                                         <div className="filter-dropdown-content">
-                                          <strong>
-                                            Tour {p.roundNumber}
-                                            {p.expectedDate ? ` · ${date(p.expectedDate)}` : ''}
-                                          </strong>
+                                          <strong>{m.name}</strong>
                                           <span className="muted">
-                                            Bénéficiaire : {p.beneficiaryName} · Collecté : {money(p.totalCollected)}
+                                            {m.phone ? `${m.phone} · ` : ''}Membre de la cotisation
                                           </span>
                                         </div>
-                                        {selectedPeriodFilter === p.roundNumber && (
+                                        {selectedMemberFilter === m.name && (
                                           <Check size={15} className="item-check" />
                                         )}
                                       </div>
                                     ))}
 
-                                  {!availablePeriods.some((p) => {
-                                    const isFiltering =
-                                      periodFilterSearch.trim() &&
-                                      (selectedPeriodFilter === null ||
-                                        !periodFilterSearch
-                                          .trim()
-                                          .toLowerCase()
-                                          .startsWith(`tour ${selectedPeriodFilter}`.toLowerCase()));
-                                    if (!isFiltering) return true;
-                                    const q = periodFilterSearch.toLowerCase();
-                                    return (
-                                      `tour ${p.roundNumber}`.includes(q) ||
-                                      p.beneficiaryName.toLowerCase().includes(q) ||
-                                      (p.expectedDate && date(p.expectedDate).toLowerCase().includes(q))
-                                    );
-                                  }) && (
-                                    <div className="filter-dropdown-empty">
-                                      Aucune période passée trouvée.
-                                    </div>
-                                  )}
-                                </div>
-                              )}
-                            </div>
-                          )}
-
-                          {/* 2. Filtre Membre (Épargne & Tontine) */}
-                          <div className="filter-autocomplete-wrapper" ref={memberFilterRef}>
-                            <label htmlFor="member-filter-input">
-                              <Users size={13} />
-                              Filtrer par membre
-                            </label>
-                            <div className="filter-autocomplete-box">
-                              <Users size={16} className="muted" />
-                              <input
-                                id="member-filter-input"
-                                type="text"
-                                placeholder="Rechercher ou choisir un membre…"
-                                value={
-                                  memberFilterSearch ||
-                                  (selectedMemberFilter ? selectedMemberFilter : '')
-                                }
-                                onChange={(e) => {
-                                  setMemberFilterSearch(e.target.value);
-                                  setMemberFilterDropdownOpen(true);
-                                }}
-                                onFocus={() => setMemberFilterDropdownOpen(true)}
-                              />
-                              {(memberFilterSearch || selectedMemberFilter) && (
-                                <button
-                                  type="button"
-                                  className="filter-clear-btn"
-                                  title="Effacer ce filtre"
-                                  onClick={() => {
-                                    setSelectedMemberFilter(null);
-                                    setMemberFilterSearch('');
-                                  }}
-                                >
-                                  <X size={14} />
-                                </button>
-                              )}
-                              <button
-                                type="button"
-                                className="filter-chevron-btn"
-                                title="Ouvrir la liste des membres"
-                                onClick={() => setMemberFilterDropdownOpen(!memberFilterDropdownOpen)}
-                              >
-                                {memberFilterDropdownOpen ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
-                              </button>
-                            </div>
-
-                            {memberFilterDropdownOpen && (
-                              <div className="filter-autocomplete-dropdown">
-                                <div
-                                  className={`filter-dropdown-item all-item ${!selectedMemberFilter ? 'selected' : ''}`}
-                                  onClick={() => {
-                                    setSelectedMemberFilter(null);
-                                    setMemberFilterSearch('');
-                                    setMemberFilterDropdownOpen(false);
-                                  }}
-                                >
-                                  <div className="filter-dropdown-icon">
-                                    <Users size={15} />
-                                  </div>
-                                  <div className="filter-dropdown-content">
-                                    <strong>Tous les membres</strong>
-                                    <span className="muted">Afficher toutes les participantes</span>
-                                  </div>
-                                  {!selectedMemberFilter && <Check size={15} className="item-check" />}
-                                </div>
-
-                                {availableMembers
-                                  .filter((m) => {
-                                    const isFiltering =
-                                      memberFilterSearch.trim() &&
-                                      (!selectedMemberFilter ||
-                                        memberFilterSearch.trim().toLowerCase() !==
-                                          selectedMemberFilter.toLowerCase());
-                                    if (!isFiltering) return true;
+                                  {!availableMembers.some((m) => {
+                                    if (!memberFilterSearch.trim()) return true;
                                     const q = memberFilterSearch.toLowerCase();
                                     return (
                                       m.name.toLowerCase().includes(q) ||
                                       (m.phone && m.phone.includes(q))
                                     );
-                                  })
-                                  .map((m) => (
-                                    <div
-                                      key={m.name}
-                                      className={`filter-dropdown-item ${selectedMemberFilter === m.name ? 'selected' : ''}`}
-                                      onClick={() => {
-                                        setSelectedMemberFilter(m.name);
-                                        setMemberFilterSearch(m.name);
-                                        setMemberFilterDropdownOpen(false);
-                                      }}
-                                    >
-                                      <div className="filter-dropdown-avatar">
-                                        {m.name.slice(0, 1).toUpperCase()}
-                                      </div>
-                                      <div className="filter-dropdown-content">
-                                        <strong>{m.name}</strong>
-                                        <span className="muted">
-                                          {m.phone ? `${m.phone} · ` : ''}Membre de la cotisation
-                                        </span>
-                                      </div>
-                                      {selectedMemberFilter === m.name && (
-                                        <Check size={15} className="item-check" />
-                                      )}
+                                  }) && (
+                                    <div className="filter-dropdown-empty">
+                                      Aucun membre trouvé.
                                     </div>
-                                  ))}
-
-                                {!availableMembers.some((m) => {
-                                  if (!memberFilterSearch.trim()) return true;
-                                  const q = memberFilterSearch.toLowerCase();
-                                  return (
-                                    m.name.toLowerCase().includes(q) ||
-                                    (m.phone && m.phone.includes(q))
-                                  );
-                                }) && (
-                                  <div className="filter-dropdown-empty">
-                                    Aucun membre trouvé.
-                                  </div>
-                                )}
-                              </div>
-                            )}
+                                  )}
+                                </div>
+                              )}
+                            </div>
                           </div>
-                        </div>
 
-                        {/* Bannière récapitulative des filtres actifs */}
-                        {(selectedSessionFilter || selectedPeriodFilter !== null || selectedMemberFilter) && (
-                          <div className="active-filters-banner">
-                            <span className="active-filters-title">
-                              <Filter size={13} /> Filtre{selectedMemberFilter && (selectedSessionFilter || selectedPeriodFilter !== null) ? 's appliqués :' : ' appliqué :'}
-                            </span>
-                            {selectedSessionFilter && (
-                              <span className="active-filter-badge">
-                                <CalendarCheck size={12} />
-                                <span>Session : {date(selectedSessionFilter)}</span>
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    setSelectedSessionFilter(null);
-                                    setSessionFilterSearch('');
-                                  }}
-                                  title="Retirer le filtre de session"
-                                >
-                                  <X size={12} />
-                                </button>
+                          {/* Bannière récapitulative des filtres actifs */}
+                          {(selectedSessionFilter ||
+                            selectedPeriodFilter !== null ||
+                            selectedMemberFilter) && (
+                            <div className="active-filters-banner">
+                              <span className="active-filters-title">
+                                <Filter size={13} /> Filtre
+                                {selectedMemberFilter &&
+                                (selectedSessionFilter || selectedPeriodFilter !== null)
+                                  ? 's appliqués :'
+                                  : ' appliqué :'}
                               </span>
-                            )}
-                            {selectedPeriodFilter !== null && (
-                              <span className="active-filter-badge">
-                                <Clock size={12} />
-                                <span>Tour {selectedPeriodFilter}</span>
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    setSelectedPeriodFilter(null);
-                                    setPeriodFilterSearch('');
-                                  }}
-                                  title="Retirer le filtre de période"
-                                >
-                                  <X size={12} />
-                                </button>
-                              </span>
-                            )}
-                            {selectedMemberFilter && (
-                              <span className="active-filter-badge">
-                                <Users size={12} />
-                                <span>Membre : {selectedMemberFilter}</span>
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    setSelectedMemberFilter(null);
-                                    setMemberFilterSearch('');
-                                  }}
-                                  title="Retirer le filtre de membre"
-                                >
-                                  <X size={12} />
-                                </button>
-                              </span>
-                            )}
+                              {selectedSessionFilter && (
+                                <span className="active-filter-badge">
+                                  <CalendarCheck size={12} />
+                                  <span>Session : {date(selectedSessionFilter)}</span>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setSelectedSessionFilter(null);
+                                      setSessionFilterSearch('');
+                                    }}
+                                    title="Retirer le filtre de session"
+                                  >
+                                    <X size={12} />
+                                  </button>
+                                </span>
+                              )}
+                              {selectedPeriodFilter !== null && (
+                                <span className="active-filter-badge">
+                                  <Clock size={12} />
+                                  <span>Tour {selectedPeriodFilter}</span>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setSelectedPeriodFilter(null);
+                                      setPeriodFilterSearch('');
+                                    }}
+                                    title="Retirer le filtre de période"
+                                  >
+                                    <X size={12} />
+                                  </button>
+                                </span>
+                              )}
+                              {selectedMemberFilter && (
+                                <span className="active-filter-badge">
+                                  <Users size={12} />
+                                  <span>Membre : {selectedMemberFilter}</span>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setSelectedMemberFilter(null);
+                                      setMemberFilterSearch('');
+                                    }}
+                                    title="Retirer le filtre de membre"
+                                  >
+                                    <X size={12} />
+                                  </button>
+                                </span>
+                              )}
+                              <button
+                                type="button"
+                                className="btn-clear-all-filters"
+                                onClick={resetFilters}
+                              >
+                                <RotateCcw size={12} /> Tout effacer
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Barre de tri de l'Historique */}
+                      <div className="contributions-sort-bar">
+                        <span className="contributions-sort-label">
+                          <ArrowUpDown size={14} /> Trier par :
+                        </span>
+                        <button
+                          type="button"
+                          className={`sort-pill-btn ${contributionSort === 'date' ? 'active' : ''}`}
+                          onClick={() => {
+                            setContributionSort('date');
+                            setPage(1);
+                          }}
+                        >
+                          <Calendar size={13} />
+                          Date (décroissant)
+                        </button>
+                        <button
+                          type="button"
+                          className={`sort-pill-btn ${contributionSort === 'session' ? 'active' : ''}`}
+                          onClick={() => {
+                            setContributionSort('session');
+                            setPage(1);
+                          }}
+                        >
+                          <CalendarCheck size={13} />
+                          {campaign?.type_name?.toLowerCase().includes('tontine')
+                            ? 'Par période (Tontine)'
+                            : 'Par session (Épargne)'}
+                        </button>
+                        <button
+                          type="button"
+                          className={`sort-pill-btn ${contributionSort === 'member' ? 'active' : ''}`}
+                          onClick={() => {
+                            setContributionSort('member');
+                            setPage(1);
+                          }}
+                        >
+                          <Users size={13} />
+                          Par membre
+                        </button>
+                        <span className="contributions-count-badge">
+                          {sortedContributions.length} cotisation
+                          {sortedContributions.length > 1 ? 's' : ''}
+                        </span>
+                      </div>
+
+                      {contributions.length ? (
+                        dashboard?.personal ? (
+                          <div className="mm-list">
+                            {contributions.map((c) => (
+                              <div key={c.id} className="mm-item">
+                                <div className="mm-left">
+                                  <div className="mm-icon">
+                                    <Leaf size={20} />
+                                  </div>
+                                  <div className="mm-details">
+                                    <span className="mm-title">
+                                      {campaign?.name || 'Cotisation solidaire'}
+                                    </span>
+                                    <span className="mm-meta">
+                                      {date(c.paid_on)} · Réf : {c.reference}
+                                    </span>
+                                    {campaign?.event_name && (
+                                      <span className="mm-badge">{campaign.event_name}</span>
+                                    )}
+                                  </div>
+                                </div>
+                                <div>
+                                  <div className="mm-amount">+ {money(c.amount)}</div>
+                                  <span className={c.voided_at ? 'badge neutral' : 'badge'}>
+                                    {c.voided_at ? 'Annulée' : 'Validée'}
+                                  </span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : sortedContributions.length ? (
+                          <div className="table-scroll">
+                            <table className="contribution-table">
+                              <thead>
+                                <tr>
+                                  <th
+                                    className="th-sortable"
+                                    onClick={() => {
+                                      setContributionSort('member');
+                                      setPage(1);
+                                    }}
+                                    title="Trier par membre"
+                                  >
+                                    Membre {contributionSort === 'member' && '▲'}
+                                  </th>
+                                  <th
+                                    className="th-sortable"
+                                    onClick={() => {
+                                      setContributionSort(
+                                        contributionSort === 'date' ? 'session' : 'date',
+                                      );
+                                      setPage(1);
+                                    }}
+                                    title={
+                                      campaign?.type_name?.toLowerCase().includes('tontine')
+                                        ? 'Trier par date / période'
+                                        : 'Trier par date / session'
+                                    }
+                                  >
+                                    {campaign?.type_name?.toLowerCase().includes('tontine')
+                                      ? 'Date / Période'
+                                      : 'Date / Session'}
+                                    {contributionSort === 'date' && ' ▼'}
+                                    {contributionSort === 'session' && ' 🗓️'}
+                                  </th>
+                                  <th>Montant</th>
+                                  <th>État</th>
+                                  {canManage && <th>Action</th>}
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {sortedContributions.map((c) => (
+                                  <tr key={c.id}>
+                                    <td>
+                                      <span className="member-cell">
+                                        <span className="round-avatar small">
+                                          {c.name.slice(0, 1)}
+                                        </span>
+                                        {c.name}
+                                      </span>
+                                      <small className="reference">{c.reference}</small>
+                                    </td>
+                                    <td>{date(c.paid_on)}</td>
+                                    <td className="amount">{money(c.amount)}</td>
+                                    <td>
+                                      <span className={c.voided_at ? 'badge neutral' : 'badge'}>
+                                        {c.voided_at ? 'Annulée' : 'Enregistrée'}
+                                      </span>
+                                    </td>
+                                    {canManage && (
+                                      <td>
+                                        {!c.voided_at && campaign?.active && (
+                                          <button
+                                            className="text-button"
+                                            onClick={() => {
+                                              setVoidId(c.id);
+                                              open('void');
+                                            }}
+                                          >
+                                            Annuler
+                                          </button>
+                                        )}
+                                      </td>
+                                    )}
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        ) : (
+                          <div className="contributions-empty-filter">
+                            <Filter size={32} className="muted" />
+                            <h3>Aucune cotisation ne correspond à vos filtres</h3>
+                            <p>
+                              Essayez de modifier la séance, la période ou le membre sélectionné.
+                            </p>
                             <button
                               type="button"
                               className="btn-clear-all-filters"
+                              style={{ margin: '8px auto', display: 'inline-flex' }}
                               onClick={resetFilters}
                             >
-                              <RotateCcw size={12} /> Tout effacer
+                              <RotateCcw size={13} /> Effacer les filtres et tout afficher
                             </button>
                           </div>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Barre de tri de l'Historique */}
-                    <div className="contributions-sort-bar">
-                      <span className="contributions-sort-label">
-                        <ArrowUpDown size={14} /> Trier par :
-                      </span>
-                      <button
-                        type="button"
-                        className={`sort-pill-btn ${contributionSort === 'date' ? 'active' : ''}`}
-                        onClick={() => {
-                          setContributionSort('date');
-                          setPage(1);
-                        }}
-                      >
-                        <Calendar size={13} />
-                        Date (décroissant)
-                      </button>
-                      <button
-                        type="button"
-                        className={`sort-pill-btn ${contributionSort === 'session' ? 'active' : ''}`}
-                        onClick={() => {
-                          setContributionSort('session');
-                          setPage(1);
-                        }}
-                      >
-                        <CalendarCheck size={13} />
-                        {campaign?.type_name?.toLowerCase().includes('tontine')
-                          ? 'Par période (Tontine)'
-                          : 'Par session (Épargne)'}
-                      </button>
-                      <button
-                        type="button"
-                        className={`sort-pill-btn ${contributionSort === 'member' ? 'active' : ''}`}
-                        onClick={() => {
-                          setContributionSort('member');
-                          setPage(1);
-                        }}
-                      >
-                        <Users size={13} />
-                        Par membre
-                      </button>
-                      <span className="contributions-count-badge">
-                        {sortedContributions.length} cotisation{sortedContributions.length > 1 ? 's' : ''}
-                      </span>
-                    </div>
-
-                    {contributions.length ? (
-                      dashboard?.personal ? (
-                        <div className="mm-list">
-                          {contributions.map((c) => (
-                            <div key={c.id} className="mm-item">
-                              <div className="mm-left">
-                                <div className="mm-icon">
-                                  <Leaf size={20} />
-                                </div>
-                                <div className="mm-details">
-                                  <span className="mm-title">
-                                    {campaign?.name || 'Cotisation solidaire'}
-                                  </span>
-                                  <span className="mm-meta">
-                                    {date(c.paid_on)} · Réf : {c.reference}
-                                  </span>
-                                  {campaign?.event_name && (
-                                    <span className="mm-badge">{campaign.event_name}</span>
-                                  )}
-                                </div>
-                              </div>
-                              <div>
-                                <div className="mm-amount">+ {money(c.amount)}</div>
-                                <span className={c.voided_at ? 'badge neutral' : 'badge'}>
-                                  {c.voided_at ? 'Annulée' : 'Validée'}
-                                </span>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      ) : sortedContributions.length ? (
-                        <div className="table-scroll">
-                          <table className="contribution-table">
-                            <thead>
-                              <tr>
-                                <th
-                                  className="th-sortable"
-                                  onClick={() => {
-                                    setContributionSort('member');
-                                    setPage(1);
-                                  }}
-                                  title="Trier par membre"
-                                >
-                                  Membre {contributionSort === 'member' && '▲'}
-                                </th>
-                                <th
-                                  className="th-sortable"
-                                  onClick={() => {
-                                    setContributionSort(contributionSort === 'date' ? 'session' : 'date');
-                                    setPage(1);
-                                  }}
-                                  title={
-                                    campaign?.type_name?.toLowerCase().includes('tontine')
-                                      ? 'Trier par date / période'
-                                      : 'Trier par date / session'
-                                  }
-                                >
-                                  {campaign?.type_name?.toLowerCase().includes('tontine')
-                                    ? 'Date / Période'
-                                    : 'Date / Session'}
-                                  {contributionSort === 'date' && ' ▼'}
-                                  {contributionSort === 'session' && ' 🗓️'}
-                                </th>
-                                <th>Montant</th>
-                                <th>État</th>
-                                {canManage && <th>Action</th>}
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {sortedContributions.map((c) => (
-                                <tr key={c.id}>
-                                  <td>
-                                    <span className="member-cell">
-                                      <span className="round-avatar small">
-                                        {c.name.slice(0, 1)}
-                                      </span>
-                                      {c.name}
-                                    </span>
-                                    <small className="reference">{c.reference}</small>
-                                  </td>
-                                  <td>{date(c.paid_on)}</td>
-                                  <td className="amount">{money(c.amount)}</td>
-                                  <td>
-                                    <span className={c.voided_at ? 'badge neutral' : 'badge'}>
-                                      {c.voided_at ? 'Annulée' : 'Enregistrée'}
-                                    </span>
-                                  </td>
-                                  {canManage && (
-                                    <td>
-                                      {!c.voided_at && campaign?.active && (
-                                        <button
-                                          className="text-button"
-                                          onClick={() => {
-                                            setVoidId(c.id);
-                                            open('void');
-                                          }}
-                                        >
-                                          Annuler
-                                        </button>
-                                      )}
-                                    </td>
-                                  )}
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
+                        )
                       ) : (
-                        <div className="contributions-empty-filter">
-                          <Filter size={32} className="muted" />
-                          <h3>Aucune cotisation ne correspond à vos filtres</h3>
-                          <p>Essayez de modifier la séance, la période ou le membre sélectionné.</p>
-                          <button
-                            type="button"
-                            className="btn-clear-all-filters"
-                            style={{ margin: '8px auto', display: 'inline-flex' }}
-                            onClick={resetFilters}
-                          >
-                            <RotateCcw size={13} /> Effacer les filtres et tout afficher
-                          </button>
+                        <div className="empty">
+                          <Coins size={29} />
+                          <h3>Aucune cotisation pour le moment</h3>
+                          <p>Les versements enregistrés apparaîtront ici.</p>
                         </div>
-                      )
-                    ) : (
-                      <div className="empty">
-                        <Coins size={29} />
-                        <h3>Aucune cotisation pour le moment</h3>
-                        <p>Les versements enregistrés apparaîtront ici.</p>
-                      </div>
-                    )}
-                    <Pager page={page} total={contributionTotal} onChange={setPage} />
-                  </section>
-                </>
-                )
-              )}
+                      )}
+                      <Pager page={page} total={contributionTotal} onChange={setPage} />
+                    </section>
+                  </>
+                ))}
 
               {/* Cockpit 360° Plateforme Super Admin */}
               {tab === 'cockpit' && superCockpit && (
@@ -4094,9 +4287,7 @@ export function App({
                               <tr
                                 key={c.id}
                                 className={
-                                  campaignId === c.id
-                                    ? 'campaign-row selected-row'
-                                    : 'campaign-row'
+                                  campaignId === c.id ? 'campaign-row selected-row' : 'campaign-row'
                                 }
                               >
                                 <td>
@@ -4207,7 +4398,10 @@ export function App({
                                             {(c.session_count ?? 0) > 1 ? 's' : ''}
                                           </span>
                                         </span>
-                                        <span className="metric-pill" title="Montant total collecté">
+                                        <span
+                                          className="metric-pill"
+                                          title="Montant total collecté"
+                                        >
                                           <Coins size={12} />
                                           <span className="metric-label">Collecté :</span>
                                           <strong>{money(c.collected_amount ?? '0')}</strong>
@@ -4356,8 +4550,22 @@ export function App({
                                 <tbody>
                                   {!participants.length ? (
                                     <tr>
-                                      <td colSpan={4} style={{ textAlign: 'center', padding: '2rem', color: '#64748b' }}>
-                                        <Users size={28} style={{ display: 'block', margin: '0 auto 8px', color: '#94a3b8' }} />
+                                      <td
+                                        colSpan={4}
+                                        style={{
+                                          textAlign: 'center',
+                                          padding: '2rem',
+                                          color: '#64748b',
+                                        }}
+                                      >
+                                        <Users
+                                          size={28}
+                                          style={{
+                                            display: 'block',
+                                            margin: '0 auto 8px',
+                                            color: '#94a3b8',
+                                          }}
+                                        />
                                         Aucune participation enregistrée pour cette campagne.
                                       </td>
                                     </tr>
@@ -4365,10 +4573,18 @@ export function App({
                                     participants.map((p) => (
                                       <tr key={p.id}>
                                         <td>
-                                          <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                                          <div
+                                            style={{
+                                              display: 'flex',
+                                              flexDirection: 'column',
+                                              gap: 2,
+                                            }}
+                                          >
                                             <strong>{p.name}</strong>
                                             <small className="muted">
-                                              {p.forfait ? `Forfait : ${money(p.forfait)}` : 'Montant libre'}
+                                              {p.forfait
+                                                ? `Forfait : ${money(p.forfait)}`
+                                                : 'Montant libre'}
                                             </small>
                                           </div>
                                         </td>
@@ -4380,12 +4596,23 @@ export function App({
                                         </td>
                                         <td>
                                           {p.has_received_payout ? (
-                                            <span className="badge-pill-success" title="Paiement du tour déjà perçu">
+                                            <span
+                                              className="badge-pill-success"
+                                              title="Paiement du tour déjà perçu"
+                                            >
                                               <Check size={12} />
-                                              <span>Oui {p.payout_amount ? `(${money(p.payout_amount)})` : ''}</span>
+                                              <span>
+                                                Oui{' '}
+                                                {p.payout_amount
+                                                  ? `(${money(p.payout_amount)})`
+                                                  : ''}
+                                              </span>
                                             </span>
                                           ) : (
-                                            <span className="badge-pill-amber" title="En attente de son tour de tontine">
+                                            <span
+                                              className="badge-pill-amber"
+                                              title="En attente de son tour de tontine"
+                                            >
                                               <Clock size={12} />
                                               <span>En attente</span>
                                             </span>
@@ -4418,8 +4645,22 @@ export function App({
                                 <tbody>
                                   {!participants.length ? (
                                     <tr>
-                                      <td colSpan={3} style={{ textAlign: 'center', padding: '2rem', color: '#64748b' }}>
-                                        <Users size={28} style={{ display: 'block', margin: '0 auto 8px', color: '#94a3b8' }} />
+                                      <td
+                                        colSpan={3}
+                                        style={{
+                                          textAlign: 'center',
+                                          padding: '2rem',
+                                          color: '#64748b',
+                                        }}
+                                      >
+                                        <Users
+                                          size={28}
+                                          style={{
+                                            display: 'block',
+                                            margin: '0 auto 8px',
+                                            color: '#94a3b8',
+                                          }}
+                                        />
                                         Aucune participation enregistrée pour cette campagne.
                                       </td>
                                     </tr>
@@ -4427,22 +4668,39 @@ export function App({
                                     participants.map((p) => (
                                       <tr key={p.id}>
                                         <td>
-                                          <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                                          <div
+                                            style={{
+                                              display: 'flex',
+                                              flexDirection: 'column',
+                                              gap: 2,
+                                            }}
+                                          >
                                             <strong>{p.name}</strong>
                                             <small className="muted">
-                                              {p.forfait ? `Forfait : ${money(p.forfait)}` : 'Montant libre'}
+                                              {p.forfait
+                                                ? `Forfait : ${money(p.forfait)}`
+                                                : 'Montant libre'}
                                             </small>
                                           </div>
                                         </td>
                                         <td>
                                           <span className="metric-pill highlight">
                                             <CalendarCheck size={12} />
-                                            <strong>{p.sessions_contributed_count ?? 0}</strong> séance
+                                            <strong>
+                                              {p.sessions_contributed_count ?? 0}
+                                            </strong>{' '}
+                                            séance
                                             {(p.sessions_contributed_count ?? 0) > 1 ? 's' : ''}
                                           </span>
                                         </td>
                                         <td>
-                                          <span style={{ fontSize: 13, fontWeight: 700, color: '#166534' }}>
+                                          <span
+                                            style={{
+                                              fontSize: 13,
+                                              fontWeight: 700,
+                                              color: '#166534',
+                                            }}
+                                          >
                                             {money(p.total_contributed_amount ?? '0')}
                                           </span>
                                         </td>
@@ -4474,33 +4732,53 @@ export function App({
                             </div>
                           </div>
 
-                            <div className="table-scroll">
-                              <table>
-                                <thead>
+                          <div className="table-scroll">
+                            <table>
+                              <thead>
+                                <tr>
+                                  <th>Date</th>
+                                  <th>Montant récupéré</th>
+                                  <th>Nbre Membre ayant de cotisation</th>
+                                  <th style={{ textAlign: 'right' }}>Détails</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {sessions.length === 0 ? (
                                   <tr>
-                                    <th>Date</th>
-                                    <th>Montant récupéré</th>
-                                    <th>Nbre Membre ayant de cotisation</th>
-                                    <th style={{ textAlign: 'right' }}>Détails</th>
+                                    <td
+                                      colSpan={4}
+                                      style={{
+                                        textAlign: 'center',
+                                        padding: '2rem',
+                                        color: '#64748b',
+                                      }}
+                                    >
+                                      <CalendarCheck
+                                        size={28}
+                                        style={{
+                                          display: 'block',
+                                          margin: '0 auto 8px',
+                                          color: '#94a3b8',
+                                        }}
+                                      />
+                                      Aucune session enregistrée pour cette campagne.
+                                    </td>
                                   </tr>
-                                </thead>
-                                <tbody>
-                                  {sessions.length === 0 ? (
-                                    <tr>
-                                      <td colSpan={4} style={{ textAlign: 'center', padding: '2rem', color: '#64748b' }}>
-                                        <CalendarCheck size={28} style={{ display: 'block', margin: '0 auto 8px', color: '#94a3b8' }} />
-                                        Aucune session enregistrée pour cette campagne.
-                                      </td>
-                                    </tr>
-                                  ) : (
-                                    sessions.map((s) => {
-                                      const isExpanded = expandedSessionDate === s.session_date;
+                                ) : (
+                                  sessions.map((s) => {
+                                    const isExpanded = expandedSessionDate === s.session_date;
                                     const distinctMembers = s.members_count ?? s.count;
                                     return (
                                       <>
                                         <tr key={s.session_date}>
                                           <td>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                            <div
+                                              style={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: 8,
+                                              }}
+                                            >
                                               <Calendar size={15} color="#64748b" />
                                               <strong>{date(s.session_date)}</strong>
                                             </div>
@@ -4522,32 +4800,59 @@ export function App({
                                               type="button"
                                               className="session-expand-btn"
                                               onClick={() =>
-                                                setExpandedSessionDate(isExpanded ? null : s.session_date)
+                                                setExpandedSessionDate(
+                                                  isExpanded ? null : s.session_date,
+                                                )
                                               }
                                             >
                                               <span>{isExpanded ? 'Masquer' : 'Détails'}</span>
-                                              {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                                              {isExpanded ? (
+                                                <ChevronUp size={14} />
+                                              ) : (
+                                                <ChevronDown size={14} />
+                                              )}
                                             </button>
                                           </td>
                                         </tr>
                                         {isExpanded && (
-                                          <tr key={`${s.session_date}-details`} className="session-details-row">
+                                          <tr
+                                            key={`${s.session_date}-details`}
+                                            className="session-details-row"
+                                          >
                                             <td
                                               colSpan={4}
-                                              style={{ background: '#f8fafc', padding: '14px 18px', borderTop: 'none' }}
+                                              style={{
+                                                background: '#f8fafc',
+                                                padding: '14px 18px',
+                                                borderTop: 'none',
+                                              }}
                                             >
                                               <div
-                                                style={{ fontSize: 12, fontWeight: 700, marginBottom: 8, color: '#334155' }}
+                                                style={{
+                                                  fontSize: 12,
+                                                  fontWeight: 700,
+                                                  marginBottom: 8,
+                                                  color: '#334155',
+                                                }}
                                               >
-                                                Cotisations enregistrées pour la séance du {date(s.session_date)} (
-                                                {s.contributions.length}) :
+                                                Cotisations enregistrées pour la séance du{' '}
+                                                {date(s.session_date)} ({s.contributions.length}) :
                                               </div>
                                               <div className="session-contributions-grid">
                                                 {s.contributions.map((c) => (
-                                                  <div key={c.contribution_id} className="session-contrib-card">
-                                                    <span className="session-contrib-name">{c.member_name}</span>
-                                                    <span className="session-contrib-amount">{money(c.amount)}</span>
-                                                    <span className="session-contrib-ref">Réf : {c.reference}</span>
+                                                  <div
+                                                    key={c.contribution_id}
+                                                    className="session-contrib-card"
+                                                  >
+                                                    <span className="session-contrib-name">
+                                                      {c.member_name}
+                                                    </span>
+                                                    <span className="session-contrib-amount">
+                                                      {money(c.amount)}
+                                                    </span>
+                                                    <span className="session-contrib-ref">
+                                                      Réf : {c.reference}
+                                                    </span>
                                                   </div>
                                                 ))}
                                               </div>
@@ -5006,13 +5311,10 @@ export function App({
                                           action(
                                             () =>
                                               api
-                                                .PATCH(
-                                                  '/api/v1/groupements/{groupId}/activation',
-                                                  {
-                                                    params: { path: { groupId: g.id } },
-                                                    body: { active: true },
-                                                  },
-                                                )
+                                                .PATCH('/api/v1/groupements/{groupId}/activation', {
+                                                  params: { path: { groupId: g.id } },
+                                                  body: { active: true },
+                                                })
                                                 .then(unwrap),
                                             'Groupement réactivé avec succès.',
                                           )
@@ -5414,129 +5716,135 @@ export function App({
                   </div>
                 </>
               )}
-              {dialog === 'campaign' && (() => {
-                const activeType =
-                  types.find((t) => t.id === (campaignTypeId || types[0]?.id)) || types[0];
-                const isTontine =
-                  activeType?.code === 'TONTINE' ||
-                  (activeType?.name || '').toLowerCase().includes('tontine');
+              {dialog === 'campaign' &&
+                (() => {
+                  const activeType =
+                    types.find((t) => t.id === (campaignTypeId || types[0]?.id)) || types[0];
+                  const isTontine =
+                    activeType?.code === 'TONTINE' ||
+                    (activeType?.name || '').toLowerCase().includes('tontine');
 
-                return (
-                  <>
-                    <div className="form-grid">
-                      <Field label="Nom de la campagne">
-                        <input
-                          name="name"
-                          required
-                          minLength={2}
-                          placeholder="Ex: Épargne solidaire 2026"
-                        />
-                      </Field>
-                      <Field label="Type de campagne">
-                        <select
-                          name="typeId"
-                          required
-                          value={campaignTypeId || types[0]?.id || ''}
-                          onChange={(e) => setCampaignTypeId(e.target.value)}
-                        >
-                          {types.map((t) => (
-                            <option key={t.id} value={t.id}>
-                              {t.name}
-                            </option>
-                          ))}
-                        </select>
-                      </Field>
-                    </div>
-
-                    <div className="dialog-info-pill" style={{ marginBottom: 14 }}>
-                      <Sparkles size={16} />
-                      <span>
-                        {isTontine
-                          ? 'Type Tontine Rotative : Paramétrez les échéances mensuelles et la fréquence de rotation.'
-                          : 'Type Épargne : Définissez le forfait standard, les dates de campagne et le rythme de cotisation.'}
-                      </span>
-                    </div>
-
-                    <div className="form-grid">
-                      <Field label="Événement associé">
-                        <select name="eventId">
-                          <option value="">(Optionnel) Aucun événement particulier</option>
-                          {events.map((ev) => (
-                            <option key={ev.id} value={ev.id}>
-                              {ev.name} ({ev.code})
-                            </option>
-                          ))}
-                        </select>
-                      </Field>
-                      {!isTontine ? (
-                        <Field label="Montant standard / forfait (FCFA)">
-                          <input type="number" name="standardAmount" min="1" placeholder="Ex: 5000" />
-                        </Field>
-                      ) : (
-                        <Field label="Jour d'échéance du mois (Option C)">
+                  return (
+                    <>
+                      <div className="form-grid">
+                        <Field label="Nom de la campagne">
                           <input
-                            type="number"
-                            name="dueDay"
-                            min="1"
-                            max="31"
-                            placeholder="Ex: 5 pour le 5 du mois"
+                            name="name"
+                            required
+                            minLength={2}
+                            placeholder="Ex: Épargne solidaire 2026"
                           />
                         </Field>
-                      )}
-                    </div>
-
-                    {!isTontine ? (
-                      <>
-                        <div className="form-grid">
-                          <Field label="Date de début">
-                            <input type="date" name="startDate" required />
-                          </Field>
-                          <Field label="Date de fin">
-                            <input type="date" name="endDate" required />
-                          </Field>
-                        </div>
-                        <div className="form-grid">
-                          <Field label="Jour de cotisation hebdomadaire">
-                            <select name="weekday" defaultValue="2">
-                              {days.map((d, i) => (
-                                <option key={d} value={i}>
-                                  {d}
-                                </option>
-                              ))}
-                            </select>
-                          </Field>
-                          <Field label="Intervalle en semaines">
-                            <input
-                              type="number"
-                              name="intervalWeeks"
-                              min="1"
-                              max="52"
-                              defaultValue="1"
-                              required
-                            />
-                          </Field>
-                        </div>
-                      </>
-                    ) : (
-                      <div className="form-grid">
-                        <Field label="Intervalle de rotation (si Tontine rotative)">
-                          <select name="rotationInterval" defaultValue="MONTHLY">
-                            <option value="WEEKLY">Hebdomadaire (7 jours)</option>
-                            <option value="BIWEEKLY">Bimensuel (14 jours)</option>
-                            <option value="MONTHLY">Mensuel (Par défaut)</option>
+                        <Field label="Type de campagne">
+                          <select
+                            name="typeId"
+                            required
+                            value={campaignTypeId || types[0]?.id || ''}
+                            onChange={(e) => setCampaignTypeId(e.target.value)}
+                          >
+                            {types.map((t) => (
+                              <option key={t.id} value={t.id}>
+                                {t.name}
+                              </option>
+                            ))}
                           </select>
                         </Field>
-                        <div />
                       </div>
-                    )}
 
-                    <label className="checkbox" style={{ marginTop: 8 }}>
-                      <input type="checkbox" name="isMandatory" />
-                      Souscription obligatoire pour les membres du groupement
-                    </label>
-                  </>
-                );
-              })()}
+                      <div className="dialog-info-pill" style={{ marginBottom: 14 }}>
+                        <Sparkles size={16} />
+                        <span>
+                          {isTontine
+                            ? 'Type Tontine Rotative : Paramétrez les échéances mensuelles et la fréquence de rotation.'
+                            : 'Type Épargne : Définissez le forfait standard, les dates de campagne et le rythme de cotisation.'}
+                        </span>
+                      </div>
+
+                      <div className="form-grid">
+                        <Field label="Événement associé">
+                          <select name="eventId">
+                            <option value="">(Optionnel) Aucun événement particulier</option>
+                            {events.map((ev) => (
+                              <option key={ev.id} value={ev.id}>
+                                {ev.name} ({ev.code})
+                              </option>
+                            ))}
+                          </select>
+                        </Field>
+                        {!isTontine ? (
+                          <Field label="Montant standard / forfait (FCFA)">
+                            <input
+                              type="number"
+                              name="standardAmount"
+                              min="1"
+                              placeholder="Ex: 5000"
+                            />
+                          </Field>
+                        ) : (
+                          <Field label="Jour d'échéance du mois (Option C)">
+                            <input
+                              type="number"
+                              name="dueDay"
+                              min="1"
+                              max="31"
+                              placeholder="Ex: 5 pour le 5 du mois"
+                            />
+                          </Field>
+                        )}
+                      </div>
+
+                      {!isTontine ? (
+                        <>
+                          <div className="form-grid">
+                            <Field label="Date de début">
+                              <input type="date" name="startDate" required />
+                            </Field>
+                            <Field label="Date de fin">
+                              <input type="date" name="endDate" required />
+                            </Field>
+                          </div>
+                          <div className="form-grid">
+                            <Field label="Jour de cotisation hebdomadaire">
+                              <select name="weekday" defaultValue="2">
+                                {days.map((d, i) => (
+                                  <option key={d} value={i}>
+                                    {d}
+                                  </option>
+                                ))}
+                              </select>
+                            </Field>
+                            <Field label="Intervalle en semaines">
+                              <input
+                                type="number"
+                                name="intervalWeeks"
+                                min="1"
+                                max="52"
+                                defaultValue="1"
+                                required
+                              />
+                            </Field>
+                          </div>
+                        </>
+                      ) : (
+                        <div className="form-grid">
+                          <Field label="Intervalle de rotation (si Tontine rotative)">
+                            <select name="rotationInterval" defaultValue="MONTHLY">
+                              <option value="WEEKLY">Hebdomadaire (7 jours)</option>
+                              <option value="BIWEEKLY">Bimensuel (14 jours)</option>
+                              <option value="MONTHLY">Mensuel (Par défaut)</option>
+                            </select>
+                          </Field>
+                          <div />
+                        </div>
+                      )}
+
+                      <label className="checkbox" style={{ marginTop: 8 }}>
+                        <input type="checkbox" name="isMandatory" />
+                        Souscription obligatoire pour les membres du groupement
+                      </label>
+                    </>
+                  );
+                })()}
               {dialog === 'grace' && (
                 <>
                   <Field label="Membre bénéficiaire">
@@ -5658,8 +5966,19 @@ export function App({
                       setKeypadAmount(String(cur + add));
                     }}
                   />
-                  <div style={{ textAlign: 'center', marginTop: 10, fontSize: 12, color: '#0f766e', fontWeight: 600 }}>
-                    <ShieldCheck size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />
+                  <div
+                    style={{
+                      textAlign: 'center',
+                      marginTop: 10,
+                      fontSize: 12,
+                      color: '#0f766e',
+                      fontWeight: 600,
+                    }}
+                  >
+                    <ShieldCheck
+                      size={14}
+                      style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }}
+                    />
                     Frais AvecLesFemmes = 0% · Calebasse 100% Solidaire
                   </div>
                 </>

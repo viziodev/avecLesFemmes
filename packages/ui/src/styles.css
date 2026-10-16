@@ -2943,9 +2943,18 @@ textarea {
   border-radius: 4px;
   font-weight: 600;
 }
-.login-demo-tag.super { background: #d7e8d7; color: #1c4b28; }
-.login-demo-tag.admin { background: #e3eeea; color: #1f5038; }
-.login-demo-tag.member { background: #eef3eb; color: #3c5d33; }
+.login-demo-tag.super {
+  background: #d7e8d7;
+  color: #1c4b28;
+}
+.login-demo-tag.admin {
+  background: #e3eeea;
+  color: #1f5038;
+}
+.login-demo-tag.member {
+  background: #eef3eb;
+  color: #3c5d33;
+}
 
 .login-demo-item-desc {
   font-size: 11px;
@@ -3240,8 +3249,9 @@ textarea {
   content: '';
   position: absolute;
   inset: 0;
-  background-image: radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.08) 0%, transparent 40%),
-                    radial-gradient(circle at 80% 70%, rgba(16, 185, 129, 0.18) 0%, transparent 50%);
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.08) 0%, transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(16, 185, 129, 0.18) 0%, transparent 50%);
   pointer-events: none;
 }
 
@@ -3800,19 +3810,19 @@ textarea {
   right: 0;
   bottom: 0;
   background-color: #cbd5e1;
-  transition: .3s;
+  transition: 0.3s;
   border-radius: 9999px;
 }
 
 .wave-switch-slider:before {
   position: absolute;
-  content: "";
+  content: '';
   height: 22px;
   width: 22px;
   left: 3px;
   bottom: 3px;
   background-color: white;
-  transition: .3s;
+  transition: 0.3s;
   border-radius: 50%;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
@@ -3977,7 +3987,9 @@ textarea {
   right: 0;
   height: 3px;
   background: #10b981;
-  box-shadow: 0 0 10px #10b981, 0 0 20px #10b981;
+  box-shadow:
+    0 0 10px #10b981,
+    0 0 20px #10b981;
   animation: waveLaserScan 2s ease-in-out infinite alternate;
 }
 
@@ -4020,4 +4032,3 @@ textarea {
   cursor: pointer;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
-

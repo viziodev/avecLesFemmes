@@ -324,7 +324,10 @@ test('champs conditionnels du modal création de campagne selon Type Épargne vs
 
   // Changement vers Tontine rotative
   const typeSelect = page.locator('select[name="typeId"]');
-  const tontineOption = await typeSelect.locator('option').filter({ hasText: /tontine/i }).first();
+  const tontineOption = await typeSelect
+    .locator('option')
+    .filter({ hasText: /tontine/i })
+    .first();
   const tontineVal = await tontineOption.getAttribute('value');
   if (tontineVal) {
     await typeSelect.selectOption(tontineVal);
@@ -356,7 +359,9 @@ test('tableau des campagnes actives avec métriques et onglet Archives', async (
   // 1. Onglet Campagnes : Table enrichie
   await page.getByRole('button', { name: 'Campagnes', exact: true }).click();
   await expect(page.locator('.campaigns-table')).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Campagnes actives du groupement' })).toBeVisible();
+  await expect(
+    page.getByRole('heading', { name: 'Campagnes actives du groupement' }),
+  ).toBeVisible();
 
   // Vérification de la présence des colonnes
   const headers = page.locator('.campaigns-table th');
@@ -386,10 +391,14 @@ test('tableau des campagnes actives avec métriques et onglet Archives', async (
 
   // Bascule vers l'onglet Sessions
   await page.getByRole('button', { name: /2\. Sessions/i }).click();
-  await expect(page.getByRole('heading', { name: 'Cahier des Sessions de cotisation' })).toBeVisible();
+  await expect(
+    page.getByRole('heading', { name: 'Cahier des Sessions de cotisation' }),
+  ).toBeVisible();
   await expect(page.getByRole('columnheader', { name: 'Date' })).toBeVisible();
   await expect(page.getByRole('columnheader', { name: 'Montant récupéré' })).toBeVisible();
-  await expect(page.getByRole('columnheader', { name: 'Nbre Membre ayant de cotisation' })).toBeVisible();
+  await expect(
+    page.getByRole('columnheader', { name: 'Nbre Membre ayant de cotisation' }),
+  ).toBeVisible();
   await expect(page.getByRole('columnheader', { name: 'Détails' })).toBeVisible();
   await page.screenshot({ path: 'test-results/selection-sessions-tab.png' });
 
@@ -434,7 +443,9 @@ test('tableau des campagnes actives avec métriques et onglet Archives', async (
   await page.getByRole('button', { name: 'Archives', exact: true }).click();
   await expect(page.getByRole('heading', { name: /Archives/i })).toBeVisible();
   await expect(page.getByText('Campagnes fermées / archivées')).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Groupements inactifs', exact: true })).toBeVisible();
+  await expect(
+    page.getByRole('heading', { name: 'Groupements inactifs', exact: true }),
+  ).toBeVisible();
 
   await page.screenshot({ path: 'test-results/archives-tab.png' });
 
@@ -593,5 +604,3 @@ test('informations de connexion et préremplissage automatique sur les pages de 
   await page.getByRole('button', { name: 'Se déconnecter', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Bienvenue dans votre espace' })).toBeVisible();
 });
-
-
