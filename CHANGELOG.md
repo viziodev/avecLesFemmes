@@ -1,5 +1,11 @@
 # Journal des versions
 
+## 0.2.1 Mise à jour automatique de la PWA
+
+- Détection au lancement, au retour en ligne ou au premier plan et toutes les cinq minutes visibles.
+- Activation et rechargement différés pendant les formulaires, les enregistrements et la connexion, y compris si un autre onglet active la version.
+- Conservation de la version courante hors ligne. Les utilisateurs de 0.2.0 doivent cliquer une dernière fois sur « Mettre à jour » pour installer ce mécanisme.
+
 ## 0.2.0 Fonctions, tontines rotatives, QR codes, délais de grâce et dashboards
 
 - Catalogue des fonctions de groupement (Présidente, Trésorière, Secrétaire, Membre simple...) avec affectation par groupement et éligibilité au rôle administrateur.

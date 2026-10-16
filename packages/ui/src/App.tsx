@@ -1331,10 +1331,10 @@ function Login({ portal, onLogin }: { portal: 'super' | 'member'; onLogin: (a: A
 
 export function App({
   portal,
-  onUpdate,
+  onUpdateSafetyChange,
 }: {
   portal: 'super' | 'member';
-  onUpdate?: () => Promise<void>;
+  onUpdateSafetyChange?: (safe: boolean) => void;
 }) {
   const [actor, setActor] = useState<Actor | null>(null);
   const [checking, setChecking] = useState(true);
@@ -1424,6 +1424,35 @@ export function App({
   const [announceVoice, setAnnounceVoice] = useState(true);
   const [scannerOpen, setScannerOpen] = useState(false);
   const [keypadAmount, setKeypadAmount] = useState('');
+
+  useEffect(() => {
+    // Login, dialogs and asynchronous mutations must finish before a reload.
+    onUpdateSafetyChange?.(
+      !!actor &&
+        !checking &&
+        !loading &&
+        !busy &&
+        !dialog &&
+        !resetPinMember &&
+        !editEvent &&
+        !editType &&
+        !scannerOpen &&
+        !qrModal,
+    );
+    return () => onUpdateSafetyChange?.(false);
+  }, [
+    actor,
+    checking,
+    loading,
+    busy,
+    dialog,
+    resetPinMember,
+    editEvent,
+    editType,
+    scannerOpen,
+    qrModal,
+    onUpdateSafetyChange,
+  ]);
 
   const group = groups.find((g) => g.id === groupId);
   const admin = group?.my_role === 'ADMIN';
@@ -2354,12 +2383,8 @@ export function App({
           )}
           {update && (
             <div className="alert">
-              Une nouvelle version est disponible.{' '}
-              <button disabled={!!dialog} className="text-button" onClick={() => onUpdate?.()}>
-                <Download size={15} />
-                Mettre à jour
-              </button>
-              {dialog && ' Terminez votre saisie avant la mise à jour.'}
+              Une nouvelle version est disponible. Elle sera appliquée automatiquement dès la fin de
+              votre saisie ou de l’opération en cours.
             </div>
           )}
           {notice && (
