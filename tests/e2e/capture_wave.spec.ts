@@ -1,13 +1,18 @@
+import { existsSync, mkdirSync } from 'node:fs';
 import { test } from '@playwright/test';
 import { config } from 'dotenv';
 config({ path: '.env', quiet: true });
 
 const password = process.env.DEMO_PASSWORD || 'Secret123!';
 const pwa = process.env.PWA_URL || 'http://localhost:8086';
-const artifactDir =
+const preferredDir =
   '/Users/douvewane/.gemini/antigravity-ide/brain/b57b82e7-be24-4ec8-844a-0189236e4483';
+const artifactDir =
+  process.env.ARTIFACT_DIR || (existsSync(preferredDir) ? preferredDir : 'test-results');
 
 test('capture des interfaces Wave Membre et Admin Groupement', async ({ page }) => {
+  test.skip(!!process.env.CI, 'Capture d’écrans visuels réservée aux tests locaux');
+  mkdirSync(artifactDir, { recursive: true });
   await page.setViewportSize({ width: 390, height: 844 });
 
   // 1. Connexion Membre (Wave Particulier)

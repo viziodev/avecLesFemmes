@@ -58,6 +58,7 @@ services:
       OTP_SECRET: ${OTP_SECRET:?Exécuter npm run setup}
       SMS_MODE: ${SMS_MODE:-disabled}
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS}
+      DEMO_PASSWORD: ${DEMO_PASSWORD:-}
     ports: ['127.0.0.1:3005:3000']
     depends_on: { migrate: { condition: service_completed_successfully } }
     networks: [backend, frontend]
