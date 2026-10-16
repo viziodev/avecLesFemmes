@@ -26,6 +26,37 @@ export function validVersion(value) {
       match[4].split('.').every((v) => !/^\d+$/.test(v) || v === '0' || !v.startsWith('0')))
   );
 }
+export function compareVersions(left, right) {
+  if (!validVersion(left) || !validVersion(right)) throw new Error('Versions SemVer requises.');
+  const split = (v) => {
+    const i = v.indexOf('-');
+    return i < 0 ? [v, ''] : [v.slice(0, i), v.slice(i + 1)];
+  };
+  const [lc, lp] = split(left),
+    [rc, rp] = split(right);
+  const a = lc.split('.').map(Number),
+    b = rc.split('.').map(Number);
+  for (let i = 0; i < 3; i++) if (a[i] !== b[i]) return Math.sign(a[i] - b[i]);
+  if (lp === rp) return 0;
+  if (!lp || !rp) return lp ? -1 : 1;
+  const x = lp.split('.'),
+    y = rp.split('.');
+  for (let i = 0; i < Math.max(x.length, y.length); i++) {
+    if (x[i] === y[i]) continue;
+    if (x[i] === undefined || y[i] === undefined) return x[i] === undefined ? -1 : 1;
+    const nx = /^\d+$/.test(x[i]),
+      ny = /^\d+$/.test(y[i]);
+    if (nx !== ny) return nx ? -1 : 1;
+    if (nx)
+      return x[i].length !== y[i].length
+        ? Math.sign(x[i].length - y[i].length)
+        : x[i] < y[i]
+          ? -1
+          : 1;
+    return x[i] < y[i] ? -1 : 1;
+  }
+  return 0;
+}
 export function checkVersion() {
   const version = read('package.json').version;
   if (!validVersion(version)) throw new Error('Version SemVer invalide.');

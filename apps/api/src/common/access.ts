@@ -5,9 +5,10 @@ export function requireSuper(actor: Actor) {
   if (!actor.isSuper) throw new ForbiddenException('Action réservée au super administrateur.');
 }
 export async function requireGroup(c: SqlClient, groupId: string, admin = false) {
-  const r = await c.query('SELECT id,app_is_admin(id) AS admin FROM groupements WHERE id=$1', [
-    groupId,
-  ]);
+  const r = await c.query(
+    'SELECT id, (app_is_admin(id) OR app_is_super()) AS admin FROM groupements WHERE id=$1',
+    [groupId],
+  );
   if (!r.rows[0]) throw new NotFoundException('Groupement introuvable.');
   if (admin && !r.rows[0].admin)
     throw new ForbiddenException('Administration du groupement requise.');

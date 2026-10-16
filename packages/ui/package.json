@@ -1,6 +1,6 @@
 {
   "name": "@aveclesfemmes/ui",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "exports": {
@@ -8,9 +8,11 @@
     "./styles.css": "./src/styles.css"
   },
   "dependencies": {
-    "@aveclesfemmes/api-client": "0.1.2",
-    "react": "^19.2.0",
-    "lucide-react": "^0.468.0"
+    "@aveclesfemmes/api-client": "0.2.0",
+    "@types/qrcode": "^1.5.6",
+    "lucide-react": "^0.468.0",
+    "qrcode": "^1.5.4",
+    "react": "^19.2.0"
   },
   "devDependencies": {
     "@types/react": "^19.2.2"

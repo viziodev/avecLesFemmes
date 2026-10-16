@@ -13,7 +13,7 @@ RUN npm run build --workspace @aveclesfemmes/api && npm run build --workspace @a
 RUN npm prune --omit=dev
 FROM node:24-bookworm-slim@sha256:d6aa754f16b3197301076f047b5def2f02ea1dbbc2ca920407d46d7ec7f87b20
 RUN apt-get update && apt-get install -y --no-install-recommends nginx ca-certificates && rm -rf /var/lib/apt/lists/*
-ARG PRODUCT_VERSION=0.1.2
+ARG PRODUCT_VERSION=0.2.0
 ARG VCS_REF=working-tree
 ARG SOURCE_URL
 LABEL org.opencontainers.image.version=$PRODUCT_VERSION org.opencontainers.image.revision=$VCS_REF org.opencontainers.image.source=$SOURCE_URL

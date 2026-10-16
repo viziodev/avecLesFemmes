@@ -11,6 +11,7 @@ import {
   Req,
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   NotFoundException,
 } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -40,8 +41,14 @@ export class ContributionsService {
         'SELECT count(*) FROM contributions WHERE campaign_id=$1 AND (NOT $2::boolean OR app_owns_participation(participation_id))',
         [campaignId, personal],
       );
+      let orderBy = 'x.paid_on DESC, x.created_at DESC, x.id';
+      if (page.sort === 'member') {
+        orderBy = 'm.name ASC, x.paid_on DESC, x.id';
+      } else if (page.sort === 'session' || page.sort === 'period') {
+        orderBy = 'x.paid_on DESC, m.name ASC, x.id';
+      }
       const r = await c.query(
-        'SELECT x.id,m.name,x.participation_id,x.amount::text,x.paid_on::text,x.reference,x.voided_at::text FROM contributions x JOIN participations p ON p.id=x.participation_id JOIN memberships m ON m.id=p.membership_id WHERE x.campaign_id=$1 AND (NOT $4::boolean OR app_owns_participation(x.participation_id)) ORDER BY x.paid_on DESC,x.created_at DESC,x.id LIMIT $2 OFFSET $3',
+        `SELECT x.id,m.name,x.participation_id,x.amount::text,x.paid_on::text,x.reference,x.voided_at::text FROM contributions x JOIN participations p ON p.id=x.participation_id JOIN memberships m ON m.id=p.membership_id WHERE x.campaign_id=$1 AND (NOT $4::boolean OR app_owns_participation(x.participation_id)) ORDER BY ${orderBy} LIMIT $2 OFFSET $3`,
         [campaignId, page.limit, (page.page - 1) * page.limit, personal],
       );
       return { items: r.rows, total: Number(count.rows[0].count) };
@@ -78,10 +85,12 @@ export class ContributionsService {
       if (input.paidOn < start || input.paidOn > end)
         throw new BadRequestException('Le versement doit appartenir à la période de campagne.');
       const participant = await c.query(
-        'SELECT p.id,m.name FROM participations p JOIN memberships m ON m.id=p.membership_id WHERE p.id=$1 AND p.campaign_id=$2 AND p.group_id=$3 AND m.active',
+        'SELECT p.id,m.name,m.is_blocked FROM participations p JOIN memberships m ON m.id=p.membership_id WHERE p.id=$1 AND p.campaign_id=$2 AND p.group_id=$3 AND m.active',
         [input.participationId, campaignId, groupId],
       );
       if (!participant.rows[0]) throw new NotFoundException('Participation introuvable.');
+      if (participant.rows[0].is_blocked)
+        throw new ForbiddenException('Ce membre est actuellement bloqué.');
       const id = randomUUID();
       const r = await c.query(
         'INSERT INTO contributions(id,group_id,campaign_id,participation_id,amount,paid_on,created_by,reference,idempotency_key,request_hash) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING id,participation_id,amount::text,paid_on::text,reference,voided_at::text',

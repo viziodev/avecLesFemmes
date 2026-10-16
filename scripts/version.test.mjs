@@ -4,7 +4,7 @@ import { mkdtempSync, mkdirSync, cpSync, readFileSync, writeFileSync, rmSync } f
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { packages, root, validVersion } from './version.mjs';
+import { packages, root, validVersion, compareVersions } from './version.mjs';
 
 function fixture(callback) {
   const dir = mkdtempSync(join(tmpdir(), 'aveclesfemmes-version-'));
@@ -37,6 +37,24 @@ test('versions SemVer et préversions valides, valeurs ambiguës rejetées', () 
     assert.equal(validVersion(version), true);
   for (const version of ['01.1.0', '1.0', '1.0.0-beta.01', 'latest', undefined])
     assert.equal(validVersion(version), false);
+});
+test('la progression des versions respecte les préversions SemVer', () => {
+  const ordered = [
+    '0.1.2',
+    '0.1.3-alpha',
+    '0.1.3-alpha.1',
+    '0.1.3-alpha.2',
+    '0.1.3-alpha.10',
+    '0.1.3-beta',
+    '0.1.3',
+    '0.2.0',
+    '1.0.0',
+  ];
+  for (let i = 1; i < ordered.length; i++) {
+    assert.equal(compareVersions(ordered[i - 1], ordered[i]), -1);
+    assert.equal(compareVersions(ordered[i], ordered[i - 1]), 1);
+  }
+  assert.equal(compareVersions('1.0.0-beta.1', '1.0.0-beta.1'), 0);
 });
 test('une montée de version synchronise les six packages et les images sans changer l’API', () =>
   fixture((dir, run) => {
