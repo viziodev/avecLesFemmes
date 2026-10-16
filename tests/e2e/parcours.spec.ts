@@ -167,8 +167,18 @@ test('membre se connecte par code PIN et affiche son QR code vectoriel', async (
   });
   expect(created.status()).toBe(201);
   await page.getByRole('button', { name: 'Se déconnecter', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Bienvenue dans votre espace' })).toBeVisible();
 
   await page.goto(pwa);
+  const pwaLogout = page.getByRole('button', { name: 'Se déconnecter', exact: true });
+  if (await pwaLogout.isVisible()) {
+    await pwaLogout.click();
+    await expect(page.getByRole('heading', { name: 'Bienvenue dans votre espace' })).toBeVisible();
+  }
+  const pinTab = page.getByRole('button', { name: 'Code PIN', exact: true });
+  if (await pinTab.isVisible()) {
+    await pinTab.click();
+  }
   await page.getByLabel('Téléphone avec indicatif', { exact: true }).fill(phone);
   await page.getByLabel('Code secret (4 chiffres)', { exact: true }).fill(pin);
   await page.getByRole('button', { name: 'Se connecter', exact: true }).click();
