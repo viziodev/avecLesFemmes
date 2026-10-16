@@ -196,6 +196,21 @@
         ]
       }
     },
+    "/api/v1/auth/demo": {
+      "get": {
+        "operationId": "demoCredentials",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "",
+        "tags": [
+          "Authentification"
+        ]
+      }
+    },
     "/api/v1/groupements": {
       "get": {
         "operationId": "listGroups",
