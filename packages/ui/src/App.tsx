@@ -6,21 +6,28 @@ import {
   ArrowLeft,
   ArrowRight,
   ArrowUpDown,
+  BarChart3,
   Calendar,
   CalendarCheck,
+  Camera,
   Check,
+  CheckCircle2,
   ChevronDown,
   ChevronRight,
   ChevronUp,
   Clock,
   Coins,
   Copy,
+  CreditCard,
   Download,
   Edit2,
   Eye,
   EyeOff,
   Filter,
   FolderHeart,
+  Gift,
+  HelpCircle,
+  Info,
   KeyRound,
   LayoutDashboard,
   Leaf,
@@ -28,20 +35,26 @@ import {
   LogOut,
   MapPin,
   Phone,
+  Play,
   Plus,
   QrCode,
   RotateCcw,
   Search,
+  Settings,
   ShieldCheck,
   Shuffle,
+  Smartphone,
   Sparkles,
   Trash2,
   Unlock,
   UserCheck,
   UserPlus,
   Users,
+  Volume2,
+  VolumeX,
   Wallet,
   X,
+  Zap,
 } from 'lucide-react';
 import { api, type components } from '@aveclesfemmes/api-client';
 
@@ -232,6 +245,492 @@ function QrModal({
         </div>
       </div>
     </Dialog>
+  );
+}
+
+function VectorQrView({ data, width = 170 }: { data: string; width?: number }) {
+  const [svg, setSvg] = useState('');
+  useEffect(() => {
+    if (!data) return;
+    QRCode.toString(data, { type: 'svg', margin: 1, width })
+      .then(setSvg)
+      .catch(() => {});
+  }, [data, width]);
+
+  return (
+    <div
+      className="wave-qr-code-svg"
+      dangerouslySetInnerHTML={{ __html: svg }}
+      style={{ width, height: width }}
+    />
+  );
+}
+
+function NumericKeypad({
+  amount,
+  onChange,
+  onAddQuick,
+}: {
+  amount: string;
+  onChange: (val: string) => void;
+  onAddQuick: (add: number) => void;
+}) {
+  const handleDigit = (digit: string) => {
+    if (digit === '0' && amount === '') return;
+    if (amount.length >= 8) return;
+    onChange(amount + digit);
+  };
+
+  const handleBackspace = () => {
+    onChange(amount.slice(0, -1));
+  };
+
+  const handleClear = () => {
+    onChange('');
+  };
+
+  const keys = [
+    { digit: '1', letters: '' },
+    { digit: '2', letters: 'ABC' },
+    { digit: '3', letters: 'DEF' },
+    { digit: '4', letters: 'GHI' },
+    { digit: '5', letters: 'JKL' },
+    { digit: '6', letters: 'MNO' },
+    { digit: '7', letters: 'PQRS' },
+    { digit: '8', letters: 'TUV' },
+    { digit: '9', letters: 'WXYZ' },
+    { digit: 'C', letters: 'EFFACER', isClear: true },
+    { digit: '0', letters: '' },
+    { digit: '⌫', letters: '', isBackspace: true },
+  ];
+
+  return (
+    <div className="wave-keypad-container">
+      <div className="wave-keypad-shortcuts">
+        {[1000, 2000, 5000, 10000].map((quick) => (
+          <button
+            key={quick}
+            type="button"
+            className="wave-keypad-shortcut-pill"
+            onClick={() => onAddQuick(quick)}
+          >
+            +{new Intl.NumberFormat('fr-SN').format(quick)} F
+          </button>
+        ))}
+      </div>
+      <div className="wave-keypad-grid">
+        {keys.map((k) => (
+          <button
+            key={k.digit}
+            type="button"
+            className={`wave-keypad-btn ${k.isClear || k.isBackspace ? 'action-btn' : ''}`}
+            onClick={() => {
+              if (k.isBackspace) handleBackspace();
+              else if (k.isClear) handleClear();
+              else handleDigit(k.digit);
+            }}
+          >
+            <span className="wave-keypad-digit">{k.digit}</span>
+            {k.letters && <span className="wave-keypad-letters">{k.letters}</span>}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function CameraScannerOverlay({
+  onClose,
+  onScan,
+  title = 'Scanner un Code QR pour cotiser',
+}: {
+  onClose: () => void;
+  onScan: (val: string) => void;
+  title?: string;
+}) {
+  const [flashlight, setFlashlight] = useState(false);
+
+  return (
+    <div className="wave-scanner-overlay" role="dialog" aria-modal="true" aria-label="Scanner QR">
+      <div className="wave-scanner-topbar">
+        <button
+          type="button"
+          className="wave-scanner-close-btn"
+          aria-label="Fermer le scanner"
+          onClick={onClose}
+        >
+          <X size={22} />
+        </button>
+        <span style={{ fontWeight: 700, fontSize: 16 }}>Viseur Caméra</span>
+        <button
+          type="button"
+          className="wave-scanner-flash-btn"
+          aria-label="Lampe torche"
+          onClick={() => setFlashlight(!flashlight)}
+          style={{ background: flashlight ? '#10b981' : undefined }}
+        >
+          <Zap size={20} />
+        </button>
+      </div>
+
+      <div className="wave-scanner-center">
+        <div className="wave-scanner-frame">
+          <div className="wave-scanner-laser" />
+        </div>
+        <p className="wave-scanner-instruction">{title}</p>
+      </div>
+
+      <div className="wave-scanner-bottom">
+        <button
+          type="button"
+          className="wave-scanner-sim-btn"
+          onClick={() => {
+            onScan('DEMO_SCAN_CODE');
+          }}
+        >
+          <Camera size={18} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 8 }} />
+          Simuler lecture instantanée du QR Code
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function WaveChiffresView({
+  totalAmount,
+  contributionsCount,
+  period,
+  onPeriodChange,
+  onBack,
+}: {
+  totalAmount: number;
+  contributionsCount: number;
+  period: 'day' | 'week' | 'month';
+  onPeriodChange: (p: 'day' | 'week' | 'month') => void;
+  onBack: () => void;
+}) {
+  const barData = useMemo(() => {
+    if (period === 'day') {
+      return [
+        { label: 'dim. 11', amount: 0, height: 8 },
+        { label: 'lun. 12', amount: 0, height: 8 },
+        { label: 'mar. 13', amount: 0, height: 8 },
+        { label: 'mer. 14', amount: 0, height: 8 },
+        { label: 'jeu. 15', amount: 0, height: 8 },
+        { label: 'ven. 16', amount: totalAmount, height: totalAmount > 0 ? 55 : 8, active: true },
+      ];
+    } else if (period === 'week') {
+      return [
+        { label: '14 sept.', amount: 11500, height: 75 },
+        { label: '21 sept.', amount: 12500, height: 85 },
+        { label: '28 sept.', amount: 0, height: 8 },
+        { label: '05 oct.', amount: 500, height: 22 },
+        { label: '12 oct.', amount: totalAmount, height: totalAmount > 0 ? 60 : 8, active: true },
+      ];
+    } else {
+      return [
+        { label: 'Juin', amount: 0, height: 8 },
+        { label: 'Juil.', amount: 10500, height: 50 },
+        { label: 'Août', amount: 0, height: 8 },
+        { label: 'Sept.', amount: 24077, height: 95 },
+        { label: 'Oct.', amount: totalAmount || 500, height: 35, active: true },
+      ];
+    }
+  }, [period, totalAmount]);
+
+  return (
+    <div className="wave-chiffres-screen">
+      <div className="wave-top-header">
+        <button
+          type="button"
+          className="wave-header-btn"
+          aria-label="Retour"
+          onClick={onBack}
+        >
+          <ArrowLeft size={20} />
+        </button>
+        <span className="wave-header-title">Chiffres</span>
+        <div style={{ width: 42 }} />
+      </div>
+
+      <div className="wave-balance-hero">
+        <span className="wave-balance-eyebrow">Encaissements total</span>
+        <span className="wave-balance-amount">{money(totalAmount)}</span>
+      </div>
+
+      <div className="wave-segmented-control">
+        <button
+          type="button"
+          className={`wave-segmented-btn ${period === 'day' ? 'active' : ''}`}
+          onClick={() => onPeriodChange('day')}
+        >
+          Aujourd'hui
+        </button>
+        <button
+          type="button"
+          className={`wave-segmented-btn ${period === 'week' ? 'active' : ''}`}
+          onClick={() => onPeriodChange('week')}
+        >
+          Semaine
+        </button>
+        <button
+          type="button"
+          className={`wave-segmented-btn ${period === 'month' ? 'active' : ''}`}
+          onClick={() => onPeriodChange('month')}
+        >
+          Mois
+        </button>
+      </div>
+
+      <div className="wave-summary-card">
+        <div className="wave-summary-card-title">
+          {period === 'day'
+            ? 'Résumé du jour'
+            : period === 'week'
+              ? 'Résumé de cette semaine'
+              : 'Résumé de ce mois-ci'}
+        </div>
+        <div className="wave-summary-row">
+          <span className="wave-summary-label">
+            {contributionsCount} paiement{contributionsCount > 1 ? 's' : ''} reçu{contributionsCount > 1 ? 's' : ''}
+          </span>
+          <span className="wave-summary-val">{money(totalAmount)}</span>
+        </div>
+        <div className="wave-summary-row">
+          <span className="wave-summary-label">Frais AvecLesFemmes*</span>
+          <span className="wave-summary-val">0 FCFA</span>
+        </div>
+        <div className="wave-summary-row">
+          <span className="wave-summary-label">Revenu net</span>
+          <span className="wave-summary-val">{money(totalAmount)}</span>
+        </div>
+        <div className="wave-summary-footnote">
+          *Zéro frais jusqu'à 20.000F encaissés, puis 0% solidaire.
+          <br />
+          Gestion 100% transparente et solidaire pour les calebasses féminines.
+        </div>
+      </div>
+
+      <div className="wave-chart-section">
+        <div className="wave-chart-title">
+          {period === 'day'
+            ? 'Par rapport aux jours précédents'
+            : period === 'week'
+              ? 'Par rapport aux semaines précédentes'
+              : 'Par rapport aux mois précédents'}
+        </div>
+
+        <div className="wave-bar-chart-card">
+          <div className="wave-bar-chart-cols">
+            {barData.map((b, i) => (
+              <div
+                key={i}
+                className={`wave-bar-col ${b.active ? 'active' : ''} ${b.amount > 0 ? 'has-val' : ''}`}
+              >
+                <span className="wave-bar-amount">
+                  {b.amount === 0 ? '0F' : `${new Intl.NumberFormat('fr-SN').format(b.amount)}F`}
+                </span>
+                <div className="wave-bar-fill" style={{ height: `${b.height}%` }} />
+              </div>
+            ))}
+          </div>
+          <div className="wave-bar-labels">
+            {barData.map((b, i) => (
+              <div
+                key={i}
+                className={`wave-bar-label-item ${b.active ? 'active' : ''}`}
+              >
+                {b.label}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function WaveSettingsView({
+  announceVoice,
+  onToggleVoice,
+  actorLogin,
+  onOpenQr,
+  onGoCampaigns,
+  onGoMembers,
+  onGoArchives,
+  onLogout,
+  onBack,
+}: {
+  announceVoice: boolean;
+  onToggleVoice: () => void;
+  actorLogin: string;
+  onOpenQr: () => void;
+  onGoCampaigns: () => void;
+  onGoMembers: () => void;
+  onGoArchives: () => void;
+  onLogout: () => void;
+  onBack: () => void;
+}) {
+  return (
+    <div className="wave-settings-screen">
+      <div className="wave-top-header">
+        <button
+          type="button"
+          className="wave-header-btn"
+          aria-label="Retour"
+          onClick={onBack}
+        >
+          <ArrowLeft size={20} />
+        </button>
+        <span className="wave-header-title">Paramètres</span>
+        <div style={{ width: 42 }} />
+      </div>
+
+      <div className="wave-settings-group">
+        <div className="wave-settings-group-title">Notifications</div>
+        <div className="wave-settings-card">
+          <div className="wave-settings-row" style={{ cursor: 'default' }}>
+            <div className="wave-settings-row-left">
+              <span className="wave-settings-row-icon">
+                <Volume2 size={20} />
+              </span>
+              <span>Annoncer les paiements</span>
+            </div>
+            <label className="wave-switch">
+              <input
+                type="checkbox"
+                checked={announceVoice}
+                onChange={onToggleVoice}
+              />
+              <span className="wave-switch-slider" />
+            </label>
+          </div>
+          <div className="wave-settings-hint">
+            Pour entendre les paiements à voix haute, activez les notifications, désactivez le mode silencieux et augmentez le volume.
+          </div>
+        </div>
+      </div>
+
+      <div className="wave-settings-group">
+        <div className="wave-settings-group-title">Outils professionnels</div>
+        <div className="wave-settings-card">
+          <button type="button" className="wave-settings-row" onClick={onOpenQr}>
+            <div className="wave-settings-row-left">
+              <span className="wave-settings-row-icon">
+                <QrCode size={19} />
+              </span>
+              <span>Afficher QR code</span>
+            </div>
+            <ChevronRight size={18} color="#94a3b8" />
+          </button>
+          <button type="button" className="wave-settings-row" onClick={onGoCampaigns}>
+            <div className="wave-settings-row-left">
+              <span className="wave-settings-row-icon">
+                <FolderHeart size={19} />
+              </span>
+              <span>Gérer les campagnes & forfaits</span>
+            </div>
+            <ChevronRight size={18} color="#94a3b8" />
+          </button>
+          <button type="button" className="wave-settings-row" onClick={onGoMembers}>
+            <div className="wave-settings-row-left">
+              <span className="wave-settings-row-icon">
+                <Users size={19} />
+              </span>
+              <span>Documents & Liste des membres</span>
+            </div>
+            <ChevronRight size={18} color="#94a3b8" />
+          </button>
+          <button type="button" className="wave-settings-row" onClick={onGoArchives}>
+            <div className="wave-settings-row-left">
+              <span className="wave-settings-row-icon">
+                <Archive size={19} />
+              </span>
+              <span>Archives & Clôtures</span>
+            </div>
+            <ChevronRight size={18} color="#94a3b8" />
+          </button>
+        </div>
+      </div>
+
+      <div className="wave-settings-group">
+        <div className="wave-settings-group-title">Sécurité</div>
+        <div className="wave-settings-card">
+          <div className="wave-settings-row">
+            <div className="wave-settings-row-left">
+              <span className="wave-settings-row-icon">
+                <Lock size={19} />
+              </span>
+              <span>Sécurité & Code PIN</span>
+            </div>
+            <span style={{ fontSize: 13, color: '#10b981', fontWeight: 700 }}>Actif</span>
+          </div>
+          <div className="wave-settings-row">
+            <div className="wave-settings-row-left">
+              <span className="wave-settings-row-icon">
+                <ShieldCheck size={19} />
+              </span>
+              <span>Vérifier conformité Calebasse</span>
+            </div>
+            <span style={{ fontSize: 13, color: '#10b981', fontWeight: 700 }}>Conforme</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="wave-settings-group">
+        <div className="wave-settings-group-title">Support</div>
+        <div className="wave-settings-card">
+          <a
+            href="tel:+221770000000"
+            className="wave-settings-row"
+            style={{ textDecoration: 'none' }}
+          >
+            <div className="wave-settings-row-left">
+              <span className="wave-settings-row-icon">
+                <Phone size={19} />
+              </span>
+              <span>Appelez le service client gratuitement</span>
+            </div>
+            <ChevronRight size={18} color="#94a3b8" />
+          </a>
+          <button
+            type="button"
+            className="wave-settings-row"
+            onClick={() => alert('Vidéos de formation disponibles sur notre portail.')}
+          >
+            <div className="wave-settings-row-left">
+              <span className="wave-settings-row-icon">
+                <Play size={19} />
+              </span>
+              <span>Vidéos de formation</span>
+            </div>
+            <ChevronRight size={18} color="#94a3b8" />
+          </button>
+        </div>
+      </div>
+
+      <div className="wave-settings-group">
+        <div className="wave-settings-card">
+          <button
+            type="button"
+            className="wave-settings-row"
+            onClick={onLogout}
+            style={{ color: '#dc2626' }}
+          >
+            <div className="wave-settings-row-left">
+              <span className="wave-settings-row-icon" style={{ color: '#dc2626' }}>
+                <LogOut size={19} />
+              </span>
+              <div>
+                <strong>Se déconnecter</strong>
+                <div style={{ fontSize: 12, color: '#64748b' }}>({actorLogin})</div>
+              </div>
+            </div>
+            <ChevronRight size={18} color="#94a3b8" />
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -887,6 +1386,14 @@ export function App({
   const idempotency = useRef(crypto.randomUUID());
   const [personalMode, setPersonalMode] = useState(false);
 
+  // Wave UX / UI States
+  const [showBalance, setShowBalance] = useState(true);
+  const [adminSubView, setAdminSubView] = useState<'dashboard' | 'chiffres' | 'settings'>('dashboard');
+  const [statsPeriod, setStatsPeriod] = useState<'day' | 'week' | 'month'>('day');
+  const [announceVoice, setAnnounceVoice] = useState(true);
+  const [scannerOpen, setScannerOpen] = useState(false);
+  const [keypadAmount, setKeypadAmount] = useState('');
+
   const group = groups.find((g) => g.id === groupId);
   const admin = group?.my_role === 'ADMIN';
   const superAdmin = actor?.isSuper && portal === 'super';
@@ -1513,15 +2020,19 @@ export function App({
         'Participation et forfait enregistrés.',
       );
 
-    if (dialog === 'contribution')
+    if (dialog === 'contribution') {
+      const pId = v.participationId;
+      const part = participants.find((p) => p.id === pId);
+      const participantName = part?.name || 'la membre';
+      const contribAmount = Number(v.amount);
       await action(
         () =>
           api
             .POST('/api/v1/groupements/{groupId}/campaigns/{campaignId}/contributions', {
               params: { path: { groupId, campaignId } },
               body: {
-                participationId: v.participationId,
-                amount: Number(v.amount),
+                participationId: pId,
+                amount: contribAmount,
                 paidOn: v.paidOn,
                 idempotencyKey: idempotency.current,
               },
@@ -1529,6 +2040,19 @@ export function App({
             .then(unwrap),
         'Cotisation enregistrée.',
       );
+      if (announceVoice && typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        try {
+          const utter = new SpeechSynthesisUtterance(
+            `Cotisation de ${contribAmount} francs CFA reçue pour ${participantName}.`,
+          );
+          utter.lang = 'fr-FR';
+          utter.rate = 0.95;
+          window.speechSynthesis.speak(utter);
+        } catch {
+          // ignore speech synthesis errors
+        }
+      }
+    }
 
     if (dialog === 'grace')
       await action(
@@ -2088,34 +2612,389 @@ export function App({
           ) : (
             <>
               {tab === 'overview' && (
+                adminSubView === 'chiffres' ? (
+                  <WaveChiffresView
+                    totalAmount={Number(dashboard?.total || 0)}
+                    contributionsCount={Number(dashboard?.payments || 0)}
+                    period={statsPeriod}
+                    onPeriodChange={setStatsPeriod}
+                    onBack={() => setAdminSubView('dashboard')}
+                  />
+                ) : adminSubView === 'settings' ? (
+                  <WaveSettingsView
+                    announceVoice={announceVoice}
+                    onToggleVoice={() => setAnnounceVoice(!announceVoice)}
+                    actorLogin={actor?.login || actor?.name || ''}
+                    onOpenQr={() => {
+                      if (group) {
+                        setQrModal({
+                          title: `Groupement · ${group.name}`,
+                          subtitle: `${group.address || 'Sénégal'} · ${group.phone}`,
+                          data: `ALF:GROUP:${group.id}:${group.name}`,
+                        });
+                      }
+                    }}
+                    onGoCampaigns={() => {
+                      setTab('campaigns');
+                      setAdminSubView('dashboard');
+                    }}
+                    onGoMembers={() => {
+                      setTab('members');
+                      setAdminSubView('dashboard');
+                    }}
+                    onGoArchives={() => {
+                      setTab('archives');
+                      setAdminSubView('dashboard');
+                    }}
+                    onLogout={() =>
+                      action(async () => {
+                        await api.POST('/api/v1/auth/logout').then(unwrap);
+                        setActor(null);
+                        setGroups([]);
+                        setGroupId('');
+                      }, 'Déconnexion effectuée.')
+                    }
+                    onBack={() => setAdminSubView('dashboard')}
+                  />
+                ) : (
                 <>
-                  <section className="welcome-panel">
-                    <div>
-                      <span className="eyebrow">CHAQUE CONTRIBUTION COMPTE</span>
-                      <h2>
-                        Ensemble, les projets
-                        <br />
-                        prennent vie.
-                      </h2>
-                      <p>
-                        {group?.name} ·{' '}
-                        {superAdmin
-                          ? 'Consultation des campagnes'
-                          : admin
-                            ? 'Gestion du groupement et épargne personnelle'
-                            : 'Votre épargne, en toute clarté'}
-                      </p>
-                    </div>
-                    <div className="welcome-art" aria-hidden="true">
-                      <div className="coin coin-one">
-                        <Leaf size={48} />
+                  {superAdmin ? (
+                    <section className="welcome-panel">
+                      <div>
+                        <span className="eyebrow">CHAQUE CONTRIBUTION COMPTE</span>
+                        <h2>
+                          Ensemble, les projets
+                          <br />
+                          prennent vie.
+                        </h2>
+                        <p>
+                          {group?.name} · Consultation des campagnes
+                        </p>
                       </div>
-                      <div className="coin coin-two">
-                        <Coins size={48} />
+                      <div className="welcome-art" aria-hidden="true">
+                        <div className="coin coin-one">
+                          <Leaf size={48} />
+                        </div>
+                        <div className="coin coin-two">
+                          <Coins size={48} />
+                        </div>
+                        <span className="art-spark">✦</span>
                       </div>
-                      <span className="art-spark">✦</span>
+                    </section>
+                  ) : dashboard?.personal ? (
+                    /* SÉRIE 1 : ESPACE MEMBRE (STYLE WAVE PARTICULIER) */
+                    <div className="wave-member-hero-section">
+                      <div className="wave-balance-hero">
+                        <span className="wave-balance-eyebrow">Solde d'épargne disponible</span>
+                        <div className="wave-balance-row">
+                          <span className="wave-balance-amount">
+                            {showBalance ? money(dashboard?.total || 0) : '•••••• FCFA'}
+                          </span>
+                          <button
+                            type="button"
+                            className="wave-eye-toggle"
+                            aria-label={showBalance ? 'Masquer le solde' : 'Afficher le solde'}
+                            onClick={() => setShowBalance(!showBalance)}
+                          >
+                            {showBalance ? <Eye size={22} /> : <EyeOff size={22} />}
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="wave-qr-card-container">
+                        <div className="wave-qr-card">
+                          <div className="wave-qr-white-box">
+                            <VectorQrView
+                              data={`ALF:MEMBER:${groupId}:${actor?.id}:${actor?.login}`}
+                              width={160}
+                            />
+                            <button
+                              type="button"
+                              className="wave-qr-scan-btn"
+                              onClick={() => setScannerOpen(true)}
+                            >
+                              <Camera size={16} />
+                              <span>Scanner</span>
+                            </button>
+                          </div>
+                          <div className="wave-qr-mascot" title="AvecLesFemmes Solidaire">
+                            🐧
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="wave-actions-grid">
+                        <button
+                          type="button"
+                          className="wave-action-circle-item"
+                          onClick={() => setTab('campaigns')}
+                        >
+                          <div className="wave-action-circle wave-circle-blue">
+                            <Coins size={24} />
+                          </div>
+                          <span className="wave-action-label">Cotiser</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          className="wave-action-circle-item"
+                          aria-label="Paiements et Campagnes"
+                          onClick={() => setTab('campaigns')}
+                        >
+                          <div className="wave-action-circle wave-circle-orange">
+                            <FolderHeart size={24} />
+                          </div>
+                          <span className="wave-action-label">Paiements</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          className="wave-action-circle-item"
+                          onClick={() => setTab('campaigns')}
+                        >
+                          <div className="wave-action-circle wave-circle-sky">
+                            <Wallet size={24} />
+                          </div>
+                          <span className="wave-action-label">Forfaits</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          className="wave-action-circle-item"
+                          onClick={() => {
+                            const el = document.getElementById('contributions-history-anchor');
+                            el?.scrollIntoView({ behavior: 'smooth' });
+                          }}
+                        >
+                          <div className="wave-action-circle wave-circle-pink">
+                            <Lock size={24} />
+                          </div>
+                          <span className="wave-action-label">Calebasse</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          className="wave-action-circle-item"
+                          onClick={() => {
+                            const el = document.querySelector('.tontine-rounds-table');
+                            el?.scrollIntoView({ behavior: 'smooth' });
+                          }}
+                        >
+                          <div className="wave-action-circle wave-circle-green">
+                            <Sparkles size={24} />
+                          </div>
+                          <span className="wave-action-label">Tontines</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          className="wave-action-circle-item"
+                          onClick={() =>
+                            setQrModal({
+                              title: `Carte Membre · ${actor?.name}`,
+                              subtitle: `${group?.name || 'Groupement'} · ${actor?.login}`,
+                              data: `ALF:MEMBER:${groupId}:${actor?.id}:${actor?.login}`,
+                            })
+                          }
+                        >
+                          <div className="wave-action-circle wave-circle-purple">
+                            <QrCode size={24} />
+                          </div>
+                          <span className="wave-action-label">Mon QR</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          className="wave-action-circle-item"
+                          onClick={() => setHistoryFilter('SOLIDARITE')}
+                        >
+                          <div className="wave-action-circle wave-circle-mint">
+                            <ShieldCheck size={24} />
+                          </div>
+                          <span className="wave-action-label">Solidarité</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          className="wave-action-circle-item"
+                          onClick={() => {
+                            const el = document.getElementById('contributions-history-anchor');
+                            el?.scrollIntoView({ behavior: 'smooth' });
+                          }}
+                        >
+                          <div className="wave-action-circle wave-circle-slate">
+                            <Clock size={24} />
+                          </div>
+                          <span className="wave-action-label">Historique</span>
+                        </button>
+                      </div>
                     </div>
-                  </section>
+                  ) : (
+                    /* SÉRIE 2 : ESPACE ADMIN GROUPEMENT (STYLE WAVE BUSINESS) */
+                    <div className="wave-admin-hero-section">
+                      <div className="wave-top-header">
+                        <button
+                          type="button"
+                          className="wave-header-btn"
+                          aria-label="Paramètres du groupement"
+                          title="Paramètres"
+                          onClick={() => setAdminSubView('settings')}
+                        >
+                          <Settings size={20} />
+                        </button>
+                        <span className="wave-header-title">{group?.name || 'Mon Groupement'}</span>
+                        <button
+                          type="button"
+                          className="wave-header-btn"
+                          aria-label="Afficher les chiffres"
+                          title="Chiffres"
+                          onClick={() => setAdminSubView('chiffres')}
+                        >
+                          <BarChart3 size={20} />
+                        </button>
+                      </div>
+
+                      <div className="wave-balance-hero">
+                        <span className="wave-balance-eyebrow">SOLDE CAISSE</span>
+                        <div className="wave-balance-row">
+                          <span className="wave-balance-amount">
+                            {showBalance ? money(dashboard?.total || 0) : '•••••• FCFA'}
+                          </span>
+                          <button
+                            type="button"
+                            className="wave-eye-toggle"
+                            aria-label={showBalance ? 'Masquer le solde' : 'Afficher le solde'}
+                            onClick={() => setShowBalance(!showBalance)}
+                          >
+                            {showBalance ? <Eye size={22} /> : <EyeOff size={22} />}
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Bouton géant d'encaissement WAVE Business */}
+                      {canManage && campaign?.active && (
+                        <div className="wave-giant-cta-wrapper">
+                          <button
+                            type="button"
+                            className="wave-giant-cta"
+                            aria-label="Enregistrer une cotisation"
+                            disabled={!online || busy}
+                            onClick={() => open('contribution')}
+                          >
+                            <span className="wave-giant-cta-icon">
+                              <QrCode size={22} />
+                            </span>
+                            <span className="wave-giant-cta-text">ENCAISSER UNE MEMBRE</span>
+                          </button>
+                        </div>
+                      )}
+
+                      <div className="wave-actions-grid">
+                        <button
+                          type="button"
+                          className="wave-action-circle-item"
+                          onClick={() => setTab('members')}
+                        >
+                          <div className="wave-action-circle wave-circle-blue">
+                            <Users size={24} />
+                          </div>
+                          <span className="wave-action-label">Membres</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          className="wave-action-circle-item"
+                          onClick={() => setTab('campaigns')}
+                        >
+                          <div className="wave-action-circle wave-circle-orange">
+                            <FolderHeart size={24} />
+                            <span className="wave-action-pill-badge">Actives</span>
+                          </div>
+                          <span className="wave-action-label">Campagnes</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          className="wave-action-circle-item"
+                          onClick={() => {
+                            const el = document.querySelector('.tontine-rounds-table');
+                            el?.scrollIntoView({ behavior: 'smooth' });
+                          }}
+                        >
+                          <div className="wave-action-circle wave-circle-sky">
+                            <Shuffle size={24} />
+                          </div>
+                          <span className="wave-action-label">Tontines</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          className="wave-action-circle-item"
+                          onClick={() => setAdminSubView('chiffres')}
+                        >
+                          <div className="wave-action-circle wave-circle-purple">
+                            <BarChart3 size={24} />
+                          </div>
+                          <span className="wave-action-label">Chiffres</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          className="wave-action-circle-item"
+                          onClick={() => {
+                            const el = document.querySelector('.cashbox-grid');
+                            el?.scrollIntoView({ behavior: 'smooth' });
+                          }}
+                        >
+                          <div className="wave-action-circle wave-circle-pink">
+                            <Lock size={24} />
+                          </div>
+                          <span className="wave-action-label">Coffre</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          className="wave-action-circle-item"
+                          onClick={() => {
+                            if (group) {
+                              setQrModal({
+                                title: `Groupement · ${group.name}`,
+                                subtitle: `${group.address || 'Sénégal'} · ${group.phone}`,
+                                data: `ALF:GROUP:${group.id}:${group.name}`,
+                              });
+                            }
+                          }}
+                        >
+                          <div className="wave-action-circle wave-circle-mint">
+                            <QrCode size={24} />
+                          </div>
+                          <span className="wave-action-label">Code QR</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          className="wave-action-circle-item"
+                          onClick={() => setTab('archives')}
+                        >
+                          <div className="wave-action-circle wave-circle-slate">
+                            <Archive size={24} />
+                          </div>
+                          <span className="wave-action-label">Archives</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          className="wave-action-circle-item"
+                          onClick={() => open('member')}
+                        >
+                          <div className="wave-action-circle wave-circle-green">
+                            <UserPlus size={24} />
+                          </div>
+                          <span className="wave-action-label">+ Membre</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
 
                   {/* État de la caisse pour l'administration du groupement */}
                   {canManage && cashbox && (
@@ -2433,12 +3312,12 @@ export function App({
                       </div>
                       {canManage && campaign?.active && (
                         <button
-                          className="primary"
+                          className="secondary"
                           disabled={!online || busy}
                           onClick={() => open('contribution')}
                         >
                           <Plus size={17} />
-                          Enregistrer une cotisation
+                          Encaisser
                         </button>
                       )}
                     </div>
@@ -3103,6 +3982,7 @@ export function App({
                     <Pager page={page} total={contributionTotal} onChange={setPage} />
                   </section>
                 </>
+                )
               )}
 
               {/* Cockpit 360° Plateforme Super Admin */}
@@ -4730,7 +5610,16 @@ export function App({
               {dialog === 'contribution' && (
                 <>
                   <Field label="Participante">
-                    <select name="participationId" required>
+                    <select
+                      name="participationId"
+                      required
+                      onChange={(e) => {
+                        const chosen = participants.find((p) => p.id === e.target.value);
+                        if (chosen?.forfait) {
+                          setKeypadAmount(String(chosen.forfait));
+                        }
+                      }}
+                    >
                       {participants.map((p) => (
                         <option key={p.id} value={p.id}>
                           {p.name} · {p.forfait ? money(p.forfait) : 'Libre'}
@@ -4740,7 +5629,15 @@ export function App({
                   </Field>
                   <div className="form-grid">
                     <Field label="Montant réellement versé en FCFA">
-                      <input type="number" name="amount" min="1" required placeholder="Ex: 5000" />
+                      <input
+                        type="number"
+                        name="amount"
+                        min="1"
+                        required
+                        placeholder="Ex: 5000"
+                        value={keypadAmount}
+                        onChange={(e) => setKeypadAmount(e.target.value)}
+                      />
                     </Field>
                     <Field label="Date du versement">
                       <input
@@ -4750,6 +5647,20 @@ export function App({
                         required
                       />
                     </Field>
+                  </div>
+
+                  {/* Pavé tactile géant et raccourcis rapides */}
+                  <NumericKeypad
+                    amount={keypadAmount}
+                    onChange={setKeypadAmount}
+                    onAddQuick={(add) => {
+                      const cur = Number(keypadAmount) || 0;
+                      setKeypadAmount(String(cur + add));
+                    }}
+                  />
+                  <div style={{ textAlign: 'center', marginTop: 10, fontSize: 12, color: '#0f766e', fontWeight: 600 }}>
+                    <ShieldCheck size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />
+                    Frais AvecLesFemmes = 0% · Calebasse 100% Solidaire
                   </div>
                 </>
               )}
@@ -4789,6 +5700,19 @@ export function App({
             </fieldset>
           </form>
         </Dialog>
+      )}
+
+      {scannerOpen && (
+        <CameraScannerOverlay
+          onClose={() => setScannerOpen(false)}
+          onScan={(_scanned) => {
+            setScannerOpen(false);
+            setNotice('Code QR scanné avec succès.');
+            if (canManage) {
+              open('contribution');
+            }
+          }}
+        />
       )}
     </div>
   );

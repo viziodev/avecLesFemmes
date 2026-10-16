@@ -3081,3 +3081,943 @@ textarea {
   margin-bottom: 6px;
 }
 
+/* ==========================================================================
+   WAVE-INSPIRED ERGONOMIC DESIGN SYSTEM (AVECLESFEMMES BRAND CHART)
+   ========================================================================== */
+
+/* Top header & Navigation Bar */
+.wave-top-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px 8px;
+  width: 100%;
+}
+
+.wave-header-btn {
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  color: #1e293b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.wave-header-btn:hover {
+  background: #f1f5f9;
+  transform: translateY(-1px);
+}
+
+.wave-header-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: #0f172a;
+  text-align: center;
+  flex: 1;
+}
+
+/* Balance Hero Display (Grand Solde + Bouton Œil) */
+.wave-balance-hero {
+  text-align: center;
+  padding: 12px 16px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.wave-balance-eyebrow {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  color: #64748b;
+  text-transform: uppercase;
+}
+
+.wave-balance-row {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.wave-balance-amount {
+  font-family: 'Manrope', sans-serif;
+  font-size: 38px;
+  font-weight: 800;
+  letter-spacing: -1px;
+  color: #0f2e22;
+  line-height: 1.1;
+}
+
+.wave-eye-toggle {
+  background: none;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  padding: 6px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+
+.wave-eye-toggle:hover {
+  color: #0f2e22;
+  background: #e2e8f0;
+}
+
+/* Giant CTA Button (ENCAISSER UNE MEMBRE / ENCAISSER UN CLIENT) */
+.wave-giant-cta-wrapper {
+  padding: 0 16px 20px;
+  width: 100%;
+}
+
+.wave-giant-cta {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 9999px;
+  padding: 16px 24px;
+  font-family: 'Manrope', sans-serif;
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
+  transition: all 0.2s ease;
+}
+
+.wave-giant-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.45);
+  filter: brightness(1.05);
+}
+
+.wave-giant-cta:active {
+  transform: translateY(1px);
+}
+
+.wave-giant-cta-icon {
+  display: grid;
+  place-items: center;
+}
+
+/* Central QR Card (Carte Membre Wave Texture + QR Centré + Scanner) */
+.wave-qr-card-container {
+  padding: 0 16px 22px;
+  width: 100%;
+}
+
+.wave-qr-card {
+  position: relative;
+  border-radius: 24px;
+  background: linear-gradient(135deg, #0f5138 0%, #176548 50%, #083827 100%);
+  padding: 24px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  box-shadow: 0 10px 25px rgba(15, 81, 56, 0.28);
+  overflow: hidden;
+}
+
+/* Subtle African geometric pattern texture overlay */
+.wave-qr-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.08) 0%, transparent 40%),
+                    radial-gradient(circle at 80% 70%, rgba(16, 185, 129, 0.18) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.wave-qr-white-box {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 16px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  z-index: 1;
+}
+
+.wave-qr-code-svg {
+  width: 170px;
+  height: 170px;
+  display: block;
+}
+
+.wave-qr-scan-btn {
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 9999px;
+  padding: 7px 18px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f5138;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s;
+}
+
+.wave-qr-scan-btn:hover {
+  background: #f0fdf4;
+  border-color: #10b981;
+  transform: translateY(-1px);
+}
+
+.wave-qr-mascot {
+  position: absolute;
+  bottom: 12px;
+  right: 14px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(4px);
+  display: grid;
+  place-items: center;
+  font-size: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 2;
+}
+
+/* Quick Action Grid (Circulaires Pastel 4x2) */
+.wave-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px 8px;
+  padding: 0 12px 24px;
+  width: 100%;
+}
+
+.wave-action-circle-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  transition: transform 0.15s ease;
+  position: relative;
+}
+
+.wave-action-circle-item:hover {
+  transform: translateY(-2px);
+}
+
+.wave-action-circle-item:active {
+  transform: scale(0.96);
+}
+
+.wave-action-circle {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.04);
+  position: relative;
+  transition: box-shadow 0.2s;
+}
+
+.wave-action-circle-item:hover .wave-action-circle {
+  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.08);
+}
+
+/* Pastel color palettes */
+.wave-circle-blue {
+  background: #e0e7ff;
+  color: #3730a3;
+}
+.wave-circle-orange {
+  background: #ffedd5;
+  color: #c2410c;
+}
+.wave-circle-sky {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+.wave-circle-pink {
+  background: #fce7f3;
+  color: #be185d;
+}
+.wave-circle-green {
+  background: #dcfce7;
+  color: #15803d;
+}
+.wave-circle-purple {
+  background: #f3e8ff;
+  color: #7e22ce;
+}
+.wave-circle-mint {
+  background: #ccfbf1;
+  color: #0f766e;
+}
+.wave-circle-slate {
+  background: #f1f5f9;
+  color: #475569;
+}
+.wave-circle-emerald {
+  background: #d1fae5;
+  color: #047857;
+}
+
+.wave-action-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #1e293b;
+  line-height: 1.25;
+  max-width: 80px;
+}
+
+.wave-action-pill-badge {
+  position: absolute;
+  top: -4px;
+  right: -2px;
+  background: #10b981;
+  color: #ffffff;
+  font-size: 9px;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 9999px;
+  border: 1.5px solid #ffffff;
+}
+
+/* Wave Transactions Sheet (Feuille Blanche Coulissante) */
+.wave-sheet-container {
+  background: #ffffff;
+  border-radius: 24px 24px 0 0;
+  padding: 20px 16px 36px;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.04);
+  border-top: 1px solid var(--border);
+  min-height: 380px;
+  width: 100%;
+}
+
+.wave-sheet-handle {
+  width: 36px;
+  height: 4px;
+  background: #cbd5e1;
+  border-radius: 9999px;
+  margin: 0 auto 16px;
+}
+
+.wave-sheet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.wave-sheet-title {
+  font-size: 17px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+/* Wave Transaction Item */
+.wave-tx-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.wave-tx-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  background: #ffffff;
+  border-radius: 14px;
+  border: 1px solid #f1f5f9;
+  transition: all 0.15s ease;
+}
+
+.wave-tx-item:hover {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+
+.wave-tx-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.wave-tx-icon-circle {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #f1f5f9;
+  color: #475569;
+  flex-shrink: 0;
+}
+
+.wave-tx-icon-circle.deposit {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.wave-tx-icon-circle.withdrawal {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.wave-tx-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.wave-tx-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.wave-tx-date {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.wave-tx-amount {
+  font-family: 'Manrope', sans-serif;
+  font-size: 15px;
+  font-weight: 800;
+  text-align: right;
+}
+
+.wave-tx-amount.positive {
+  color: #0f5138;
+}
+
+.wave-tx-amount.negative {
+  color: #0f172a;
+}
+
+/* ==========================================================================
+   ÉCRAN CHIFFRES (WAVE BUSINESS STATS & GRAPH)
+   ========================================================================== */
+.wave-chiffres-screen {
+  background: #f8fafc;
+  min-height: 80vh;
+  padding-bottom: 40px;
+}
+
+.wave-segmented-control {
+  display: flex;
+  background: #e2e8f0;
+  border-radius: 9999px;
+  padding: 3px;
+  margin: 16px 16px 20px;
+}
+
+.wave-segmented-btn {
+  flex: 1;
+  background: none;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 9999px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.wave-segmented-btn.active {
+  background: #ffffff;
+  color: #0f172a;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.wave-summary-card {
+  background: #ffffff;
+  border-radius: 18px;
+  margin: 0 16px 24px;
+  padding: 20px 18px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+  border: 1px solid #f1f5f9;
+}
+
+.wave-summary-card-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 16px;
+}
+
+.wave-summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 14px;
+}
+
+.wave-summary-row:last-of-type {
+  border-bottom: none;
+}
+
+.wave-summary-label {
+  color: #334155;
+  font-weight: 600;
+}
+
+.wave-summary-val {
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.wave-summary-footnote {
+  margin-top: 14px;
+  font-size: 12px;
+  color: #94a3b8;
+  line-height: 1.4;
+}
+
+.wave-chart-section {
+  padding: 0 16px;
+}
+
+.wave-chart-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 14px;
+}
+
+.wave-bar-chart-card {
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 20px 16px 14px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+  border: 1px solid #f1f5f9;
+}
+
+.wave-bar-chart-cols {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 10px;
+  height: 150px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.wave-bar-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+  position: relative;
+}
+
+.wave-bar-amount {
+  font-size: 11px;
+  font-weight: 700;
+  color: #475569;
+  margin-bottom: 6px;
+  white-space: nowrap;
+}
+
+.wave-bar-fill {
+  width: 100%;
+  max-width: 44px;
+  background: #e2e8f0;
+  border-radius: 6px 6px 0 0;
+  transition: all 0.3s ease;
+  min-height: 4px;
+}
+
+.wave-bar-col.active .wave-bar-fill {
+  background: linear-gradient(180deg, #10b981 0%, #059669 100%);
+}
+
+.wave-bar-col.has-val .wave-bar-fill {
+  background: #cbd5e1;
+}
+
+.wave-bar-col.active.has-val .wave-bar-fill {
+  background: linear-gradient(180deg, #10b981 0%, #059669 100%);
+}
+
+.wave-bar-labels {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.wave-bar-label-item {
+  flex: 1;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  position: relative;
+  padding-bottom: 6px;
+}
+
+.wave-bar-label-item.active {
+  color: #0f172a;
+}
+
+.wave-bar-label-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 15%;
+  right: 15%;
+  height: 3px;
+  background: #0ea5e9;
+  border-radius: 9999px;
+}
+
+/* ==========================================================================
+   ÉCRAN PARAMÈTRES (WAVE BUSINESS SETTINGS & ANNONCE VOCALE)
+   ========================================================================== */
+.wave-settings-screen {
+  background: #f8fafc;
+  min-height: 80vh;
+  padding-bottom: 40px;
+}
+
+.wave-settings-group {
+  margin: 0 16px 20px;
+}
+
+.wave-settings-group-title {
+  font-size: 12px;
+  font-weight: 800;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 8px;
+  padding-left: 6px;
+}
+
+.wave-settings-card {
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  border: 1px solid #f1f5f9;
+  overflow: hidden;
+}
+
+.wave-settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  background: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  color: #0f172a;
+  transition: background 0.15s;
+}
+
+.wave-settings-row:hover {
+  background: #f8fafc;
+}
+
+.wave-settings-row:last-child {
+  border-bottom: none;
+}
+
+.wave-settings-row-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.wave-settings-row-icon {
+  color: #1e293b;
+  display: grid;
+  place-items: center;
+}
+
+.wave-settings-hint {
+  padding: 8px 16px 12px;
+  font-size: 12px;
+  color: #94a3b8;
+  line-height: 1.45;
+}
+
+/* iOS / Wave style toggle switch */
+.wave-switch {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 28px;
+}
+
+.wave-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.wave-switch-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #cbd5e1;
+  transition: .3s;
+  border-radius: 9999px;
+}
+
+.wave-switch-slider:before {
+  position: absolute;
+  content: "";
+  height: 22px;
+  width: 22px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .3s;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.wave-switch input:checked + .wave-switch-slider {
+  background-color: #10b981;
+}
+
+.wave-switch input:checked + .wave-switch-slider:before {
+  transform: translateX(20px);
+}
+
+/* ==========================================================================
+   PAVÉ NUMÉRIQUE TACTILE GÉANT (NUMERIC KEYPAD)
+   ========================================================================== */
+.wave-keypad-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.wave-keypad-shortcuts {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.wave-keypad-shortcut-pill {
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  border-radius: 9999px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #0f5138;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s;
+}
+
+.wave-keypad-shortcut-pill:hover {
+  background: #dcfce7;
+  border-color: #10b981;
+}
+
+.wave-keypad-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  background: #f8fafc;
+  padding: 12px;
+  border-radius: 18px;
+  border: 1px solid #e2e8f0;
+}
+
+.wave-keypad-btn {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  height: 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+  transition: all 0.1s ease;
+  user-select: none;
+}
+
+.wave-keypad-btn:hover {
+  background: #f1f5f9;
+}
+
+.wave-keypad-btn:active {
+  transform: scale(0.96);
+  background: #e2e8f0;
+}
+
+.wave-keypad-digit {
+  font-family: 'Manrope', sans-serif;
+  font-size: 24px;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1;
+}
+
+.wave-keypad-letters {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+
+.wave-keypad-btn.action-btn {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+/* ==========================================================================
+   CAMERA SCANNER VIEWFINDER OVERLAY
+   ========================================================================== */
+.wave-scanner-overlay {
+  position: fixed;
+  inset: 0;
+  background: #000000;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.wave-scanner-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 20px;
+  color: #ffffff;
+  z-index: 10;
+}
+
+.wave-scanner-close-btn,
+.wave-scanner-flash-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: #ffffff;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+}
+
+.wave-scanner-center {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  position: relative;
+}
+
+.wave-scanner-frame {
+  width: 260px;
+  height: 260px;
+  border-radius: 28px;
+  border: 3px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.65);
+  position: relative;
+  overflow: hidden;
+}
+
+.wave-scanner-laser {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: #10b981;
+  box-shadow: 0 0 10px #10b981, 0 0 20px #10b981;
+  animation: waveLaserScan 2s ease-in-out infinite alternate;
+}
+
+@keyframes waveLaserScan {
+  0% {
+    top: 10%;
+  }
+  100% {
+    top: 90%;
+  }
+}
+
+.wave-scanner-instruction {
+  margin-top: 28px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #ffffff;
+  text-align: center;
+  max-width: 280px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+}
+
+.wave-scanner-bottom {
+  padding: 20px 24px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+  z-index: 10;
+}
+
+.wave-scanner-sim-btn {
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 9999px;
+  padding: 12px 24px;
+  font-weight: 700;
+  font-size: 14px;
+  color: #0f172a;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
