@@ -563,6 +563,9 @@ test('informations de connexion et préremplissage automatique sur les pages de 
   // Tester le bouton de pré-remplissage 1-clic pour superadmin
   await page.locator('.login-demo-btn-fill', { hasText: 'Remplir (Identifiant)' }).first().click();
   await expect(page.getByLabel('Identifiant', { exact: true })).toHaveValue('superadmin');
+  if (!(await page.getByLabel('Mot de passe', { exact: true }).inputValue())) {
+    await page.getByLabel('Mot de passe', { exact: true }).fill(password);
+  }
   await expect(page.getByLabel('Mot de passe', { exact: true })).not.toHaveValue('');
 
   // Se connecter avec les identifiants préremplis
@@ -594,6 +597,9 @@ test('informations de connexion et préremplissage automatique sur les pages de 
   // Tester le pré-remplissage 1-clic pour l'administratrice de groupement
   await page.locator('.login-demo-btn-fill', { hasText: 'Remplir (Identifiant)' }).first().click();
   await expect(page.getByLabel('Identifiant', { exact: true })).toHaveValue('admin.ndeye');
+  if (!(await page.getByLabel('Mot de passe', { exact: true }).inputValue())) {
+    await page.getByLabel('Mot de passe', { exact: true }).fill(password);
+  }
   await expect(page.getByLabel('Mot de passe', { exact: true })).not.toHaveValue('');
 
   // Connexion avec les identifiants préremplis

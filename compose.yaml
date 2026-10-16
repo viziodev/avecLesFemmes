@@ -122,6 +122,7 @@ services:
     environment:
       DATABASE_URL: postgresql://aveclesfemmes_app:${APP_DATABASE_PASSWORD}@db:5432/aveclesfemmes
       ALLOWED_ORIGINS: http://localhost:8087
+      NODE_ENV: development
       SMS_MODE: disabled
       DEMO_PASSWORD: ${DEMO_PASSWORD:-}
     ports: ['127.0.0.1:8087:8080']
