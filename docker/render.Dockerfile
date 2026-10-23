@@ -13,7 +13,7 @@ RUN npm run build --workspace @aveclesfemmes/api && npm run build --workspace @a
 RUN npm prune --omit=dev
 FROM node:24-bookworm-slim@sha256:d6aa754f16b3197301076f047b5def2f02ea1dbbc2ca920407d46d7ec7f87b20
 RUN apt-get update && apt-get install -y --no-install-recommends nginx ca-certificates && rm -rf /var/lib/apt/lists/*
-ARG PRODUCT_VERSION=0.6.0
+ARG PRODUCT_VERSION=1.0.0
 ARG VCS_REF=working-tree
 ARG SOURCE_URL
 LABEL org.opencontainers.image.version=$PRODUCT_VERSION org.opencontainers.image.revision=$VCS_REF org.opencontainers.image.source=$SOURCE_URL
@@ -26,6 +26,7 @@ COPY --from=build --chown=node:node /app/apps/membres-pwa/dist /app/static/membr
 COPY --chown=node:node database /app/database
 COPY --chown=node:node docker/render-nginx.conf docker/render-start.sh /app/docker/
 USER node
+COPY docker/security-headers.conf /etc/nginx/alf-security-headers.conf
 EXPOSE 8080
 HEALTHCHECK --interval=15s --timeout=5s --start-period=30s CMD node -e "fetch('http://127.0.0.1:8080/api/v1/health/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
 CMD ["bash", "/app/docker/render-start.sh"]

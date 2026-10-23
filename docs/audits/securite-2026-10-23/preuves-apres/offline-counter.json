@@ -1,0 +1,10 @@
+{
+  "scope": "Fresh context, synthetic vault only",
+  "envelopeVersion": 3,
+  "hasPinWrapper": false,
+  "serverKeyStored": false,
+  "passwordStored": false,
+  "rejectedIncludingCorrectPin": 4,
+  "wrongPasswordRejected": true,
+  "recoveryPasswordWorks": true
+}

@@ -109,3 +109,69 @@ Validation : 3 tests navigateur du cycle réel de mise à jour réussis ; 5 parc
 [Capture de la confirmation interrompue et du récapitulatif conservé](17-lot5-reprise-reseau.png).
 
 Le lot 6 reste à réaliser : recette représentative, tests de charge et essais sur téléphones réels, notamment clavier virtuel, installation PWA, mise à jour du paquet Workbox et reprise après suspension du système.
+
+## Lot 6 — première étape de qualification, version 0.6.1
+
+Le 18 octobre 2026, branche `codex/pwa-recette-lot6` : correction de la CI préparatoire, configuration de tests mobiles Chromium/WebKit, remplacement des exemples k6 par un scénario local authentifié en lecture seule et profil Docker isolé avec image figée. La recette a révélé un défaut de retour du focus après ouverture tactile du QR sur WebKit ; il est corrigé.
+
+28 tests fonctionnels ont passé avant la correction ciblée, puis 4 parcours mobiles ont passé sur les interfaces reconstruites en 0.6.1. L’essai k6 de 5 utilisatrices virtuelles sur 30 secondes a effectué 240 requêtes sans erreur HTTP. Ces contrôles ne qualifient pas les appareils réels ou les volumes cibles. API, web et PWA locaux sains en 0.6.1 ; aucun déploiement distant.
+
+Le lot 6 reste ouvert pour les essais physiques, les volumes représentatifs, les écritures concurrentes et les tableaux spécialisés. Voir [la recette détaillée et la grille des appareils réels](../../recette/LOT6.md).
+
+## Complément du lot 6 — séances et rotations, version 0.6.2
+
+Branche `codex/pwa-seances-mobile`. Les tableaux spécialisés de séances, tours de tontine et participations sont maintenant adaptés à la PWA mobile : cartes avec libellés, détails dépliables accessibles et références longues sur une seule colonne. Les tableaux de bureau sont conservés.
+
+Validation : 6 tests mobiles Chromium/WebKit réussis, dont les détails et états vides à 360 px ; 1 parcours bureau des campagnes/séances/archives réussi. Typage, formatage, cohérence de version et constructions Docker validés. Services locaux sains en 0.6.2 ; aucun déploiement distant.
+
+Restent la qualification sur appareils réels, les volumes représentatifs et les encaissements concurrents en environnement isolé. Voir le [suivi du lot 6](../../recette/LOT6.md).
+
+## Complément du lot 6 — qualification isolée, outillage 0.6.3
+
+Branche `codex/qualification-volumes`. La qualification sur PostgreSQL réel couvre 1 001 groupements de 201 membres et 201 201 cotisations initiales, avec le rôle applicatif non privilégié. Recherche/pagination, portée membre, isolation RLS et rapprochement après confirmations concurrentes sont vérifiés. Les données sont synthétiques, hébergées sur un réseau et un stockage temporaires distincts de la base locale habituelle.
+
+Le test utilise une image API construite explicitement désignée (0.6.2 pour l’essai local), puis écrit un rapport sans secrets. Il rejoint les vérifications CI conditionnant la livraison, avec artefact et nettoyage même en cas d’échec. Les essais physiques et la charge prolongée restent ouverts. Voir [la procédure de qualification](../../recette/QUALIFICATION-VOLUMES.md).
+
+## Complément du lot 6 — historique étendu, outillage 0.6.4
+
+Le 19 octobre 2026, branche `codex/qualification-historique` : qualification réussie sur l’image API 0.6.2 avec 1 001 groupements, 201 201 adhésions et 2 012 010 cotisations initiales. Recherche, isolation et confirmations concurrentes passent. L’essai mixte sur deux administratrices de deux groupements réalise 60 lectures et 60 versements en 65 secondes, sans erreur ; p95 de 184 ms en lecture et 10 ms en écriture. Les totaux API et SQL concordent pour chaque groupement.
+
+Le stockage temporaire a été retiré après conservation du rapport. Ce résultat complète la qualification des volumes, sans clôturer l’endurance, la concurrence de nombreux comptes, les appareils physiques ou la CI distante. Voir [les mesures et limites](../../recette/QUALIFICATION-VOLUMES.md). Aucun déploiement distant.
+
+### 21 octobre — 0.12.0 : tours et délais de grâce
+
+Tour du jour/en cours prioritaire, trois tours passés et Voir plus par lots de trois ; raccourcis limités à deux lignes avec Plus et Historique conservé. Délai individuel depuis la liste du tour, prolongation auditée et affichage Absent après expiration uniquement sans versement valide. Contrôles serveur du responsable, de l’inscription, du tirage et des échéances. Livraison locale validée par 23 tests API et 20 tests mobiles Android/iPhone, plus contrôle visuel dans la PWA.
+
+### 21 octobre — 0.13.0 : cartes compactes
+
+Résumés de séance et de tour sur trois lignes ; campagnes de la PWA en cartes sur quatre lignes, détails et actions conservés. Bénéficiaire identifiée et exclue des délais de grâce côté interface et API. Validation : 23 tests API, 20 tests mobiles Android/iPhone, TypeScript et version cohérents, reconstruction Docker locale réussie et contrôle visuel des cartes.
+
+### 21 octobre — 0.14.0 : campagnes et adhésions
+
+Menu Campagnes sans panneaux secondaires, ajout direct sur chaque carte et identité du groupement sur deux lignes. Six raccourcis personnalisables, conservés par responsable/groupement ; autres campagnes dans Plus. Ajout par recherche des non-inscrits, montant commun de tontine et épargne libre/fixe au standard, avec contrôles API des inscriptions et encaissements. Migration 008 avec RLS. Validation locale : 26 tests API et 22 parcours mobiles au total (20 régressions, puis 2 nouveaux parcours corrigés et validés), TypeScript/version et reconstruction Docker réussis.
+
+### 21 octobre — 0.15.0 : filtres et cartes Membres
+
+Filtre des campagnes actives par type, sélectionnées par défaut et Voir plus pour les autres. Sélecteur de membre unique avec recherche des non-inscrits intégrée, navigation clavier et pagination serveur. Cartes Membres de trois lignes, détail des inscriptions et montants versés pour chaque épargne, hors annulations. Recherche sans accent et actions QR/PIN/blocage conservées. L’API enrichit la page de membres par une requête groupée, avec isolation des vues personnelles. Aucun déploiement distant pour ce lot ; contrôle réel des filtres, du sélecteur et des montants dans la PWA locale.
+
+Validation finale : 27 tests API et 24 parcours mobiles Android/iPhone réussis après correction de la fermeture tactile du sélecteur ; TypeScript, version et reconstruction Docker validés.
+
+### 21 octobre — 0.16.0 : accueil et versements membres
+
+Bandeau commun au groupement, QR personnel, campagnes actives inscrites et total personnel. Versement personnel après ouverture de la séance du jour ou tirage du tour courant, un enregistrement valide par période et par membre, avec idempotence, règles de montant et audit. Cinq versements/tours, Voir plus, filtres, badges des séances ouvertes non versées, bénéficiaires et durée restante de tontine. Migration 009 : insertion de sa propre participation et accès borné au calendrier des bénéficiaires, sans élargir les droits de modification de campagne ou de lecture des autres cotisations. Validation locale : 30 tests API, 28 parcours mobiles et six tests de fiabilité/mise à jour réussis ; TypeScript, version et reconstruction Docker validés, contrôle réel de l’épargne et de la tontine du compte Awa. Aucun déploiement distant.
+
+### 21 octobre — 0.17.0 : historique global et choix d’accueil
+
+Montant d’épargne personnel avant les versements, choix de six campagnes d’accueil par membre/groupement, autres campagnes dans Plus et préférences indépendantes du profil administrateur. Historique global incluant les archives, filtres multiples type/campagne/séance/tour avant pagination et retrait de Campagne suivie. Badges des séances ouvertes et tours tirés non cotisés, période du jour incluse. Migration 010 avec RLS, contrôles de portée et d’inscription. Validation : 32 tests API, 32 scénarios mobiles distincts validés après adaptation du geste de test de refus sur iPhone, TypeScript/version et construction Docker réussis. Contrôle réel de l’historique et des badges, sans modification des données du compte ; aucun déploiement distant.
+
+### 21 octobre — 0.17.1 : bandeau personnel fixe
+
+Coordonnées du groupement et QR de 180 px dans une grille de six rangées, sans montant ni nom de campagne. Bandeau invariant lors du choix de campagne ; montants et confidentialité conservés dans le détail. Validation ciblée : 12 parcours mobiles Android/iPhone réussis, mesure des six rangées/QR et contrôle de stabilité du contenu, de la couleur et de la hauteur. TypeScript, version, reconstruction Docker et contrôle visuel local validés.
+
+### 22 octobre — 0.17.2 : listes personnelles ciblées
+
+Mes campagnes limitée aux choix d’accueil, configuration dans une fenêtre dédiée accessible également depuis Plus. Mes versements limitée aux cinq derniers enregistrements ; Voir plus charge les cinq suivants, filtres et total global conservés. Validation : 12 tests mobiles Android/iPhone simulés réussis, TypeScript, version et construction Docker validés. Contrôle réel des listes du compte Awa et de la pagination de cinq à dix, sans modification des données ni déploiement distant.
+
+### 22 octobre — 0.18.0 : identité et navigation commune
+
+Nom et identifiant du membre en gras dans le bandeau fixe à six rangées ; QR personnel conservé, bouton de barre supérieure supprimé en mode personnel. Ajout d’une campagne aux raccourcis depuis Plus pour les deux profils. Icônes, cartes de choix et commandes d’affichage partagées pour harmoniser les écrans proposant la même action. Validation : 20 scénarios mobiles distincts réussis après adaptation d’un geste de test de décochage sur une carte immédiatement retirée ; TypeScript, formatage, contrats, version et reconstruction Docker validés. Contrôle visuel réel de l’identité et de Plus sans modification des données ni déploiement distant.

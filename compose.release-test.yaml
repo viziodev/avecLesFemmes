@@ -1,0 +1,64 @@
+name: aveclesfemmes-release-test
+services:
+  db:
+    image: postgres:18-bookworm@sha256:afc7e2d441324c0388fa80c3d24f733b4194a4eb7f47dd8ee2b08eb1a24a647c
+    environment:
+      POSTGRES_DB: aveclesfemmes
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?}
+      APP_DATABASE_PASSWORD: ${APP_DATABASE_PASSWORD:?}
+    ports: ['127.0.0.1:15433:5432']
+    volumes:
+      - release_test_data:/var/lib/postgresql
+      - ./docker/init-db.sql:/docker-entrypoint-initdb.d/01-role.sql:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d aveclesfemmes']
+      interval: 2s
+      timeout: 3s
+      retries: 30
+  migrate:
+    image: aveclesfemmes-api:${APP_VERSION:?}
+    environment:
+      MIGRATION_DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@db:5432/aveclesfemmes
+    command: ['node', 'dist/database/migrate.js']
+    depends_on: { db: { condition: service_healthy } }
+  seed:
+    image: aveclesfemmes-api:${APP_VERSION:?}
+    environment:
+      NODE_ENV: test
+      MIGRATION_DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@db:5432/aveclesfemmes
+      DEMO_PASSWORD: ${DEMO_PASSWORD:?}
+    command: ['node', 'dist/database/seed.js']
+    depends_on: { migrate: { condition: service_completed_successfully } }
+  api:
+    image: aveclesfemmes-api:${APP_VERSION:?}
+    environment:
+      NODE_ENV: test
+      DATABASE_URL: postgresql://aveclesfemmes_app:${APP_DATABASE_PASSWORD}@db:5432/aveclesfemmes
+      DEMO_PASSWORD: ${DEMO_PASSWORD:?}
+      OTP_SECRET: ${OTP_SECRET:?}
+      SMS_MODE: development
+      ALLOWED_ORIGINS: http://localhost:18085,http://localhost:18086,http://localhost:18087
+    ports: ['127.0.0.1:13005:3000']
+    depends_on: { migrate: { condition: service_completed_successfully } }
+  super-admin-web:
+    image: aveclesfemmes-web:${APP_VERSION:?}
+    ports: ['127.0.0.1:18085:8080']
+    depends_on: { api: { condition: service_healthy } }
+  membres-pwa:
+    image: aveclesfemmes-pwa:${APP_VERSION:?}
+    ports: ['127.0.0.1:18086:8080']
+    depends_on: { api: { condition: service_healthy } }
+  render-test:
+    image: aveclesfemmes-render:${APP_VERSION:?}
+    environment:
+      NODE_ENV: test
+      DATABASE_URL: postgresql://aveclesfemmes_app:${APP_DATABASE_PASSWORD}@db:5432/aveclesfemmes
+      DEMO_PASSWORD: ${DEMO_PASSWORD:?}
+      OTP_SECRET: ${OTP_SECRET:?}
+      SMS_MODE: disabled
+      ALLOWED_ORIGINS: http://localhost:18087
+    ports: ['127.0.0.1:18087:8080']
+    depends_on: { migrate: { condition: service_completed_successfully } }
+volumes:
+  release_test_data:

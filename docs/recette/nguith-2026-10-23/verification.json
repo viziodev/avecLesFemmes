@@ -1,0 +1,68 @@
+{
+  "version": "0.28.0",
+  "environment": "PostgreSQL Compose local uniquement",
+  "counts": {
+    "groupements": 1,
+    "campagnes": 3,
+    "membres": 1,
+    "inscriptions": 3,
+    "versements": 0,
+    "seances": 0,
+    "tours": 0,
+    "comptes_membres": 1
+  },
+  "campagnes": [
+    {
+      "groupement": "Cabalabasse des Femmes de Nguith",
+      "login": "awa",
+      "membre": "Awa",
+      "role": "ADMIN",
+      "fonction": "Présidente",
+      "campagne": "Avec",
+      "type": "AVEC",
+      "evenement": "Fêtes de Tabaski",
+      "montant": "5000",
+      "debut": "2026-10-25",
+      "fin": "2027-10-24",
+      "jour": 0,
+      "frequence": null,
+      "rang_mensuel": null,
+      "forfait": "5000"
+    },
+    {
+      "groupement": "Cabalabasse des Femmes de Nguith",
+      "login": "awa",
+      "membre": "Awa",
+      "role": "ADMIN",
+      "fonction": "Présidente",
+      "campagne": "Sokorou Kor",
+      "type": "AVEC",
+      "evenement": "Ramadan",
+      "montant": "3000",
+      "debut": "2026-11-01",
+      "fin": "2027-08-31",
+      "jour": 0,
+      "frequence": "MONTHLY",
+      "rang_mensuel": 1,
+      "forfait": "3000"
+    },
+    {
+      "groupement": "Cabalabasse des Femmes de Nguith",
+      "login": "awa",
+      "membre": "Awa",
+      "role": "ADMIN",
+      "fonction": "Présidente",
+      "campagne": "Natte-10000",
+      "type": "TONTINE",
+      "evenement": null,
+      "montant": "1000",
+      "debut": "2026-11-01",
+      "fin": "2027-08-31",
+      "jour": 0,
+      "frequence": "MONTHLY",
+      "rang_mensuel": 1,
+      "forfait": "1000"
+    }
+  ],
+  "sauvegardeArchiveLisible": true
+}

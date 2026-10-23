@@ -1,0 +1,55 @@
+{
+  "scope": "PGlite isolated; synthetic identities only; production configuration",
+  "version": "0.25.0",
+  "cookieFlags": {
+    "secure": true,
+    "httpOnly": true,
+    "sameSiteLax": true
+  },
+  "positiveControls": {
+    "unauthenticated": 401,
+    "csrfMissing": 403,
+    "foreignOrigin": 403,
+    "crossGroup": 404,
+    "missingConfirmation": 403,
+    "memberReset": 403
+  },
+  "SEC-01": {
+    "resetStatus": 201,
+    "loginWithChosenPinAsPassword": 201,
+    "otherGroupAsVictim": 200,
+    "oldRecoveryPassword": 401,
+    "passwordAndCodeHashesIdentical": true
+  },
+  "SEC-02": {
+    "interleaving": "Controlled barrier: eight DB reads before updates; no change to production application code",
+    "concurrentFailures": 8,
+    "statuses": [401, 401, 401, 401, 401, 401, 401, 401],
+    "persistedAttempts": 1,
+    "locked": false,
+    "correctPinAcceptedAfterEightFailures": 201
+  },
+  "SEC-03": {
+    "trustProxy": false,
+    "forwardedClientsDifferent": true,
+    "trackerPeerIdentical": true
+  },
+  "productionControls": {
+    "demoCredentialsHidden": true,
+    "expiredSessionMe": 401,
+    "expiredSessionHeartbeat": 401
+  },
+  "throttleOrderControl": {
+    "guardOrder": ["ThrottlerGuard", "AuthGuard"],
+    "limiterCallsForRejectedConfirmation": 1,
+    "additionalLimiterCallsForSuccessfulRead": 1,
+    "loadTestPerformed": false
+  },
+  "SEC-06": {
+    "clientHasPriorCookie": false,
+    "deviceEnrollmentProofSupplied": false,
+    "initialPasswordSupplied": false,
+    "codeOnlyLoginStatus": 201,
+    "authenticatedMe": 200
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "requestedPages": [1, 2, 3],
+  "visibleCards": 7,
+  "references": [
+    "Épargne audit · Avec ÉpargneRéférence : AUDIT-0",
+    "Épargne audit · Avec ÉpargneRéférence : AUDIT-1",
+    "Épargne audit · Avec ÉpargneRéférence : AUDIT-2",
+    "Épargne audit · Avec ÉpargneRéférence : AUDIT-3",
+    "Épargne audit · Avec ÉpargneRéférence : AUDIT-4",
+    "Épargne audit · Avec ÉpargneRéférence : AUDIT-10",
+    "Épargne audit · Avec ÉpargneRéférence : AUDIT-11"
+  ],
+  "expectedComplete": 12
+}

@@ -1,0 +1,42 @@
+{
+  "date": "2026-10-23T08:28:26.087Z",
+  "image": "aveclesfemmes-api:0.26.0",
+  "status": "passed",
+  "checks": [
+    "fixture_1001_groupements_201201_adhesions",
+    "role_applicatif_sans_privilege_et_non_proprietaire",
+    "recherche_paginee_sur_volume",
+    "isolation_RLS_et_portee_membre",
+    "concurrence_idempotence_conflit_et_rapprochement_des_totaux",
+    "auth_huit_echecs_concurrents_verrouillage_cinq_postgresql"
+  ],
+  "timings": {
+    "fixture_ms": 26762,
+    "recherche_et_pagination_ms": 154,
+    "20_confirmations_meme_cle_ms": 1038,
+    "20_versements_distincts_ms": 988,
+    "auth_concurrence_postgresql_ms": 335
+  },
+  "parameters": {
+    "historyDepth": 1,
+    "loadRounds": 0
+  },
+  "databaseBytes": 237680319,
+  "fixture": {
+    "groups": 1001,
+    "memberships": 201201,
+    "participations": 201201,
+    "contributions": 201201
+  },
+  "afterConcurrentWrites": {
+    "n": 222,
+    "total": "22850"
+  },
+  "security": {
+    "concurrentFailures": 8,
+    "failuresPersisted": 5,
+    "locked": true,
+    "correctCodeAfterFailures": 401,
+    "database": "PostgreSQL 18, real pool"
+  }
+}

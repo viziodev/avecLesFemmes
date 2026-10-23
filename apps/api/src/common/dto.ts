@@ -12,8 +12,10 @@ import {
   MinLength,
   IsIn,
   IsArray,
+  ArrayMaxSize,
+  ArrayUnique,
 } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Type, Transform } from 'class-transformer';
 
 export class PageDto {
   @ApiPropertyOptional({ default: 1 })
@@ -41,6 +43,12 @@ export class ScopeDto {
 }
 
 export class ScopedPageDto extends PageDto {
+  @ApiPropertyOptional() @IsOptional() @Matches(/^\d{4}-\d{2}-\d{2}$/) from?: string;
+  @ApiPropertyOptional() @IsOptional() @Matches(/^\d{4}-\d{2}-\d{2}$/) to?: string;
+  @ApiPropertyOptional({ enum: ['valid', 'voided'] })
+  @IsOptional()
+  @IsIn(['valid', 'voided'])
+  status?: 'valid' | 'voided';
   @ApiPropertyOptional({ description: 'Recherche par nom ou téléphone, avant pagination' })
   @IsOptional()
   @IsString()
@@ -93,8 +101,7 @@ export class CreateMemberDto {
   @IsString()
   @Matches(/^[a-zA-Z0-9._-]{3,80}$/)
   login?: string;
-  @ApiPropertyOptional() @IsOptional() @IsString() @MinLength(4) @MaxLength(128) password?: string;
-  @ApiPropertyOptional() @IsOptional() @IsString() @Matches(/^\d{4}$/) pin?: string;
+  @ApiPropertyOptional() @IsOptional() @IsString() @MinLength(12) @MaxLength(128) password?: string;
   @ApiPropertyOptional() @IsOptional() @IsString() @MaxLength(250) address?: string;
   @ApiPropertyOptional({ enum: ['F', 'M'], default: 'F' })
   @IsOptional()
@@ -117,9 +124,7 @@ export class BlockMemberDto {
   @ApiProperty() @IsBoolean() blocked!: boolean;
 }
 
-export class ResetPinDto {
-  @ApiProperty() @IsString() @Matches(/^\d{4}$/) pin!: string;
-}
+export class ResetPinDto {}
 
 export class PinLoginDto {
   @ApiProperty() @IsString() @Matches(/^\+[1-9]\d{7,14}$/) phone!: string;
@@ -209,6 +214,16 @@ export class CreateCampaignDto {
   @IsOptional()
   @IsIn(['WEEKLY', 'BIWEEKLY', 'MONTHLY'])
   rotationInterval?: 'WEEKLY' | 'BIWEEKLY' | 'MONTHLY';
+  @ApiPropertyOptional({
+    minimum: 1,
+    maximum: 4,
+    description: 'Rang du jour de semaine dans le mois ; exige MONTHLY.',
+  })
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(4)
+  monthlyWeek?: number;
   @ApiPropertyOptional({ minimum: 1, maximum: 31 })
   @IsOptional()
   @IsInt()
@@ -247,6 +262,17 @@ export class ContributionDto {
   @ApiProperty({ format: 'uuid' }) @IsUUID() idempotencyKey!: string;
 }
 
+export class SelfContributionDto {
+  @ApiPropertyOptional({
+    description:
+      'Date de la séance ou du tour choisi pour éviter de déplacer une saisie hors ligne.',
+  })
+  @IsOptional()
+  @Matches(/^\d{4}-\d{2}-\d{2}$/)
+  paidOn?: string;
+  @ApiProperty() @IsInt() @Min(1) @Max(1000000000000) amount!: number;
+  @ApiProperty({ format: 'uuid' }) @IsUUID() idempotencyKey!: string;
+}
 export class VoidDto {
   @ApiProperty() @IsString() @MinLength(5) @MaxLength(250) reason!: string;
 }
@@ -271,6 +297,7 @@ export class TontineReorderDto {
 }
 
 export class ActorView {
+  @ApiPropertyOptional() hasSecretCode?: boolean;
   @ApiProperty() id!: string;
   @ApiProperty() login!: string;
   @ApiProperty() name!: string;
@@ -314,6 +341,16 @@ export class GroupEventView {
   @ApiPropertyOptional({ type: String, nullable: true }) default_amount!: string | null;
 }
 
+export class MemberCampaignView {
+  @ApiProperty() campaign_id!: string;
+  @ApiProperty() name!: string;
+  @ApiProperty() type_name!: string;
+  @ApiProperty() type_code!: string;
+  @ApiProperty() active!: boolean;
+  @ApiProperty() is_savings!: boolean;
+  @ApiProperty() paid_amount!: string;
+}
+
 export class MemberView {
   @ApiProperty() id!: string;
   @ApiProperty() name!: string;
@@ -325,6 +362,7 @@ export class MemberView {
   @ApiPropertyOptional({ type: String, nullable: true }) function_id!: string | null;
   @ApiPropertyOptional({ type: String, nullable: true }) function_name!: string | null;
   @ApiProperty() is_blocked!: boolean;
+  @ApiPropertyOptional({ type: [MemberCampaignView] }) campaigns?: MemberCampaignView[];
 }
 
 export class TypeView {
@@ -349,6 +387,7 @@ export class CampaignView {
   @ApiProperty() is_mandatory!: boolean;
   @ApiPropertyOptional({ type: String, nullable: true }) standard_amount!: string | null;
   @ApiPropertyOptional({ type: String, nullable: true }) rotation_interval!: string | null;
+  @ApiPropertyOptional({ type: Number, nullable: true }) monthly_week?: number | null;
   @ApiPropertyOptional({ type: Number, nullable: true }) due_day!: number | null;
   @ApiPropertyOptional({ type: String, nullable: true }) type_code?: string | null;
   @ApiPropertyOptional({ type: Number }) member_count?: number;
@@ -374,7 +413,12 @@ export class ParticipationView {
   @ApiPropertyOptional({ type: String, nullable: true }) payout_amount?: string | null;
 }
 
+export class MemberQrDto {
+  @ApiProperty() @IsString() @MaxLength(500) code!: string;
+}
+
 export class ContributionView {
+  @ApiPropertyOptional() created_at?: string;
   @ApiProperty() id!: string;
   @ApiProperty() name!: string;
   @ApiProperty() participation_id!: string;
@@ -402,10 +446,14 @@ export class SessionMemberContributionView {
 }
 
 export class TontineRoundView {
+  @ApiProperty({ type: String, nullable: true }) drawn_at!: string | null;
+  @ApiPropertyOptional() contributed_count?: number;
+  @ApiPropertyOptional() unpaid_count?: number;
+
   @ApiProperty() id!: string;
   @ApiProperty() round_number!: number;
-  @ApiProperty() beneficiary_id!: string;
-  @ApiProperty() beneficiary_name!: string;
+  @ApiProperty({ type: String, nullable: true }) beneficiary_id!: string | null;
+  @ApiProperty({ type: String, nullable: true }) beneficiary_name!: string | null;
   @ApiProperty() expected_date!: string;
   @ApiProperty() payout_amount!: string;
   @ApiProperty() paid!: boolean;
@@ -425,7 +473,51 @@ export class GracePeriodView {
   @ApiProperty() created_at!: string;
 }
 
+export class SessionAttendanceView {
+  @ApiProperty() member_id!: string;
+  @ApiProperty() member_name!: string;
+  @ApiProperty() paid_amount!: string;
+  @ApiPropertyOptional({ type: String, nullable: true }) expected_amount!: string | null;
+  @ApiProperty() contributed!: boolean;
+  @ApiPropertyOptional({ type: String, nullable: true }) grace_deadline?: string | null;
+  @ApiPropertyOptional() absent?: boolean;
+  @ApiPropertyOptional() can_grant_grace?: boolean;
+  @ApiPropertyOptional() is_beneficiary?: boolean;
+}
+
+export class TontineStatusView {
+  @ApiProperty() today!: string;
+  @ApiProperty({ type: Number, nullable: true }) round_number!: number | null;
+  @ApiProperty({ type: String, nullable: true }) round_date!: string | null;
+  @ApiProperty() scheduled!: boolean;
+  @ApiProperty() drawn!: boolean;
+  @ApiProperty() can_draw!: boolean;
+  @ApiProperty() can_collect!: boolean;
+  @ApiProperty({ type: String, nullable: true }) beneficiary_name!: string | null;
+}
+
+export class TontineMembersQueryDto extends PageDto {
+  @ApiPropertyOptional() @IsOptional() @IsString() @MaxLength(120) q?: string;
+  @ApiPropertyOptional({ enum: ['all', 'paid', 'unpaid'] })
+  @IsOptional()
+  @IsIn(['all', 'paid', 'unpaid'])
+  state?: 'all' | 'paid' | 'unpaid';
+  @ApiPropertyOptional() @IsOptional() @Type(() => Number) @IsInt() @Min(1) roundNumber?: number;
+}
+
+export class TontineMembersPage {
+  @ApiProperty({ type: [SessionAttendanceView] }) items!: SessionAttendanceView[];
+  @ApiProperty() total!: number;
+  @ApiProperty() contributed_count!: number;
+  @ApiProperty() unpaid_count!: number;
+  @ApiProperty() period_start!: string;
+  @ApiProperty({ description: 'Borne de fin exclue' }) period_end!: string;
+}
+
 export class CampaignSessionView {
+  @ApiPropertyOptional() expected_amount?: string;
+  @ApiPropertyOptional() free_members_count?: number;
+  @ApiPropertyOptional({ type: [SessionAttendanceView] }) members?: SessionAttendanceView[];
   @ApiProperty() session_date!: string;
   @ApiProperty() total_amount!: string;
   @ApiProperty() count!: number;
@@ -478,4 +570,139 @@ export class ContributionPage {
 export function validDate(value: string) {
   const date = new Date(value + 'T00:00:00Z');
   return !isNaN(date.valueOf()) && date.toISOString().slice(0, 10) === value;
+}
+
+export class SavingsSessionStatusView {
+  @ApiProperty() today!: string;
+  @ApiProperty() scheduled!: boolean;
+  @ApiProperty() opened!: boolean;
+  @ApiProperty() can_collect!: boolean;
+}
+
+export class CampaignShortcutsDto {
+  @ApiProperty({ type: [String], maxItems: 6 })
+  @IsArray()
+  @ArrayMaxSize(6)
+  @ArrayUnique()
+  @IsUUID('all', { each: true })
+  campaignIds!: string[];
+}
+export class EligibleMembersQueryDto extends PageDto {
+  @ApiPropertyOptional() @IsOptional() @IsString() @MaxLength(120) q?: string;
+}
+export class EligibleMemberView {
+  @ApiProperty() id!: string;
+  @ApiProperty() name!: string;
+  @ApiProperty({ type: String, nullable: true }) phone!: string | null;
+}
+export class EligibleMemberPage {
+  @ApiProperty({ type: [EligibleMemberView] }) items!: EligibleMemberView[];
+  @ApiProperty() total!: number;
+}
+
+export class MemberPortalCampaignView extends CampaignView {
+  @ApiProperty() participation_id!: string;
+  @ApiProperty({ type: String, nullable: true }) forfait!: string | null;
+  @ApiProperty() is_random!: boolean;
+  @ApiProperty() total_paid!: string;
+  @ApiProperty() arrears_count!: number;
+  @ApiPropertyOptional() unpaid_count?: number;
+}
+export class MemberPortalCampaignPage {
+  @ApiProperty({ type: [MemberPortalCampaignView] }) items!: MemberPortalCampaignView[];
+  @ApiProperty() total!: number;
+}
+export class MemberPortalRoundView {
+  @ApiProperty() round_number!: number;
+  @ApiProperty() expected_date!: string;
+  @ApiProperty() period_end!: string;
+  @ApiProperty({ type: String, nullable: true }) beneficiary_name!: string | null;
+  @ApiProperty() paid!: boolean;
+  @ApiProperty() drawn!: boolean;
+  @ApiProperty() my_paid_amount!: string;
+}
+export class MemberPortalStatusView {
+  @ApiProperty() today!: string;
+  @ApiProperty() can_pay!: boolean;
+  @ApiProperty() already_paid!: boolean;
+  @ApiProperty() reason!: string;
+  @ApiProperty() total_paid!: string;
+  @ApiProperty({ type: [String] }) sessions!: string[];
+  @ApiProperty({ type: [MemberPortalRoundView] }) rounds!: MemberPortalRoundView[];
+  @ApiProperty() payouts_count!: number;
+  @ApiProperty() remaining_months!: number;
+}
+
+const splitFilter = ({ value }: { value: unknown }) =>
+  (Array.isArray(value) ? value : [value])
+    .flatMap((v) => String(v).split(','))
+    .map((v) => v.trim())
+    .filter(Boolean);
+export class MemberHistoryQueryDto extends PageDto {
+  @ApiPropertyOptional({ type: [String] })
+  @IsOptional()
+  @Transform(splitFilter)
+  @IsArray()
+  @ArrayMaxSize(100)
+  @IsUUID('all', { each: true })
+  campaignIds?: string[];
+  @ApiPropertyOptional({ type: [String] })
+  @IsOptional()
+  @Transform(splitFilter)
+  @IsArray()
+  @ArrayMaxSize(100)
+  @IsUUID('all', { each: true })
+  typeIds?: string[];
+  @ApiPropertyOptional({ type: [String] })
+  @IsOptional()
+  @Transform(splitFilter)
+  @IsArray()
+  @ArrayMaxSize(100)
+  @Matches(/^\d{4}-\d{2}-\d{2}$/, { each: true })
+  sessions?: string[];
+  @ApiPropertyOptional({ type: [String] })
+  @IsOptional()
+  @Transform(splitFilter)
+  @IsArray()
+  @ArrayMaxSize(100)
+  @Matches(/^[0-9a-fA-F-]{36}:[1-9]\d{0,5}$/, { each: true })
+  rounds?: string[];
+}
+export class MemberShortcutsView {
+  @ApiProperty({ type: [String] }) campaignIds!: string[];
+}
+export class MemberHistoryCampaignView {
+  @ApiProperty() id!: string;
+  @ApiProperty() name!: string;
+  @ApiProperty() active!: boolean;
+  @ApiProperty() type_id!: string;
+  @ApiProperty() type_name!: string;
+  @ApiProperty() type_code!: string;
+}
+export class MemberHistoryRoundOption {
+  @ApiProperty() key!: string;
+  @ApiProperty() campaign_id!: string;
+  @ApiProperty() campaign_name!: string;
+  @ApiProperty() round_number!: number;
+  @ApiProperty() expected_date!: string;
+}
+export class MemberHistoryOptionsView {
+  @ApiProperty({ type: [MemberHistoryCampaignView] }) campaigns!: MemberHistoryCampaignView[];
+  @ApiProperty({ type: [String] }) sessions!: string[];
+  @ApiProperty({ type: [MemberHistoryRoundOption] }) rounds!: MemberHistoryRoundOption[];
+}
+export class MemberHistoryContributionView extends ContributionView {
+  @ApiProperty() campaign_id!: string;
+  @ApiProperty() campaign_name!: string;
+  @ApiProperty() campaign_active!: boolean;
+  @ApiProperty() type_id!: string;
+  @ApiProperty() type_name!: string;
+  @ApiProperty() type_code!: string;
+  @ApiProperty({ type: String, nullable: true }) session_date!: string | null;
+  @ApiProperty({ type: Number, nullable: true }) round_number!: number | null;
+}
+export class MemberHistoryPage {
+  @ApiProperty({ type: [MemberHistoryContributionView] }) items!: MemberHistoryContributionView[];
+  @ApiProperty() total!: number;
+  @ApiProperty() total_paid!: string;
 }

@@ -1,0 +1,20 @@
+[
+  {
+    "from": 1,
+    "wrongRefused": true,
+    "unchanged": true,
+    "preserved": true,
+    "to": 3,
+    "pinWrapper": false,
+    "onlineAndOfflineReopen": true
+  },
+  {
+    "from": 2,
+    "wrongRefused": true,
+    "unchanged": true,
+    "preserved": true,
+    "to": 3,
+    "pinWrapper": false,
+    "onlineAndOfflineReopen": true
+  }
+]

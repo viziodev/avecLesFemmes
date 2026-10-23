@@ -1,0 +1,1815 @@
+[
+  {
+    "screen": "accueil",
+    "theme": "dark",
+    "viewport": 390,
+    "tokens": {
+      "--green": "#7ea69f",
+      "--action": "#155d50",
+      "--surface": "#192e26",
+      "--text-primary": "#edf5f0",
+      "--text-secondary": "#b3c8bd",
+      "--palette-primary-ink": "#7ea69f",
+      "--palette-primary-solid": "#155d50",
+      "--palette-primary-tint": "#18352c",
+      "--palette-savings-solid": "#197647",
+      "--palette-tontine-solid": "#471976",
+      "--palette-solidarity-solid": "#764019"
+    },
+    "overflow": 0,
+    "fonts": [
+      {
+        "family": "DM Sans",
+        "status": "unloaded",
+        "weight": "400"
+      },
+      {
+        "family": "DM Sans",
+        "status": "loaded",
+        "weight": "400"
+      },
+      {
+        "family": "DM Sans",
+        "status": "unloaded",
+        "weight": "500"
+      },
+      {
+        "family": "DM Sans",
+        "status": "loaded",
+        "weight": "500"
+      },
+      {
+        "family": "DM Sans",
+        "status": "unloaded",
+        "weight": "600"
+      },
+      {
+        "family": "DM Sans",
+        "status": "loaded",
+        "weight": "600"
+      },
+      {
+        "family": "DM Sans",
+        "status": "unloaded",
+        "weight": "700"
+      },
+      {
+        "family": "DM Sans",
+        "status": "loaded",
+        "weight": "700"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "400"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "400"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "400"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "400"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "400"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "400"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "500"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "500"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "500"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "500"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "500"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "500"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "600"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "600"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "600"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "600"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "600"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "600"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "700"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "700"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "700"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "700"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "700"
+      },
+      {
+        "family": "Manrope",
+        "status": "loaded",
+        "weight": "700"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "800"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "800"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "800"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "800"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "800"
+      },
+      {
+        "family": "Manrope",
+        "status": "loaded",
+        "weight": "800"
+      }
+    ],
+    "sizes": [10, 11, 12, 13, 15, 16, 17, 22, 27.3],
+    "fontResources": [
+      "https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap"
+    ],
+    "contrastCandidates": [
+      {
+        "text": "Accueil",
+        "class": "nav-label-mobile",
+        "tag": "SPAN",
+        "font": "\"DM Sans\", sans-serif",
+        "size": 11,
+        "weight": 700,
+        "lineHeight": "normal",
+        "color": "rgb(126, 166, 159)",
+        "background": [25, 62, 49],
+        "ratio": 4.42,
+        "threshold": 4.5,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      }
+    ],
+    "rows": [
+      {
+        "text": "Accueil",
+        "class": "nav-label-mobile",
+        "tag": "SPAN",
+        "font": "\"DM Sans\", sans-serif",
+        "size": 11,
+        "weight": 700,
+        "lineHeight": "normal",
+        "color": "rgb(126, 166, 159)",
+        "background": [25, 62, 49],
+        "ratio": 4.42,
+        "threshold": 4.5,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      },
+      {
+        "text": "Campagnes",
+        "class": "nav-label-mobile",
+        "tag": "SPAN",
+        "font": "\"DM Sans\", sans-serif",
+        "size": 11,
+        "weight": 500,
+        "lineHeight": "normal",
+        "color": "rgb(179, 200, 189)",
+        "background": [25, 46, 38],
+        "ratio": 8.16,
+        "threshold": 4.5,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      },
+      {
+        "text": "Versements",
+        "class": "nav-label-mobile",
+        "tag": "SPAN",
+        "font": "\"DM Sans\", sans-serif",
+        "size": 11,
+        "weight": 500,
+        "lineHeight": "normal",
+        "color": "rgb(179, 200, 189)",
+        "background": [25, 46, 38],
+        "ratio": 8.16,
+        "threshold": 4.5,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      },
+      {
+        "text": "Compte",
+        "class": "nav-label-mobile",
+        "tag": "SPAN",
+        "font": "\"DM Sans\", sans-serif",
+        "size": 11,
+        "weight": 500,
+        "lineHeight": "normal",
+        "color": "rgb(179, 200, 189)",
+        "background": [25, 46, 38],
+        "ratio": 8.16,
+        "threshold": 4.5,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      },
+      {
+        "text": "Espace connecté",
+        "class": "",
+        "tag": "SPAN",
+        "font": "\"DM Sans\", sans-serif",
+        "size": 12,
+        "weight": 400,
+        "lineHeight": "normal",
+        "color": "rgb(179, 200, 189)",
+        "background": [25, 46, 38],
+        "ratio": 8.16,
+        "threshold": 4.5,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      },
+      {
+        "text": "Mon groupement",
+        "class": "",
+        "tag": "H1",
+        "font": "Manrope, sans-serif",
+        "size": 22,
+        "weight": 800,
+        "lineHeight": "normal",
+        "color": "rgb(237, 245, 240)",
+        "background": [16, 34, 28],
+        "ratio": 14.93,
+        "threshold": 3,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      },
+      {
+        "text": "Les Femmes de Grand Yoff",
+        "class": "",
+        "tag": "STRONG",
+        "font": "\"DM Sans\", sans-serif",
+        "size": 15,
+        "weight": 700,
+        "lineHeight": "21px",
+        "color": "rgb(255, 255, 255)",
+        "background": [21, 93, 80],
+        "ratio": 7.74,
+        "threshold": 4.5,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      },
+      {
+        "text": "Awa Fall",
+        "class": "",
+        "tag": "SPAN",
+        "font": "\"DM Sans\", sans-serif",
+        "size": 13,
+        "weight": 700,
+        "lineHeight": "normal",
+        "color": "rgb(255, 255, 255)",
+        "background": [21, 93, 80],
+        "ratio": 7.74,
+        "threshold": 4.5,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      },
+      {
+        "text": "Ma carte",
+        "class": "",
+        "tag": "SPAN",
+        "font": "\"DM Sans\", sans-serif",
+        "size": 11,
+        "weight": 400,
+        "lineHeight": "normal",
+        "color": "rgb(255, 255, 255)",
+        "background": [50, 113, 102],
+        "ratio": 5.67,
+        "threshold": 4.5,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      },
+      {
+        "text": "Tontine",
+        "class": "wave-action-label",
+        "tag": "SPAN",
+        "font": "\"DM Sans\", sans-serif",
+        "size": 12,
+        "weight": 600,
+        "lineHeight": "15px",
+        "color": "rgb(237, 245, 240)",
+        "background": [16, 34, 28],
+        "ratio": 14.93,
+        "threshold": 4.5,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      },
+      {
+        "text": "Tontine TEST À tirer · 2026-10-21",
+        "class": "campaign-short-name",
+        "tag": "SMALL",
+        "font": "\"DM Sans\", sans-serif",
+        "size": 10,
+        "weight": 400,
+        "lineHeight": "13px",
+        "color": "rgb(179, 200, 189)",
+        "background": [16, 34, 28],
+        "ratio": 9.4,
+        "threshold": 4.5,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      },
+      {
+        "text": "Historique",
+        "class": "wave-action-label",
+        "tag": "SPAN",
+        "font": "\"DM Sans\", sans-serif",
+        "size": 12,
+        "weight": 600,
+        "lineHeight": "15px",
+        "color": "rgb(237, 245, 240)",
+        "background": [16, 34, 28],
+        "ratio": 14.93,
+        "threshold": 4.5,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      },
+      {
+        "text": "Plus",
+        "class": "wave-action-label",
+        "tag": "SPAN",
+        "font": "\"DM Sans\", sans-serif",
+        "size": 12,
+        "weight": 600,
+        "lineHeight": "15px",
+        "color": "rgb(237, 245, 240)",
+        "background": [16, 34, 28],
+        "ratio": 14.93,
+        "threshold": 4.5,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      },
+      {
+        "text": "Épargne TEST Encaisser · 2026-10-21",
+        "class": "",
+        "tag": "H2",
+        "font": "Manrope, sans-serif",
+        "size": 17,
+        "weight": 700,
+        "lineHeight": "23.8px",
+        "color": "rgb(237, 245, 240)",
+        "background": [25, 46, 38],
+        "ratio": 12.96,
+        "threshold": 4.5,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      },
+      {
+        "text": "Avec Épargne",
+        "class": "",
+        "tag": "P",
+        "font": "\"DM Sans\", sans-serif",
+        "size": 12,
+        "weight": 400,
+        "lineHeight": "19.8px",
+        "color": "rgb(179, 200, 189)",
+        "background": [25, 46, 38],
+        "ratio": 8.16,
+        "threshold": 4.5,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      },
+      {
+        "text": "Vérification…",
+        "class": "pwa-day-state",
+        "tag": "SPAN",
+        "font": "\"DM Sans\", sans-serif",
+        "size": 12,
+        "weight": 700,
+        "lineHeight": "normal",
+        "color": "rgb(110, 169, 139)",
+        "background": [25, 57, 43],
+        "ratio": 4.64,
+        "threshold": 4.5,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      },
+      {
+        "text": "Vérification de la période",
+        "class": "",
+        "tag": "SPAN",
+        "font": "\"DM Sans\", sans-serif",
+        "size": 12,
+        "weight": 400,
+        "lineHeight": "normal",
+        "color": "rgb(179, 200, 189)",
+        "background": [25, 46, 38],
+        "ratio": 8.16,
+        "threshold": 4.5,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      },
+      {
+        "text": "Mon montant collecté",
+        "class": "",
+        "tag": "SPAN",
+        "font": "\"DM Sans\", sans-serif",
+        "size": 13,
+        "weight": 400,
+        "lineHeight": "normal",
+        "color": "rgb(179, 200, 189)",
+        "background": [25, 46, 38],
+        "ratio": 8.16,
+        "threshold": 4.5,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      },
+      {
+        "text": "—",
+        "class": "",
+        "tag": "STRONG",
+        "font": "\"DM Sans\", sans-serif",
+        "size": 27.3,
+        "weight": 700,
+        "lineHeight": "normal",
+        "color": "rgb(110, 169, 139)",
+        "background": [25, 46, 38],
+        "ratio": 5.28,
+        "threshold": 3,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      },
+      {
+        "text": "Vérification de la séance ou du tour…",
+        "class": "pwa-day-reason",
+        "tag": "P",
+        "font": "\"DM Sans\", sans-serif",
+        "size": 12,
+        "weight": 400,
+        "lineHeight": "19.8px",
+        "color": "rgb(179, 200, 189)",
+        "background": [25, 46, 38],
+        "ratio": 8.16,
+        "threshold": 4.5,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      },
+      {
+        "text": "Faire un versement",
+        "class": "",
+        "tag": "SPAN",
+        "font": "\"DM Sans\", sans-serif",
+        "size": 15,
+        "weight": 700,
+        "lineHeight": "normal",
+        "color": "rgb(255, 255, 255)",
+        "background": [25, 118, 71],
+        "ratio": 5.64,
+        "threshold": 4.5,
+        "opacity": 0.5,
+        "gradient": false,
+        "disabled": true,
+        "tabular": "normal"
+      },
+      {
+        "text": "Mes derniers versements",
+        "class": "",
+        "tag": "H2",
+        "font": "Manrope, sans-serif",
+        "size": 17,
+        "weight": 700,
+        "lineHeight": "normal",
+        "color": "rgb(110, 169, 139)",
+        "background": [25, 46, 38],
+        "ratio": 5.28,
+        "threshold": 4.5,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      },
+      {
+        "text": "Filtrer par séance",
+        "class": "",
+        "tag": "SPAN",
+        "font": "\"DM Sans\", sans-serif",
+        "size": 13,
+        "weight": 600,
+        "lineHeight": "normal",
+        "color": "rgb(237, 245, 240)",
+        "background": [25, 46, 38],
+        "ratio": 12.96,
+        "threshold": 4.5,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      },
+      {
+        "text": "Chargement des versements…",
+        "class": "",
+        "tag": "P",
+        "font": "\"DM Sans\", sans-serif",
+        "size": 16,
+        "weight": 400,
+        "lineHeight": "26.4px",
+        "color": "rgb(237, 245, 240)",
+        "background": [25, 46, 38],
+        "ratio": 12.96,
+        "threshold": 4.5,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      },
+      {
+        "text": "AvecLesFemmesChaque femme, chaque projet, chaque contribution.",
+        "class": "page-footer",
+        "tag": "FOOTER",
+        "font": "\"DM Sans\", sans-serif",
+        "size": 10,
+        "weight": 400,
+        "lineHeight": "normal",
+        "color": "rgb(179, 200, 189)",
+        "background": [16, 34, 28],
+        "ratio": 9.4,
+        "threshold": 4.5,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      }
+    ]
+  },
+  {
+    "screen": "campagnes",
+    "theme": "dark",
+    "viewport": 390,
+    "tokens": {
+      "--green": "#7ea69f",
+      "--action": "#155d50",
+      "--surface": "#192e26",
+      "--text-primary": "#edf5f0",
+      "--text-secondary": "#b3c8bd",
+      "--palette-primary-ink": "#7ea69f",
+      "--palette-primary-solid": "#155d50",
+      "--palette-primary-tint": "#18352c",
+      "--palette-savings-solid": "#197647",
+      "--palette-tontine-solid": "#471976",
+      "--palette-solidarity-solid": "#764019"
+    },
+    "overflow": 0,
+    "fonts": [
+      {
+        "family": "DM Sans",
+        "status": "unloaded",
+        "weight": "400"
+      },
+      {
+        "family": "DM Sans",
+        "status": "loaded",
+        "weight": "400"
+      },
+      {
+        "family": "DM Sans",
+        "status": "unloaded",
+        "weight": "500"
+      },
+      {
+        "family": "DM Sans",
+        "status": "loaded",
+        "weight": "500"
+      },
+      {
+        "family": "DM Sans",
+        "status": "unloaded",
+        "weight": "600"
+      },
+      {
+        "family": "DM Sans",
+        "status": "loaded",
+        "weight": "600"
+      },
+      {
+        "family": "DM Sans",
+        "status": "unloaded",
+        "weight": "700"
+      },
+      {
+        "family": "DM Sans",
+        "status": "loaded",
+        "weight": "700"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "400"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "400"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "400"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "400"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "400"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "400"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "500"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "500"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "500"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "500"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "500"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "500"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "600"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "600"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "600"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "600"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "600"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "600"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "700"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "700"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "700"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "700"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "700"
+      },
+      {
+        "family": "Manrope",
+        "status": "loaded",
+        "weight": "700"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "800"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "800"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "800"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "800"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "800"
+      },
+      {
+        "family": "Manrope",
+        "status": "loaded",
+        "weight": "800"
+      }
+    ],
+    "sizes": [10, 11, 12, 16, 17, 22],
+    "fontResources": [
+      "https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap"
+    ],
+    "contrastCandidates": [
+      {
+        "text": "Campagnes",
+        "class": "nav-label-mobile",
+        "tag": "SPAN",
+        "font": "\"DM Sans\", sans-serif",
+        "size": 11,
+        "weight": 700,
+        "lineHeight": "normal",
+        "color": "rgb(126, 166, 159)",
+        "background": [25, 62, 49],
+        "ratio": 4.42,
+        "threshold": 4.5,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      }
+    ],
+    "rows": [
+      {
+        "text": "Accueil",
+        "class": "nav-label-mobile",
+        "tag": "SPAN",
+        "font": "\"DM Sans\", sans-serif",
+        "size": 11,
+        "weight": 500,
+        "lineHeight": "normal",
+        "color": "rgb(179, 200, 189)",
+        "background": [25, 46, 38],
+        "ratio": 8.16,
+        "threshold": 4.5,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      },
+      {
+        "text": "Campagnes",
+        "class": "nav-label-mobile",
+        "tag": "SPAN",
+        "font": "\"DM Sans\", sans-serif",
+        "size": 11,
+        "weight": 700,
+        "lineHeight": "normal",
+        "color": "rgb(126, 166, 159)",
+        "background": [25, 62, 49],
+        "ratio": 4.42,
+        "threshold": 4.5,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      },
+      {
+        "text": "Versements",
+        "class": "nav-label-mobile",
+        "tag": "SPAN",
+        "font": "\"DM Sans\", sans-serif",
+        "size": 11,
+        "weight": 500,
+        "lineHeight": "normal",
+        "color": "rgb(179, 200, 189)",
+        "background": [25, 46, 38],
+        "ratio": 8.16,
+        "threshold": 4.5,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      },
+      {
+        "text": "Compte",
+        "class": "nav-label-mobile",
+        "tag": "SPAN",
+        "font": "\"DM Sans\", sans-serif",
+        "size": 11,
+        "weight": 500,
+        "lineHeight": "normal",
+        "color": "rgb(179, 200, 189)",
+        "background": [25, 46, 38],
+        "ratio": 8.16,
+        "threshold": 4.5,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      },
+      {
+        "text": "Espace connecté",
+        "class": "",
+        "tag": "SPAN",
+        "font": "\"DM Sans\", sans-serif",
+        "size": 12,
+        "weight": 400,
+        "lineHeight": "normal",
+        "color": "rgb(179, 200, 189)",
+        "background": [25, 46, 38],
+        "ratio": 8.16,
+        "threshold": 4.5,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      },
+      {
+        "text": "Mes campagnes",
+        "class": "",
+        "tag": "H1",
+        "font": "Manrope, sans-serif",
+        "size": 22,
+        "weight": 800,
+        "lineHeight": "normal",
+        "color": "rgb(237, 245, 240)",
+        "background": [16, 34, 28],
+        "ratio": 14.93,
+        "threshold": 3,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      },
+      {
+        "text": "À l’accueil",
+        "class": "pwa-section-title",
+        "tag": "H2",
+        "font": "Manrope, sans-serif",
+        "size": 17,
+        "weight": 700,
+        "lineHeight": "normal",
+        "color": "rgb(237, 245, 240)",
+        "background": [16, 34, 28],
+        "ratio": 14.93,
+        "threshold": 4.5,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      },
+      {
+        "text": "Les campagnes sélectionnées pour votre accueil.",
+        "class": "",
+        "tag": "P",
+        "font": "\"DM Sans\", sans-serif",
+        "size": 16,
+        "weight": 400,
+        "lineHeight": "26.4px",
+        "color": "rgb(237, 245, 240)",
+        "background": [16, 34, 28],
+        "ratio": 14.93,
+        "threshold": 4.5,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      },
+      {
+        "text": "Choisir mes campagnes",
+        "class": "secondary",
+        "tag": "BUTTON",
+        "font": "\"DM Sans\", sans-serif",
+        "size": 12,
+        "weight": 600,
+        "lineHeight": "normal",
+        "color": "rgb(126, 166, 159)",
+        "background": [25, 46, 38],
+        "ratio": 5.37,
+        "threshold": 4.5,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      },
+      {
+        "text": "Tontine TEST À tirer · 2026-10-21",
+        "class": "",
+        "tag": "STRONG",
+        "font": "\"DM Sans\", sans-serif",
+        "size": 16,
+        "weight": 700,
+        "lineHeight": "normal",
+        "color": "rgb(237, 245, 240)",
+        "background": [25, 46, 38],
+        "ratio": 12.96,
+        "threshold": 4.5,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      },
+      {
+        "text": "Tontine rotative",
+        "class": "",
+        "tag": "SMALL",
+        "font": "\"DM Sans\", sans-serif",
+        "size": 12,
+        "weight": 400,
+        "lineHeight": "normal",
+        "color": "rgb(237, 245, 240)",
+        "background": [25, 46, 38],
+        "ratio": 12.96,
+        "threshold": 4.5,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      },
+      {
+        "text": "Montant collecté : 0 FCFA",
+        "class": "",
+        "tag": "SMALL",
+        "font": "\"DM Sans\", sans-serif",
+        "size": 12,
+        "weight": 400,
+        "lineHeight": "normal",
+        "color": "rgb(237, 245, 240)",
+        "background": [25, 46, 38],
+        "ratio": 12.96,
+        "threshold": 4.5,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      },
+      {
+        "text": "AvecLesFemmesChaque femme, chaque projet, chaque contribution.",
+        "class": "page-footer",
+        "tag": "FOOTER",
+        "font": "\"DM Sans\", sans-serif",
+        "size": 10,
+        "weight": 400,
+        "lineHeight": "normal",
+        "color": "rgb(179, 200, 189)",
+        "background": [16, 34, 28],
+        "ratio": 9.4,
+        "threshold": 4.5,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      }
+    ]
+  },
+  {
+    "screen": "historique",
+    "theme": "dark",
+    "viewport": 390,
+    "tokens": {
+      "--green": "#7ea69f",
+      "--action": "#155d50",
+      "--surface": "#192e26",
+      "--text-primary": "#edf5f0",
+      "--text-secondary": "#b3c8bd",
+      "--palette-primary-ink": "#7ea69f",
+      "--palette-primary-solid": "#155d50",
+      "--palette-primary-tint": "#18352c",
+      "--palette-savings-solid": "#197647",
+      "--palette-tontine-solid": "#471976",
+      "--palette-solidarity-solid": "#764019"
+    },
+    "overflow": 0,
+    "fonts": [
+      {
+        "family": "DM Sans",
+        "status": "unloaded",
+        "weight": "400"
+      },
+      {
+        "family": "DM Sans",
+        "status": "loaded",
+        "weight": "400"
+      },
+      {
+        "family": "DM Sans",
+        "status": "unloaded",
+        "weight": "500"
+      },
+      {
+        "family": "DM Sans",
+        "status": "loaded",
+        "weight": "500"
+      },
+      {
+        "family": "DM Sans",
+        "status": "unloaded",
+        "weight": "600"
+      },
+      {
+        "family": "DM Sans",
+        "status": "loaded",
+        "weight": "600"
+      },
+      {
+        "family": "DM Sans",
+        "status": "unloaded",
+        "weight": "700"
+      },
+      {
+        "family": "DM Sans",
+        "status": "loaded",
+        "weight": "700"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "400"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "400"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "400"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "400"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "400"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "400"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "500"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "500"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "500"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "500"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "500"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "500"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "600"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "600"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "600"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "600"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "600"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "600"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "700"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "700"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "700"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "700"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "700"
+      },
+      {
+        "family": "Manrope",
+        "status": "loaded",
+        "weight": "700"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "800"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "800"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "800"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "800"
+      },
+      {
+        "family": "Manrope",
+        "status": "unloaded",
+        "weight": "800"
+      },
+      {
+        "family": "Manrope",
+        "status": "loaded",
+        "weight": "800"
+      }
+    ],
+    "sizes": [10, 11, 12, 13, 16, 17, 22],
+    "fontResources": [
+      "https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap"
+    ],
+    "contrastCandidates": [
+      {
+        "text": "Versements",
+        "class": "nav-label-mobile",
+        "tag": "SPAN",
+        "font": "\"DM Sans\", sans-serif",
+        "size": 11,
+        "weight": 700,
+        "lineHeight": "normal",
+        "color": "rgb(126, 166, 159)",
+        "background": [25, 62, 49],
+        "ratio": 4.42,
+        "threshold": 4.5,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      }
+    ],
+    "rows": [
+      {
+        "text": "Accueil",
+        "class": "nav-label-mobile",
+        "tag": "SPAN",
+        "font": "\"DM Sans\", sans-serif",
+        "size": 11,
+        "weight": 500,
+        "lineHeight": "normal",
+        "color": "rgb(179, 200, 189)",
+        "background": [25, 46, 38],
+        "ratio": 8.16,
+        "threshold": 4.5,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      },
+      {
+        "text": "Campagnes",
+        "class": "nav-label-mobile",
+        "tag": "SPAN",
+        "font": "\"DM Sans\", sans-serif",
+        "size": 11,
+        "weight": 500,
+        "lineHeight": "normal",
+        "color": "rgb(179, 200, 189)",
+        "background": [25, 46, 38],
+        "ratio": 8.16,
+        "threshold": 4.5,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      },
+      {
+        "text": "Versements",
+        "class": "nav-label-mobile",
+        "tag": "SPAN",
+        "font": "\"DM Sans\", sans-serif",
+        "size": 11,
+        "weight": 700,
+        "lineHeight": "normal",
+        "color": "rgb(126, 166, 159)",
+        "background": [25, 62, 49],
+        "ratio": 4.42,
+        "threshold": 4.5,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      },
+      {
+        "text": "Compte",
+        "class": "nav-label-mobile",
+        "tag": "SPAN",
+        "font": "\"DM Sans\", sans-serif",
+        "size": 11,
+        "weight": 500,
+        "lineHeight": "normal",
+        "color": "rgb(179, 200, 189)",
+        "background": [25, 46, 38],
+        "ratio": 8.16,
+        "threshold": 4.5,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      },
+      {
+        "text": "Espace connecté",
+        "class": "",
+        "tag": "SPAN",
+        "font": "\"DM Sans\", sans-serif",
+        "size": 12,
+        "weight": 400,
+        "lineHeight": "normal",
+        "color": "rgb(179, 200, 189)",
+        "background": [25, 46, 38],
+        "ratio": 8.16,
+        "threshold": 4.5,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      },
+      {
+        "text": "Mes versements",
+        "class": "",
+        "tag": "H1",
+        "font": "Manrope, sans-serif",
+        "size": 22,
+        "weight": 800,
+        "lineHeight": "normal",
+        "color": "rgb(237, 245, 240)",
+        "background": [16, 34, 28],
+        "ratio": 14.93,
+        "threshold": 3,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      },
+      {
+        "text": "Historique personnel",
+        "class": "",
+        "tag": "H2",
+        "font": "Manrope, sans-serif",
+        "size": 17,
+        "weight": 700,
+        "lineHeight": "normal",
+        "color": "rgb(237, 245, 240)",
+        "background": [25, 46, 38],
+        "ratio": 12.96,
+        "threshold": 4.5,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      },
+      {
+        "text": "Les cinq derniers versements, y compris ceux des campagnes archivées. Voir plus pour les précédents.",
+        "class": "",
+        "tag": "P",
+        "font": "\"DM Sans\", sans-serif",
+        "size": 16,
+        "weight": 400,
+        "lineHeight": "26.4px",
+        "color": "rgb(237, 245, 240)",
+        "background": [25, 46, 38],
+        "ratio": 12.96,
+        "threshold": 4.5,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      },
+      {
+        "text": "Filtres",
+        "class": "",
+        "tag": "SUMMARY",
+        "font": "\"DM Sans\", sans-serif",
+        "size": 16,
+        "weight": 700,
+        "lineHeight": "normal",
+        "color": "rgb(237, 245, 240)",
+        "background": [25, 46, 38],
+        "ratio": 12.96,
+        "threshold": 4.5,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      },
+      {
+        "text": "57 versement(s) · Montant collecté : 15 000 FCFA",
+        "class": "member-history-summary",
+        "tag": "P",
+        "font": "\"DM Sans\", sans-serif",
+        "size": 13,
+        "weight": 400,
+        "lineHeight": "21.45px",
+        "color": "rgb(237, 245, 240)",
+        "background": [25, 46, 38],
+        "ratio": 12.96,
+        "threshold": 4.5,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      },
+      {
+        "text": "Tontine TOUR TEST Encaisser · 2026-10-21",
+        "class": "compact-card-line",
+        "tag": "STRONG",
+        "font": "\"DM Sans\", sans-serif",
+        "size": 12,
+        "weight": 700,
+        "lineHeight": "20px",
+        "color": "rgb(237, 245, 240)",
+        "background": [25, 46, 38],
+        "ratio": 12.96,
+        "threshold": 4.5,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      },
+      {
+        "text": "2 000 FCFA · 21 oct. 2026",
+        "class": "compact-card-line",
+        "tag": "SPAN",
+        "font": "\"DM Sans\", sans-serif",
+        "size": 12,
+        "weight": 400,
+        "lineHeight": "20px",
+        "color": "rgb(237, 245, 240)",
+        "background": [25, 46, 38],
+        "ratio": 12.96,
+        "threshold": 4.5,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      },
+      {
+        "text": "Tour 1 · Tontine rotative",
+        "class": "compact-card-line",
+        "tag": "SPAN",
+        "font": "\"DM Sans\", sans-serif",
+        "size": 12,
+        "weight": 400,
+        "lineHeight": "20px",
+        "color": "rgb(237, 245, 240)",
+        "background": [25, 46, 38],
+        "ratio": 12.96,
+        "threshold": 4.5,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      },
+      {
+        "text": "Tontine TEST Suivi · 2026-10-21",
+        "class": "compact-card-line",
+        "tag": "STRONG",
+        "font": "\"DM Sans\", sans-serif",
+        "size": 12,
+        "weight": 700,
+        "lineHeight": "20px",
+        "color": "rgb(237, 245, 240)",
+        "background": [25, 46, 38],
+        "ratio": 12.96,
+        "threshold": 4.5,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      },
+      {
+        "text": "2 000 FCFA · 21 oct. 2026",
+        "class": "compact-card-line",
+        "tag": "SPAN",
+        "font": "\"DM Sans\", sans-serif",
+        "size": 12,
+        "weight": 400,
+        "lineHeight": "20px",
+        "color": "rgb(237, 245, 240)",
+        "background": [25, 46, 38],
+        "ratio": 12.96,
+        "threshold": 4.5,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      },
+      {
+        "text": "Tour 2 · Tontine rotative",
+        "class": "compact-card-line",
+        "tag": "SPAN",
+        "font": "\"DM Sans\", sans-serif",
+        "size": 12,
+        "weight": 400,
+        "lineHeight": "20px",
+        "color": "rgb(237, 245, 240)",
+        "background": [25, 46, 38],
+        "ratio": 12.96,
+        "threshold": 4.5,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      },
+      {
+        "text": "Épargne TEST Encaisser · 2026-10-21",
+        "class": "compact-card-line",
+        "tag": "STRONG",
+        "font": "\"DM Sans\", sans-serif",
+        "size": 12,
+        "weight": 700,
+        "lineHeight": "20px",
+        "color": "rgb(237, 245, 240)",
+        "background": [25, 46, 38],
+        "ratio": 12.96,
+        "threshold": 4.5,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      },
+      {
+        "text": "1 000 FCFA · 21 oct. 2026",
+        "class": "compact-card-line",
+        "tag": "SPAN",
+        "font": "\"DM Sans\", sans-serif",
+        "size": 12,
+        "weight": 400,
+        "lineHeight": "20px",
+        "color": "rgb(237, 245, 240)",
+        "background": [25, 46, 38],
+        "ratio": 12.96,
+        "threshold": 4.5,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      },
+      {
+        "text": "Séance du 21 oct. 2026",
+        "class": "compact-card-line",
+        "tag": "SPAN",
+        "font": "\"DM Sans\", sans-serif",
+        "size": 12,
+        "weight": 400,
+        "lineHeight": "20px",
+        "color": "rgb(237, 245, 240)",
+        "background": [25, 46, 38],
+        "ratio": 12.96,
+        "threshold": 4.5,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      },
+      {
+        "text": "Épargne TEST Encaisser · 2026-10-21",
+        "class": "compact-card-line",
+        "tag": "STRONG",
+        "font": "\"DM Sans\", sans-serif",
+        "size": 12,
+        "weight": 700,
+        "lineHeight": "20px",
+        "color": "rgb(237, 245, 240)",
+        "background": [25, 46, 38],
+        "ratio": 12.96,
+        "threshold": 4.5,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      },
+      {
+        "text": "1 000 FCFA · 21 oct. 2026",
+        "class": "compact-card-line",
+        "tag": "SPAN",
+        "font": "\"DM Sans\", sans-serif",
+        "size": 12,
+        "weight": 400,
+        "lineHeight": "20px",
+        "color": "rgb(237, 245, 240)",
+        "background": [25, 46, 38],
+        "ratio": 12.96,
+        "threshold": 4.5,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      },
+      {
+        "text": "Séance du 21 oct. 2026",
+        "class": "compact-card-line",
+        "tag": "SPAN",
+        "font": "\"DM Sans\", sans-serif",
+        "size": 12,
+        "weight": 400,
+        "lineHeight": "20px",
+        "color": "rgb(237, 245, 240)",
+        "background": [25, 46, 38],
+        "ratio": 12.96,
+        "threshold": 4.5,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      },
+      {
+        "text": "Épargne TEST Encaisser · 2026-10-21",
+        "class": "compact-card-line",
+        "tag": "STRONG",
+        "font": "\"DM Sans\", sans-serif",
+        "size": 12,
+        "weight": 700,
+        "lineHeight": "20px",
+        "color": "rgb(237, 245, 240)",
+        "background": [25, 46, 38],
+        "ratio": 12.96,
+        "threshold": 4.5,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      },
+      {
+        "text": "1 000 FCFA · 21 oct. 2026",
+        "class": "compact-card-line",
+        "tag": "SPAN",
+        "font": "\"DM Sans\", sans-serif",
+        "size": 12,
+        "weight": 400,
+        "lineHeight": "20px",
+        "color": "rgb(237, 245, 240)",
+        "background": [25, 46, 38],
+        "ratio": 12.96,
+        "threshold": 4.5,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      },
+      {
+        "text": "Séance du 21 oct. 2026",
+        "class": "compact-card-line",
+        "tag": "SPAN",
+        "font": "\"DM Sans\", sans-serif",
+        "size": 12,
+        "weight": 400,
+        "lineHeight": "20px",
+        "color": "rgb(237, 245, 240)",
+        "background": [25, 46, 38],
+        "ratio": 12.96,
+        "threshold": 4.5,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      },
+      {
+        "text": "Voir plus de versements",
+        "class": "text-button",
+        "tag": "BUTTON",
+        "font": "\"DM Sans\", sans-serif",
+        "size": 12,
+        "weight": 600,
+        "lineHeight": "normal",
+        "color": "rgb(126, 166, 159)",
+        "background": [25, 46, 38],
+        "ratio": 5.37,
+        "threshold": 4.5,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      },
+      {
+        "text": "AvecLesFemmesChaque femme, chaque projet, chaque contribution.",
+        "class": "page-footer",
+        "tag": "FOOTER",
+        "font": "\"DM Sans\", sans-serif",
+        "size": 10,
+        "weight": 400,
+        "lineHeight": "normal",
+        "color": "rgb(179, 200, 189)",
+        "background": [16, 34, 28],
+        "ratio": 9.4,
+        "threshold": 4.5,
+        "opacity": 1,
+        "gradient": false,
+        "disabled": false,
+        "tabular": "normal"
+      }
+    ]
+  }
+]

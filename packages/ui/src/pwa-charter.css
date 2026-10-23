@@ -1,0 +1,431 @@
+/* PWA charter 0.25: scoped to both profiles, including body-level dialogs.
+   The Super Admin retains its existing layout and heading family. */
+:root[data-pwa-theme],
+:root[data-pwa-theme] body {
+  --font-ui: 'DM Sans', system-ui, sans-serif;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-section: 1.25rem;
+  --text-title: 1.5rem;
+  --text-amount: 2rem;
+  --radius-card: 16px;
+  --radius-control: 12px;
+  --radius-badge: 8px;
+  font-family: var(--font-ui);
+  font-size: 100%;
+  line-height: 1.5;
+  color: var(--text-primary);
+  background: var(--page-background);
+}
+:root[data-pwa-theme='light'],
+:root[data-pwa-theme='light'] body {
+  --page-background: #f6f8f7;
+  --surface: #fff;
+  --surface-soft: #edf3ef;
+  --border: #d7e2db;
+  --surface-border: #d7e2db;
+  --surface-border-strong: #71877a;
+  --text-primary: #182b25;
+  --text-secondary: #53665d;
+  --muted: #53665d;
+  --positive-text: #16714a;
+  --positive-surface: #e9f5ee;
+  --danger-text: #b42332;
+  --danger-surface: #fff0f1;
+  --warning-text: #805400;
+  --warning-surface: #fff3db;
+  --info-text: #175cd3;
+  --info-surface: #edf3ff;
+}
+:root[data-pwa-theme='dark'],
+:root[data-pwa-theme='dark'] body {
+  --page-background: #101a16;
+  --surface: #182620;
+  --surface-soft: #21362c;
+  --border: #3c5347;
+  --surface-border: #3c5347;
+  --surface-border-strong: #829e8d;
+  --text-primary: #eff6f1;
+  --text-secondary: #b8cbc0;
+  --muted: #b8cbc0;
+  --positive-text: #8fdfb0;
+  --positive-surface: #213b2d;
+  --danger-text: #ffb3ba;
+  --danger-surface: #3d242a;
+  --warning-text: #f3c17d;
+  --warning-surface: #3a2e20;
+  --info-text: #a9c7ff;
+  --info-surface: #20304b;
+}
+:root[data-pwa-theme]
+  :is(
+    h1,
+    h2,
+    h3,
+    button,
+    input,
+    select,
+    textarea,
+    .brand,
+    .brand small,
+    .wave-balance-amount,
+    .cashbox-value
+  ) {
+  font-family: var(--font-ui);
+}
+:root[data-pwa-theme] :is(h1, h2, h3, strong, b, .pwa-login-brand, .member-identity-person) {
+  font-weight: 700;
+}
+:root[data-pwa-theme] .pwa-shell :is(h1, .page-heading h1),
+:root[data-pwa-theme] .pwa-login h1,
+:root[data-pwa-theme] .secret-code-content h1 {
+  font-size: var(--text-title);
+  line-height: 1.25;
+  letter-spacing: -0.025em;
+}
+:root[data-pwa-theme]
+  :is(
+    .pwa-section-title,
+    .pwa-list-heading h2,
+    .pwa-day-heading h2,
+    .panel > h2,
+    .dialog-header h2,
+    .member-global-history > h2,
+    .appearance-settings h2,
+    .platform-colors h2
+  ) {
+  font-size: var(--text-section);
+  line-height: 1.35;
+  letter-spacing: -0.015em;
+}
+:root[data-pwa-theme] small {
+  font-size: var(--text-xs);
+  line-height: 1.4;
+}
+:root[data-pwa-theme] .pwa-shell h2 {
+  font-size: var(--text-section);
+  line-height: 1.35;
+}
+:root[data-pwa-theme]
+  :is(
+    .page-footer,
+    .badge,
+    .badge.neutral,
+    .badge-function,
+    .badge-blocked,
+    .badge-amber,
+    .badge-code,
+    .badge-soft,
+    .pager > span,
+    .pagination > span
+  ) {
+  font-size: var(--text-xs);
+  line-height: 1.4;
+}
+:root[data-pwa-theme]
+  :is(
+    .muted,
+    .panel > .muted,
+    .pwa-day-heading p,
+    .pwa-day-reason,
+    .pwa-period,
+    .pwa-day-total > span,
+    .pwa-day-metrics span,
+    .session-opening-hint,
+    .member-pay-status,
+    .member-history-summary,
+    .member-history-filters p,
+    .pending-payment p,
+    .pwa-connection-state p,
+    .dialog-subtitle,
+    .pwa-login p,
+    .pwa-login-help,
+    .receipt-status,
+    .member-payment-reference
+  ) {
+  font-size: var(--text-sm);
+  line-height: 1.5;
+}
+:root[data-pwa-theme]
+  :is(
+    .field,
+    .field > span,
+    .form-grid label,
+    .searchable-member-select > label,
+    .campaign-card-quick-actions label,
+    .campaign-home-toggle
+  ) {
+  font-size: var(--text-sm);
+  line-height: 1.5;
+}
+:root[data-pwa-theme]
+  :is(input:not([type='checkbox']):not([type='radio']):not([type='color']), select, textarea) {
+  font-size: var(--text-base);
+  line-height: 1.5;
+  border-color: var(--surface-border-strong);
+  border-radius: var(--radius-control);
+}
+:root[data-pwa-theme] :is(.primary, .secondary, .danger) {
+  font-size: var(--text-base);
+  font-weight: 600;
+  min-height: 48px;
+  border-radius: var(--radius-control);
+  white-space: normal;
+}
+:root[data-pwa-theme] .text-button {
+  font-size: var(--text-sm);
+  min-height: 44px;
+  font-weight: 600;
+}
+:root[data-pwa-theme] :is(button, input, select, textarea, summary, a):focus-visible {
+  outline: 3px solid var(--focus-color, var(--text-primary));
+  outline-offset: 3px;
+}
+:root[data-pwa-theme] :is(.pwa-shell, .topbar, .sidebar, .panel, .dialog-card) {
+  color: var(--text-primary);
+}
+:root[data-pwa-theme] .pwa-shell {
+  background: var(--page-background);
+}
+:root[data-pwa-theme]
+  :is(
+    .panel,
+    .dialog-card,
+    .campaign-card-entry,
+    .member-list-card,
+    .member-info-card,
+    .member-history-filters,
+    .member-campaign-option,
+    .pwa-day-card,
+    .pwa-payment-review,
+    .receipt-details,
+    .appearance-settings,
+    .platform-colors
+  ) {
+  border-radius: var(--radius-card);
+  box-shadow: none;
+}
+:root[data-pwa-theme] .pwa-compact-identity {
+  border-radius: var(--radius-card);
+  padding: 16px;
+}
+:root[data-pwa-theme] .pwa-compact-identity strong {
+  font-size: var(--text-base);
+  line-height: 1.4;
+}
+:root[data-pwa-theme] .pwa-compact-identity > div > span {
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+:root[data-pwa-theme] .pwa-card-button {
+  font-size: var(--text-xs);
+  background: transparent;
+  border: 1px solid #fff;
+  color: #fff;
+  border-radius: var(--radius-control);
+}
+:root[data-pwa-theme] .pwa-shell .nav-item.active {
+  color: var(--navigation-selected-foreground);
+  background: var(--navigation-selected-background);
+  font-weight: 600;
+}
+:root[data-pwa-theme] .pwa-shell :is(.nav-item, .nav-label-mobile) {
+  font-size: var(--text-xs);
+  line-height: 1.4;
+}
+:root[data-pwa-theme] .pwa-action-layout .wave-action-label,
+:root[data-pwa-theme] .pwa-action-layout .campaign-short-name {
+  font-size: var(--text-xs);
+  line-height: 1.4;
+}
+:root[data-pwa-theme] .pwa-action-layout .pwa-action-home .campaign-short-name {
+  /* The complete campaign name is also visible in Action du jour / Plus. */
+  max-width: 100%;
+}
+:root[data-pwa-theme] .member-arrears-badge {
+  font-size: var(--text-xs);
+  background: var(--danger-text);
+  color: var(--surface);
+  border-color: var(--surface);
+  min-width: 24px;
+  height: 24px;
+}
+:root[data-pwa-theme] .pwa-day-card {
+  padding: 18px;
+  border-color: var(--border);
+  background: var(--surface);
+}
+:root[data-pwa-theme] .pwa-day-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border-radius: var(--radius-badge);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--surface-soft);
+}
+:root[data-pwa-theme] .pwa-day-state[data-tone='success'] {
+  color: var(--positive-text);
+  background: var(--positive-surface);
+}
+:root[data-pwa-theme] .pwa-day-state[data-tone='warning'] {
+  color: var(--warning-text);
+  background: var(--warning-surface);
+}
+:root[data-pwa-theme] .pwa-day-state[data-tone='error'] {
+  color: var(--danger-text);
+  background: var(--danger-surface);
+}
+:root[data-pwa-theme] .pwa-day-state svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+:root[data-pwa-theme]
+  :is(.pwa-day-total > strong, .member-personal-total > strong, .receipt-amount) {
+  font-size: var(--text-amount);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+}
+:root[data-pwa-theme] .pwa-day-metrics strong {
+  font-size: var(--text-section);
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+  color: var(--text-primary);
+}
+:root[data-pwa-theme] .member-personal-total > strong {
+  color: #fff;
+}
+:root[data-pwa-theme] .pwa-day-metrics.three span,
+:root[data-pwa-theme] .member-portal .pwa-day-metrics span {
+  font-size: var(--text-xs);
+}
+:root[data-pwa-theme] .pwa-day-metrics.three strong,
+:root[data-pwa-theme] .member-portal .pwa-day-metrics strong {
+  font-size: 1.125rem;
+}
+:root[data-pwa-theme]
+  :is(
+    .pwa-day-metrics strong,
+    .pwa-day-total strong,
+    .compact-card-amounts,
+    .member-payment-card,
+    .member-payment-reference,
+    .session-entry-amount,
+    .cashbox-value,
+    .amount,
+    .receipt-amount,
+    .receipt-details dd,
+    .pwa-payment-review dd,
+    .compact-expanded-info dd
+  ) {
+  font-variant-numeric: tabular-nums;
+}
+:root[data-pwa-theme] .pwa-shell .pwa-day-card .wave-giant-cta,
+:root[data-pwa-theme] .pwa-main-action {
+  font-size: var(--text-base);
+  font-weight: 600;
+  min-height: 50px;
+  border-radius: var(--radius-control);
+}
+:root[data-pwa-theme] .pwa-shell .pwa-day-card .collection-split .wave-giant-cta {
+  border-radius: 0 var(--radius-control) var(--radius-control) 0;
+}
+:root[data-pwa-theme] .pwa-action-layout .savings-session summary .compact-card-line {
+  height: auto;
+  min-height: 1.4em;
+  line-height: 1.5;
+  font-size: var(--text-sm);
+}
+:root[data-pwa-theme] .pwa-action-layout .savings-session summary .session-date-heading,
+:root[data-pwa-theme] .pwa-action-layout .savings-session summary .campaign-card-name {
+  font-size: var(--text-base);
+  line-height: 1.4;
+}
+:root[data-pwa-theme] .pwa-action-layout .savings-session summary .unpaid-count {
+  font-size: var(--text-xs);
+  line-height: 1.4;
+  color: var(--danger-text);
+}
+:root[data-pwa-theme] .pwa-action-layout .savings-session summary .session-card-body small {
+  font-size: var(--text-xs);
+  line-height: 1.4;
+  padding: 0;
+}
+:root[data-pwa-theme] .pwa-action-layout .savings-session summary .compact-card-amounts {
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px;
+}
+:root[data-pwa-theme] .pwa-action-layout .savings-session summary .compact-card-amounts > span {
+  flex: 0 1 auto;
+  font-size: var(--text-xs);
+  white-space: normal;
+  overflow: visible;
+  overflow-wrap: anywhere;
+  line-height: 1.5;
+}
+:root[data-pwa-theme] .pwa-action-layout .savings-session summary .compact-card-amounts b {
+  font-size: var(--text-sm);
+  white-space: nowrap;
+}
+:root[data-pwa-theme] .campaign-card-entry,
+:root[data-pwa-theme] .campaign-card-entry .campaign-list-card {
+  border-radius: var(--radius-card);
+}
+:root[data-pwa-theme] .campaign-card-quick-actions button {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  min-height: 44px;
+}
+:root[data-pwa-theme] :is(.member-history-filter-group, .member-history-filters) {
+  background: var(--surface-soft);
+  border: 0;
+}
+:root[data-pwa-theme] .member-global-history.panel {
+  background: transparent;
+  border: 0;
+  padding: 0;
+}
+:root[data-pwa-theme]
+  :is(
+    .secret-change-account,
+    .secret-code-label,
+    .receipt-reference,
+    .palette-preview-campaigns span
+  ) {
+  font-size: var(--text-sm);
+}
+:root[data-pwa-theme] .secret-code-key {
+  font-size: 2rem;
+  font-weight: 600;
+}
+:root[data-pwa-theme] .palette-preview {
+  background: #fff;
+  color: #182b25;
+}
+:root[data-pwa-theme] .palette-preview.dark {
+  background: #182620;
+  color: #eff6f1;
+}
+:root[data-pwa-theme] .palette-similarity {
+  padding: 12px;
+  color: var(--warning-text);
+  background: var(--warning-surface);
+  border-radius: var(--radius-badge);
+}
+@media (max-width: 380px) {
+  :root[data-pwa-theme] .pwa-day-card {
+    padding: 16px;
+  }
+  :root[data-pwa-theme] .pwa-day-metrics.three {
+    gap: 8px;
+  }
+  :root[data-pwa-theme] .pwa-day-metrics.three strong {
+    font-size: var(--text-base);
+  }
+}

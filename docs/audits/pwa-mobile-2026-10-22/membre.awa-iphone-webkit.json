@@ -1,0 +1,1411 @@
+[
+  {
+    "screen": "accueil",
+    "width": 360,
+    "viewportHeight": 800,
+    "documentHeight": 1715,
+    "overflow": 0,
+    "h1": "Vue d’ensemble",
+    "historyLength": 2,
+    "url": "/",
+    "hero": {
+      "top": 113,
+      "width": 328,
+      "height": 382
+    },
+    "cta": {
+      "top": 685,
+      "width": 328,
+      "height": 180
+    },
+    "nav": {
+      "top": 727,
+      "width": 344,
+      "height": 66
+    },
+    "controlsUnder44": [
+      {
+        "tag": "SELECT",
+        "label": "Filtrer par séanceToutes les séancesSéance du 21 oct. 2026",
+        "rect": {
+          "top": 1167,
+          "width": 290,
+          "height": 23
+        }
+      }
+    ],
+    "unnamedInputs": [],
+    "clippedText": [
+      {
+        "text": "Tontine TEST À tirer · 2026-10-21",
+        "title": null,
+        "rect": {
+          "top": 607,
+          "width": 67,
+          "height": 26
+        }
+      }
+    ],
+    "alerts": []
+  },
+  {
+    "screen": "plus",
+    "width": 360,
+    "viewportHeight": 800,
+    "documentHeight": 1715,
+    "overflow": 0,
+    "h1": "Vue d’ensemble",
+    "historyLength": 2,
+    "url": "/",
+    "hero": {
+      "top": 113,
+      "width": 328,
+      "height": 382
+    },
+    "cta": {
+      "top": 685,
+      "width": 328,
+      "height": 180
+    },
+    "nav": {
+      "top": 727,
+      "width": 344,
+      "height": 66
+    },
+    "controlsUnder44": [
+      {
+        "tag": "SELECT",
+        "label": "Filtrer par séanceToutes les séancesSéance du 21 oct. 2026",
+        "rect": {
+          "top": 1167,
+          "width": 290,
+          "height": 23
+        }
+      },
+      {
+        "tag": "BUTTON",
+        "label": "Fermer",
+        "rect": {
+          "top": 61,
+          "width": 42,
+          "height": 42
+        }
+      },
+      {
+        "tag": "INPUT",
+        "label": "Afficher Tontine TOUR TEST Encaisser · 2026-10-21 sur l’accueil",
+        "rect": {
+          "top": 314,
+          "width": 19,
+          "height": 19
+        }
+      },
+      {
+        "tag": "INPUT",
+        "label": "Afficher Tontine TOUR TEST À tirer · 2026-10-21 sur l’accueil",
+        "rect": {
+          "top": 464,
+          "width": 19,
+          "height": 19
+        }
+      },
+      {
+        "tag": "INPUT",
+        "label": "Afficher Tontine TEST Suivi · 2026-10-21 sur l’accueil",
+        "rect": {
+          "top": 613,
+          "width": 19,
+          "height": 19
+        }
+      },
+      {
+        "tag": "INPUT",
+        "label": "Afficher Épargne TEST Encaisser · 2026-10-21 sur l’accueil",
+        "rect": {
+          "top": 763,
+          "width": 19,
+          "height": 19
+        }
+      },
+      {
+        "tag": "INPUT",
+        "label": "Afficher Épargne TEST À ouvrir · 2026-10-21 sur l’accueil",
+        "rect": {
+          "top": 913,
+          "width": 19,
+          "height": 19
+        }
+      },
+      {
+        "tag": "INPUT",
+        "label": "Afficher Épargne TEST Encaisser · 2026-10-19 sur l’accueil",
+        "rect": {
+          "top": 1063,
+          "width": 19,
+          "height": 19
+        }
+      },
+      {
+        "tag": "INPUT",
+        "label": "Afficher Épargne TEST À ouvrir · 2026-10-19 sur l’accueil",
+        "rect": {
+          "top": 1212,
+          "width": 19,
+          "height": 19
+        }
+      },
+      {
+        "tag": "INPUT",
+        "label": "Afficher Épargne solidaire 2026 sur l’accueil",
+        "rect": {
+          "top": 1362,
+          "width": 19,
+          "height": 19
+        }
+      },
+      {
+        "tag": "BUTTON",
+        "label": "Choisir les campagnes d’accueil",
+        "rect": {
+          "top": 1407,
+          "width": 178,
+          "height": 42
+        }
+      }
+    ],
+    "unnamedInputs": [],
+    "clippedText": [
+      {
+        "text": "Tontine TEST À tirer · 2026-10-21",
+        "title": null,
+        "rect": {
+          "top": 607,
+          "width": 67,
+          "height": 26
+        }
+      }
+    ],
+    "alerts": []
+  },
+  {
+    "screen": "campagnes",
+    "width": 360,
+    "viewportHeight": 800,
+    "documentHeight": 800,
+    "overflow": 0,
+    "h1": "Mes campagnes",
+    "historyLength": 2,
+    "url": "/",
+    "hero": null,
+    "cta": null,
+    "nav": {
+      "top": 727,
+      "width": 344,
+      "height": 66
+    },
+    "controlsUnder44": [],
+    "unnamedInputs": [],
+    "clippedText": [],
+    "alerts": [],
+    "group": "Les Femmes de Grand Yoff+221770000002 · 1 membre(s)"
+  },
+  {
+    "screen": "personnalisation",
+    "width": 360,
+    "viewportHeight": 800,
+    "documentHeight": 800,
+    "overflow": 0,
+    "h1": "Mes campagnes",
+    "historyLength": 2,
+    "url": "/",
+    "hero": null,
+    "cta": null,
+    "nav": {
+      "top": 723,
+      "width": 344,
+      "height": 70
+    },
+    "controlsUnder44": [
+      {
+        "tag": "BUTTON",
+        "label": "Fermer",
+        "rect": {
+          "top": 61,
+          "width": 42,
+          "height": 42
+        }
+      },
+      {
+        "tag": "INPUT",
+        "label": "Afficher Tontine TOUR TEST Encaisser · 2026-10-21 sur l’accueil",
+        "rect": {
+          "top": 315,
+          "width": 19,
+          "height": 19
+        }
+      },
+      {
+        "tag": "INPUT",
+        "label": "Afficher Tontine TOUR TEST À tirer · 2026-10-21 sur l’accueil",
+        "rect": {
+          "top": 469,
+          "width": 19,
+          "height": 19
+        }
+      },
+      {
+        "tag": "INPUT",
+        "label": "Afficher Tontine TEST Suivi · 2026-10-21 sur l’accueil",
+        "rect": {
+          "top": 624,
+          "width": 19,
+          "height": 19
+        }
+      },
+      {
+        "tag": "INPUT",
+        "label": "Afficher Tontine TEST À tirer · 2026-10-21 sur l’accueil",
+        "rect": {
+          "top": 778,
+          "width": 19,
+          "height": 19
+        }
+      },
+      {
+        "tag": "INPUT",
+        "label": "Afficher Épargne TEST Encaisser · 2026-10-21 sur l’accueil",
+        "rect": {
+          "top": 933,
+          "width": 19,
+          "height": 19
+        }
+      },
+      {
+        "tag": "INPUT",
+        "label": "Afficher Épargne TEST À ouvrir · 2026-10-21 sur l’accueil",
+        "rect": {
+          "top": 1088,
+          "width": 19,
+          "height": 19
+        }
+      },
+      {
+        "tag": "INPUT",
+        "label": "Afficher Épargne TEST Encaisser · 2026-10-19 sur l’accueil",
+        "rect": {
+          "top": 1242,
+          "width": 19,
+          "height": 19
+        }
+      },
+      {
+        "tag": "INPUT",
+        "label": "Afficher Épargne TEST À ouvrir · 2026-10-19 sur l’accueil",
+        "rect": {
+          "top": 1397,
+          "width": 19,
+          "height": 19
+        }
+      },
+      {
+        "tag": "INPUT",
+        "label": "Afficher Épargne solidaire 2026 sur l’accueil",
+        "rect": {
+          "top": 1551,
+          "width": 19,
+          "height": 19
+        }
+      }
+    ],
+    "unnamedInputs": [],
+    "clippedText": [],
+    "alerts": [],
+    "group": "Les Femmes de Grand Yoff+221770000002 · 1 membre(s)"
+  },
+  {
+    "screen": "historique",
+    "width": 360,
+    "viewportHeight": 800,
+    "documentHeight": 1288,
+    "overflow": 0,
+    "h1": "Mes versements",
+    "historyLength": 2,
+    "url": "/",
+    "hero": null,
+    "cta": null,
+    "nav": {
+      "top": 723,
+      "width": 344,
+      "height": 70
+    },
+    "controlsUnder44": [
+      {
+        "tag": "SUMMARY",
+        "label": "Filtres",
+        "rect": {
+          "top": 386,
+          "width": 264,
+          "height": 32
+        }
+      }
+    ],
+    "unnamedInputs": [],
+    "clippedText": [
+      {
+        "text": "Tontine TOUR TEST Encaisser · 2026-10-21",
+        "title": "Tontine TOUR TEST Encaisser · 2026-10-21",
+        "rect": {
+          "top": 513,
+          "width": 194,
+          "height": 20
+        }
+      },
+      {
+        "text": "Épargne TEST Encaisser · 2026-10-21",
+        "title": "Épargne TEST Encaisser · 2026-10-21",
+        "rect": {
+          "top": 741,
+          "width": 194,
+          "height": 20
+        }
+      },
+      {
+        "text": "Épargne TEST Encaisser · 2026-10-21",
+        "title": "Épargne TEST Encaisser · 2026-10-21",
+        "rect": {
+          "top": 855,
+          "width": 194,
+          "height": 20
+        }
+      },
+      {
+        "text": "Épargne TEST Encaisser · 2026-10-21",
+        "title": "Épargne TEST Encaisser · 2026-10-21",
+        "rect": {
+          "top": 969,
+          "width": 194,
+          "height": 20
+        }
+      }
+    ],
+    "alerts": [],
+    "group": "Les Femmes de Grand Yoff+221770000002 · 1 membre(s)"
+  },
+  {
+    "screen": "filtres",
+    "width": 360,
+    "viewportHeight": 800,
+    "documentHeight": 1804,
+    "overflow": 0,
+    "h1": "Mes versements",
+    "historyLength": 2,
+    "url": "/",
+    "hero": null,
+    "cta": null,
+    "nav": {
+      "top": 723,
+      "width": 344,
+      "height": 70
+    },
+    "controlsUnder44": [
+      {
+        "tag": "SUMMARY",
+        "label": "Filtres",
+        "rect": {
+          "top": 386,
+          "width": 264,
+          "height": 32
+        }
+      },
+      {
+        "tag": "SUMMARY",
+        "label": "Types de cotisation",
+        "rect": {
+          "top": 614,
+          "width": 238,
+          "height": 32
+        }
+      },
+      {
+        "tag": "SUMMARY",
+        "label": "Campagnes",
+        "rect": {
+          "top": 684,
+          "width": 238,
+          "height": 32
+        }
+      },
+      {
+        "tag": "SUMMARY",
+        "label": "Séances d’épargne",
+        "rect": {
+          "top": 754,
+          "width": 238,
+          "height": 32
+        }
+      },
+      {
+        "tag": "SUMMARY",
+        "label": "Tours de tontine",
+        "rect": {
+          "top": 824,
+          "width": 238,
+          "height": 32
+        }
+      }
+    ],
+    "unnamedInputs": [],
+    "clippedText": [
+      {
+        "text": "Tontine TOUR TEST Encaisser · 2026-10-21",
+        "title": "Tontine TOUR TEST Encaisser · 2026-10-21",
+        "rect": {
+          "top": 1029,
+          "width": 194,
+          "height": 20
+        }
+      },
+      {
+        "text": "Épargne TEST Encaisser · 2026-10-21",
+        "title": "Épargne TEST Encaisser · 2026-10-21",
+        "rect": {
+          "top": 1257,
+          "width": 194,
+          "height": 20
+        }
+      },
+      {
+        "text": "Épargne TEST Encaisser · 2026-10-21",
+        "title": "Épargne TEST Encaisser · 2026-10-21",
+        "rect": {
+          "top": 1371,
+          "width": 194,
+          "height": 20
+        }
+      },
+      {
+        "text": "Épargne TEST Encaisser · 2026-10-21",
+        "title": "Épargne TEST Encaisser · 2026-10-21",
+        "rect": {
+          "top": 1485,
+          "width": 194,
+          "height": 20
+        }
+      }
+    ],
+    "alerts": [],
+    "group": "Les Femmes de Grand Yoff+221770000002 · 1 membre(s)"
+  },
+  {
+    "screen": "compte",
+    "width": 360,
+    "viewportHeight": 800,
+    "documentHeight": 800,
+    "overflow": 0,
+    "h1": "Mon compte",
+    "historyLength": 2,
+    "url": "/",
+    "hero": null,
+    "cta": null,
+    "nav": {
+      "top": 723,
+      "width": 344,
+      "height": 70
+    },
+    "controlsUnder44": [],
+    "unnamedInputs": [],
+    "clippedText": [],
+    "alerts": [],
+    "group": "Les Femmes de Grand Yoff+221770000002 · 1 membre(s)"
+  },
+  {
+    "screen": "accueil",
+    "width": 390,
+    "viewportHeight": 844,
+    "documentHeight": 1740,
+    "overflow": 0,
+    "h1": "Vue d’ensemble",
+    "historyLength": 2,
+    "url": "/",
+    "hero": {
+      "top": 118,
+      "width": 358,
+      "height": 382
+    },
+    "cta": {
+      "top": 692,
+      "width": 358,
+      "height": 180
+    },
+    "nav": {
+      "top": 767,
+      "width": 374,
+      "height": 70
+    },
+    "controlsUnder44": [
+      {
+        "tag": "SELECT",
+        "label": "Filtrer par séanceToutes les séancesSéance du 21 oct. 2026",
+        "rect": {
+          "top": 1189,
+          "width": 320,
+          "height": 26
+        }
+      }
+    ],
+    "unnamedInputs": [],
+    "clippedText": [
+      {
+        "text": "Tontine TEST À tirer · 2026-10-21",
+        "title": null,
+        "rect": {
+          "top": 613,
+          "width": 76,
+          "height": 26
+        }
+      }
+    ],
+    "alerts": []
+  },
+  {
+    "screen": "plus",
+    "width": 390,
+    "viewportHeight": 844,
+    "documentHeight": 1740,
+    "overflow": 0,
+    "h1": "Vue d’ensemble",
+    "historyLength": 2,
+    "url": "/",
+    "hero": {
+      "top": 118,
+      "width": 358,
+      "height": 382
+    },
+    "cta": {
+      "top": 692,
+      "width": 358,
+      "height": 180
+    },
+    "nav": {
+      "top": 767,
+      "width": 374,
+      "height": 70
+    },
+    "controlsUnder44": [
+      {
+        "tag": "SELECT",
+        "label": "Filtrer par séanceToutes les séancesSéance du 21 oct. 2026",
+        "rect": {
+          "top": 1189,
+          "width": 320,
+          "height": 26
+        }
+      },
+      {
+        "tag": "BUTTON",
+        "label": "Fermer",
+        "rect": {
+          "top": 62,
+          "width": 42,
+          "height": 42
+        }
+      },
+      {
+        "tag": "INPUT",
+        "label": "Afficher Tontine TOUR TEST Encaisser · 2026-10-21 sur l’accueil",
+        "rect": {
+          "top": 316,
+          "width": 19,
+          "height": 19
+        }
+      },
+      {
+        "tag": "INPUT",
+        "label": "Afficher Tontine TOUR TEST À tirer · 2026-10-21 sur l’accueil",
+        "rect": {
+          "top": 470,
+          "width": 19,
+          "height": 19
+        }
+      },
+      {
+        "tag": "INPUT",
+        "label": "Afficher Tontine TEST Suivi · 2026-10-21 sur l’accueil",
+        "rect": {
+          "top": 625,
+          "width": 19,
+          "height": 19
+        }
+      },
+      {
+        "tag": "INPUT",
+        "label": "Afficher Épargne TEST Encaisser · 2026-10-21 sur l’accueil",
+        "rect": {
+          "top": 779,
+          "width": 19,
+          "height": 19
+        }
+      },
+      {
+        "tag": "INPUT",
+        "label": "Afficher Épargne TEST À ouvrir · 2026-10-21 sur l’accueil",
+        "rect": {
+          "top": 934,
+          "width": 19,
+          "height": 19
+        }
+      },
+      {
+        "tag": "INPUT",
+        "label": "Afficher Épargne TEST Encaisser · 2026-10-19 sur l’accueil",
+        "rect": {
+          "top": 1088,
+          "width": 19,
+          "height": 19
+        }
+      },
+      {
+        "tag": "INPUT",
+        "label": "Afficher Épargne TEST À ouvrir · 2026-10-19 sur l’accueil",
+        "rect": {
+          "top": 1243,
+          "width": 19,
+          "height": 19
+        }
+      },
+      {
+        "tag": "INPUT",
+        "label": "Afficher Épargne solidaire 2026 sur l’accueil",
+        "rect": {
+          "top": 1398,
+          "width": 19,
+          "height": 19
+        }
+      },
+      {
+        "tag": "BUTTON",
+        "label": "Choisir les campagnes d’accueil",
+        "rect": {
+          "top": 1443,
+          "width": 178,
+          "height": 42
+        }
+      }
+    ],
+    "unnamedInputs": [],
+    "clippedText": [
+      {
+        "text": "Tontine TEST À tirer · 2026-10-21",
+        "title": null,
+        "rect": {
+          "top": 613,
+          "width": 76,
+          "height": 26
+        }
+      }
+    ],
+    "alerts": []
+  },
+  {
+    "screen": "campagnes",
+    "width": 390,
+    "viewportHeight": 844,
+    "documentHeight": 844,
+    "overflow": 0,
+    "h1": "Mes campagnes",
+    "historyLength": 2,
+    "url": "/",
+    "hero": null,
+    "cta": null,
+    "nav": {
+      "top": 767,
+      "width": 374,
+      "height": 70
+    },
+    "controlsUnder44": [],
+    "unnamedInputs": [],
+    "clippedText": [],
+    "alerts": [],
+    "group": "Les Femmes de Grand Yoff+221770000002 · 1 membre(s)"
+  },
+  {
+    "screen": "personnalisation",
+    "width": 390,
+    "viewportHeight": 844,
+    "documentHeight": 844,
+    "overflow": 0,
+    "h1": "Mes campagnes",
+    "historyLength": 2,
+    "url": "/",
+    "hero": null,
+    "cta": null,
+    "nav": {
+      "top": 767,
+      "width": 374,
+      "height": 70
+    },
+    "controlsUnder44": [
+      {
+        "tag": "BUTTON",
+        "label": "Fermer",
+        "rect": {
+          "top": 62,
+          "width": 42,
+          "height": 42
+        }
+      },
+      {
+        "tag": "INPUT",
+        "label": "Afficher Tontine TOUR TEST Encaisser · 2026-10-21 sur l’accueil",
+        "rect": {
+          "top": 316,
+          "width": 19,
+          "height": 19
+        }
+      },
+      {
+        "tag": "INPUT",
+        "label": "Afficher Tontine TOUR TEST À tirer · 2026-10-21 sur l’accueil",
+        "rect": {
+          "top": 470,
+          "width": 19,
+          "height": 19
+        }
+      },
+      {
+        "tag": "INPUT",
+        "label": "Afficher Tontine TEST Suivi · 2026-10-21 sur l’accueil",
+        "rect": {
+          "top": 625,
+          "width": 19,
+          "height": 19
+        }
+      },
+      {
+        "tag": "INPUT",
+        "label": "Afficher Tontine TEST À tirer · 2026-10-21 sur l’accueil",
+        "rect": {
+          "top": 779,
+          "width": 19,
+          "height": 19
+        }
+      },
+      {
+        "tag": "INPUT",
+        "label": "Afficher Épargne TEST Encaisser · 2026-10-21 sur l’accueil",
+        "rect": {
+          "top": 934,
+          "width": 19,
+          "height": 19
+        }
+      },
+      {
+        "tag": "INPUT",
+        "label": "Afficher Épargne TEST À ouvrir · 2026-10-21 sur l’accueil",
+        "rect": {
+          "top": 1088,
+          "width": 19,
+          "height": 19
+        }
+      },
+      {
+        "tag": "INPUT",
+        "label": "Afficher Épargne TEST Encaisser · 2026-10-19 sur l’accueil",
+        "rect": {
+          "top": 1243,
+          "width": 19,
+          "height": 19
+        }
+      },
+      {
+        "tag": "INPUT",
+        "label": "Afficher Épargne TEST À ouvrir · 2026-10-19 sur l’accueil",
+        "rect": {
+          "top": 1398,
+          "width": 19,
+          "height": 19
+        }
+      },
+      {
+        "tag": "INPUT",
+        "label": "Afficher Épargne solidaire 2026 sur l’accueil",
+        "rect": {
+          "top": 1552,
+          "width": 19,
+          "height": 19
+        }
+      }
+    ],
+    "unnamedInputs": [],
+    "clippedText": [],
+    "alerts": [],
+    "group": "Les Femmes de Grand Yoff+221770000002 · 1 membre(s)"
+  },
+  {
+    "screen": "historique",
+    "width": 390,
+    "viewportHeight": 844,
+    "documentHeight": 1241,
+    "overflow": 0,
+    "h1": "Mes versements",
+    "historyLength": 2,
+    "url": "/",
+    "hero": null,
+    "cta": null,
+    "nav": {
+      "top": 767,
+      "width": 374,
+      "height": 70
+    },
+    "controlsUnder44": [
+      {
+        "tag": "SUMMARY",
+        "label": "Filtres",
+        "rect": {
+          "top": 359,
+          "width": 294,
+          "height": 32
+        }
+      }
+    ],
+    "unnamedInputs": [],
+    "clippedText": [
+      {
+        "text": "Tontine TOUR TEST Encaisser · 2026-10-21",
+        "title": "Tontine TOUR TEST Encaisser · 2026-10-21",
+        "rect": {
+          "top": 466,
+          "width": 224,
+          "height": 20
+        }
+      }
+    ],
+    "alerts": [],
+    "group": "Les Femmes de Grand Yoff+221770000002 · 1 membre(s)"
+  },
+  {
+    "screen": "filtres",
+    "width": 390,
+    "viewportHeight": 844,
+    "documentHeight": 1736,
+    "overflow": 0,
+    "h1": "Mes versements",
+    "historyLength": 2,
+    "url": "/",
+    "hero": null,
+    "cta": null,
+    "nav": {
+      "top": 767,
+      "width": 374,
+      "height": 70
+    },
+    "controlsUnder44": [
+      {
+        "tag": "SUMMARY",
+        "label": "Filtres",
+        "rect": {
+          "top": 359,
+          "width": 294,
+          "height": 32
+        }
+      },
+      {
+        "tag": "SUMMARY",
+        "label": "Types de cotisation",
+        "rect": {
+          "top": 568,
+          "width": 268,
+          "height": 32
+        }
+      },
+      {
+        "tag": "SUMMARY",
+        "label": "Campagnes",
+        "rect": {
+          "top": 638,
+          "width": 268,
+          "height": 32
+        }
+      },
+      {
+        "tag": "SUMMARY",
+        "label": "Séances d’épargne",
+        "rect": {
+          "top": 708,
+          "width": 268,
+          "height": 32
+        }
+      },
+      {
+        "tag": "SUMMARY",
+        "label": "Tours de tontine",
+        "rect": {
+          "top": 778,
+          "width": 268,
+          "height": 32
+        }
+      }
+    ],
+    "unnamedInputs": [],
+    "clippedText": [
+      {
+        "text": "Tontine TOUR TEST Encaisser · 2026-10-21",
+        "title": "Tontine TOUR TEST Encaisser · 2026-10-21",
+        "rect": {
+          "top": 961,
+          "width": 224,
+          "height": 20
+        }
+      }
+    ],
+    "alerts": [],
+    "group": "Les Femmes de Grand Yoff+221770000002 · 1 membre(s)"
+  },
+  {
+    "screen": "compte",
+    "width": 390,
+    "viewportHeight": 844,
+    "documentHeight": 844,
+    "overflow": 0,
+    "h1": "Mon compte",
+    "historyLength": 2,
+    "url": "/",
+    "hero": null,
+    "cta": null,
+    "nav": {
+      "top": 767,
+      "width": 374,
+      "height": 70
+    },
+    "controlsUnder44": [],
+    "unnamedInputs": [],
+    "clippedText": [],
+    "alerts": [],
+    "group": "Les Femmes de Grand Yoff+221770000002 · 1 membre(s)"
+  },
+  {
+    "screen": "accueil",
+    "width": 430,
+    "viewportHeight": 932,
+    "documentHeight": 1743,
+    "overflow": 0,
+    "h1": "Vue d’ensemble",
+    "historyLength": 2,
+    "url": "/",
+    "hero": {
+      "top": 118,
+      "width": 398,
+      "height": 382
+    },
+    "cta": {
+      "top": 692,
+      "width": 398,
+      "height": 180
+    },
+    "nav": {
+      "top": 869,
+      "width": 414,
+      "height": 56
+    },
+    "controlsUnder44": [
+      {
+        "tag": "SELECT",
+        "label": "Filtrer par séanceToutes les séancesSéance du 21 oct. 2026",
+        "rect": {
+          "top": 1192,
+          "width": 360,
+          "height": 26
+        }
+      }
+    ],
+    "unnamedInputs": [],
+    "clippedText": [],
+    "alerts": []
+  },
+  {
+    "screen": "plus",
+    "width": 430,
+    "viewportHeight": 932,
+    "documentHeight": 1743,
+    "overflow": 0,
+    "h1": "Vue d’ensemble",
+    "historyLength": 2,
+    "url": "/",
+    "hero": {
+      "top": 118,
+      "width": 398,
+      "height": 382
+    },
+    "cta": {
+      "top": 692,
+      "width": 398,
+      "height": 180
+    },
+    "nav": {
+      "top": 869,
+      "width": 414,
+      "height": 56
+    },
+    "controlsUnder44": [
+      {
+        "tag": "SELECT",
+        "label": "Filtrer par séanceToutes les séancesSéance du 21 oct. 2026",
+        "rect": {
+          "top": 1192,
+          "width": 360,
+          "height": 26
+        }
+      },
+      {
+        "tag": "BUTTON",
+        "label": "Fermer",
+        "rect": {
+          "top": 64,
+          "width": 42,
+          "height": 42
+        }
+      },
+      {
+        "tag": "INPUT",
+        "label": "Afficher Tontine TOUR TEST Encaisser · 2026-10-21 sur l’accueil",
+        "rect": {
+          "top": 317,
+          "width": 19,
+          "height": 19
+        }
+      },
+      {
+        "tag": "INPUT",
+        "label": "Afficher Tontine TOUR TEST À tirer · 2026-10-21 sur l’accueil",
+        "rect": {
+          "top": 472,
+          "width": 19,
+          "height": 19
+        }
+      },
+      {
+        "tag": "INPUT",
+        "label": "Afficher Tontine TEST Suivi · 2026-10-21 sur l’accueil",
+        "rect": {
+          "top": 626,
+          "width": 19,
+          "height": 19
+        }
+      },
+      {
+        "tag": "INPUT",
+        "label": "Afficher Épargne TEST Encaisser · 2026-10-21 sur l’accueil",
+        "rect": {
+          "top": 781,
+          "width": 19,
+          "height": 19
+        }
+      },
+      {
+        "tag": "INPUT",
+        "label": "Afficher Épargne TEST À ouvrir · 2026-10-21 sur l’accueil",
+        "rect": {
+          "top": 936,
+          "width": 19,
+          "height": 19
+        }
+      },
+      {
+        "tag": "INPUT",
+        "label": "Afficher Épargne TEST Encaisser · 2026-10-19 sur l’accueil",
+        "rect": {
+          "top": 1090,
+          "width": 19,
+          "height": 19
+        }
+      },
+      {
+        "tag": "INPUT",
+        "label": "Afficher Épargne TEST À ouvrir · 2026-10-19 sur l’accueil",
+        "rect": {
+          "top": 1245,
+          "width": 19,
+          "height": 19
+        }
+      },
+      {
+        "tag": "INPUT",
+        "label": "Afficher Épargne solidaire 2026 sur l’accueil",
+        "rect": {
+          "top": 1399,
+          "width": 19,
+          "height": 19
+        }
+      },
+      {
+        "tag": "BUTTON",
+        "label": "Choisir les campagnes d’accueil",
+        "rect": {
+          "top": 1444,
+          "width": 178,
+          "height": 42
+        }
+      }
+    ],
+    "unnamedInputs": [],
+    "clippedText": [],
+    "alerts": []
+  },
+  {
+    "screen": "campagnes",
+    "width": 430,
+    "viewportHeight": 932,
+    "documentHeight": 932,
+    "overflow": 0,
+    "h1": "Mes campagnes",
+    "historyLength": 2,
+    "url": "/",
+    "hero": null,
+    "cta": null,
+    "nav": {
+      "top": 869,
+      "width": 414,
+      "height": 56
+    },
+    "controlsUnder44": [],
+    "unnamedInputs": [],
+    "clippedText": [],
+    "alerts": [],
+    "group": "Les Femmes de Grand Yoff+221770000002 · 1 membre(s)"
+  },
+  {
+    "screen": "personnalisation",
+    "width": 430,
+    "viewportHeight": 932,
+    "documentHeight": 932,
+    "overflow": 0,
+    "h1": "Mes campagnes",
+    "historyLength": 2,
+    "url": "/",
+    "hero": null,
+    "cta": null,
+    "nav": {
+      "top": 869,
+      "width": 414,
+      "height": 56
+    },
+    "controlsUnder44": [
+      {
+        "tag": "BUTTON",
+        "label": "Fermer",
+        "rect": {
+          "top": 64,
+          "width": 42,
+          "height": 42
+        }
+      },
+      {
+        "tag": "INPUT",
+        "label": "Afficher Tontine TOUR TEST Encaisser · 2026-10-21 sur l’accueil",
+        "rect": {
+          "top": 317,
+          "width": 19,
+          "height": 19
+        }
+      },
+      {
+        "tag": "INPUT",
+        "label": "Afficher Tontine TOUR TEST À tirer · 2026-10-21 sur l’accueil",
+        "rect": {
+          "top": 472,
+          "width": 19,
+          "height": 19
+        }
+      },
+      {
+        "tag": "INPUT",
+        "label": "Afficher Tontine TEST Suivi · 2026-10-21 sur l’accueil",
+        "rect": {
+          "top": 626,
+          "width": 19,
+          "height": 19
+        }
+      },
+      {
+        "tag": "INPUT",
+        "label": "Afficher Tontine TEST À tirer · 2026-10-21 sur l’accueil",
+        "rect": {
+          "top": 781,
+          "width": 19,
+          "height": 19
+        }
+      },
+      {
+        "tag": "INPUT",
+        "label": "Afficher Épargne TEST Encaisser · 2026-10-21 sur l’accueil",
+        "rect": {
+          "top": 936,
+          "width": 19,
+          "height": 19
+        }
+      },
+      {
+        "tag": "INPUT",
+        "label": "Afficher Épargne TEST À ouvrir · 2026-10-21 sur l’accueil",
+        "rect": {
+          "top": 1090,
+          "width": 19,
+          "height": 19
+        }
+      },
+      {
+        "tag": "INPUT",
+        "label": "Afficher Épargne TEST Encaisser · 2026-10-19 sur l’accueil",
+        "rect": {
+          "top": 1245,
+          "width": 19,
+          "height": 19
+        }
+      },
+      {
+        "tag": "INPUT",
+        "label": "Afficher Épargne TEST À ouvrir · 2026-10-19 sur l’accueil",
+        "rect": {
+          "top": 1399,
+          "width": 19,
+          "height": 19
+        }
+      },
+      {
+        "tag": "INPUT",
+        "label": "Afficher Épargne solidaire 2026 sur l’accueil",
+        "rect": {
+          "top": 1554,
+          "width": 19,
+          "height": 19
+        }
+      }
+    ],
+    "unnamedInputs": [],
+    "clippedText": [],
+    "alerts": [],
+    "group": "Les Femmes de Grand Yoff+221770000002 · 1 membre(s)"
+  },
+  {
+    "screen": "historique",
+    "width": 430,
+    "viewportHeight": 932,
+    "documentHeight": 1241,
+    "overflow": 0,
+    "h1": "Mes versements",
+    "historyLength": 2,
+    "url": "/",
+    "hero": null,
+    "cta": null,
+    "nav": {
+      "top": 855,
+      "width": 414,
+      "height": 70
+    },
+    "controlsUnder44": [
+      {
+        "tag": "SUMMARY",
+        "label": "Filtres",
+        "rect": {
+          "top": 359,
+          "width": 334,
+          "height": 32
+        }
+      }
+    ],
+    "unnamedInputs": [],
+    "clippedText": [],
+    "alerts": [],
+    "group": "Les Femmes de Grand Yoff+221770000002 · 1 membre(s)"
+  },
+  {
+    "screen": "filtres",
+    "width": 430,
+    "viewportHeight": 932,
+    "documentHeight": 1736,
+    "overflow": 0,
+    "h1": "Mes versements",
+    "historyLength": 2,
+    "url": "/",
+    "hero": null,
+    "cta": null,
+    "nav": {
+      "top": 855,
+      "width": 414,
+      "height": 70
+    },
+    "controlsUnder44": [
+      {
+        "tag": "SUMMARY",
+        "label": "Filtres",
+        "rect": {
+          "top": 359,
+          "width": 334,
+          "height": 32
+        }
+      },
+      {
+        "tag": "SUMMARY",
+        "label": "Types de cotisation",
+        "rect": {
+          "top": 568,
+          "width": 308,
+          "height": 32
+        }
+      },
+      {
+        "tag": "SUMMARY",
+        "label": "Campagnes",
+        "rect": {
+          "top": 638,
+          "width": 308,
+          "height": 32
+        }
+      },
+      {
+        "tag": "SUMMARY",
+        "label": "Séances d’épargne",
+        "rect": {
+          "top": 708,
+          "width": 308,
+          "height": 32
+        }
+      },
+      {
+        "tag": "SUMMARY",
+        "label": "Tours de tontine",
+        "rect": {
+          "top": 778,
+          "width": 308,
+          "height": 32
+        }
+      }
+    ],
+    "unnamedInputs": [],
+    "clippedText": [],
+    "alerts": [],
+    "group": "Les Femmes de Grand Yoff+221770000002 · 1 membre(s)"
+  },
+  {
+    "screen": "compte",
+    "width": 430,
+    "viewportHeight": 932,
+    "documentHeight": 932,
+    "overflow": 0,
+    "h1": "Mon compte",
+    "historyLength": 2,
+    "url": "/",
+    "hero": null,
+    "cta": null,
+    "nav": {
+      "top": 869,
+      "width": 414,
+      "height": 56
+    },
+    "controlsUnder44": [],
+    "unnamedInputs": [],
+    "clippedText": [],
+    "alerts": [],
+    "group": "Les Femmes de Grand Yoff+221770000002 · 1 membre(s)"
+  }
+]

@@ -9,14 +9,18 @@ import {
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
-import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import type { Response } from 'express';
 import { Database, DatabaseModule } from './database/database.module';
+import { AccountThrottlerGuard } from './auth/rate-limit.guard';
 import { AuthModule, Public } from './auth/auth.module';
 import { GroupementsModule } from './groupements/groupements.module';
 import { CampaignsModule } from './campaigns/campaigns.module';
 import { ContributionsModule } from './contributions/contributions.module';
+import { MemberModule } from './member/member.module';
+import { PlatformAppearanceModule } from './appearance/appearance.module';
+import { OfflineModule } from './offline/offline.module';
 import { PRODUCT_VERSION } from './version';
 @Catch()
 export class ApiExceptionFilter implements ExceptionFilter {
@@ -65,13 +69,19 @@ class HealthController {
 @Module({
   imports: [
     DatabaseModule,
-    ThrottlerModule.forRoot([{ ttl: 60000, limit: 120 }]),
+    ThrottlerModule.forRoot([
+      { ttl: 60000, limit: 120 },
+      { name: 'network', ttl: 60000, limit: 3000, getTracker: (req) => req.ip },
+    ]),
     AuthModule,
     GroupementsModule,
     CampaignsModule,
     ContributionsModule,
+    MemberModule,
+    PlatformAppearanceModule,
+    OfflineModule,
   ],
   controllers: [HealthController],
-  providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
+  providers: [{ provide: APP_GUARD, useClass: AccountThrottlerGuard }],
 })
 export class AppModule {}

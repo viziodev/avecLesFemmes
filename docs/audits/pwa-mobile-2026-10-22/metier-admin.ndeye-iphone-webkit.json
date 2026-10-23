@@ -1,0 +1,126 @@
+[
+  {
+    "screen": "seance-ouverte",
+    "width": 390,
+    "viewportHeight": 844,
+    "documentHeight": 1335,
+    "overflow": 0,
+    "h1": "Vue d’ensemble",
+    "historyLength": 2,
+    "url": "/",
+    "hero": null,
+    "cta": {
+      "top": 789,
+      "width": 358,
+      "height": 169
+    },
+    "nav": {
+      "top": 781,
+      "width": 374,
+      "height": 56
+    },
+    "controlsUnder44": [],
+    "unnamedInputs": [],
+    "clippedText": [
+      {
+        "text": "Tontine TOUR TEST Encaisser · 2026-10-21",
+        "title": null,
+        "rect": {
+          "top": 605,
+          "width": 76,
+          "height": 26
+        }
+      },
+      {
+        "text": "Tontine TEST Suivi · 2026-10-21",
+        "title": null,
+        "rect": {
+          "top": 605,
+          "width": 76,
+          "height": 26
+        }
+      },
+      {
+        "text": "Tontine TEST À tirer · 2026-10-21",
+        "title": null,
+        "rect": {
+          "top": 605,
+          "width": 76,
+          "height": 26
+        }
+      },
+      {
+        "text": "Épargne TEST Encaisser · 2026-10-21",
+        "title": null,
+        "rect": {
+          "top": 605,
+          "width": 76,
+          "height": 26
+        }
+      }
+    ],
+    "alerts": []
+  },
+  {
+    "screen": "tontine",
+    "width": 390,
+    "viewportHeight": 844,
+    "documentHeight": 1340,
+    "overflow": 0,
+    "h1": "Vue d’ensemble",
+    "historyLength": 2,
+    "url": "/",
+    "hero": null,
+    "cta": {
+      "top": 789,
+      "width": 358,
+      "height": 169
+    },
+    "nav": {
+      "top": 781,
+      "width": 374,
+      "height": 56
+    },
+    "controlsUnder44": [],
+    "unnamedInputs": [],
+    "clippedText": [
+      {
+        "text": "Tontine TOUR TEST Encaisser · 2026-10-21",
+        "title": null,
+        "rect": {
+          "top": 605,
+          "width": 76,
+          "height": 26
+        }
+      },
+      {
+        "text": "Tontine TEST Suivi · 2026-10-21",
+        "title": null,
+        "rect": {
+          "top": 605,
+          "width": 76,
+          "height": 26
+        }
+      },
+      {
+        "text": "Tontine TEST À tirer · 2026-10-21",
+        "title": null,
+        "rect": {
+          "top": 605,
+          "width": 76,
+          "height": 26
+        }
+      },
+      {
+        "text": "Épargne TEST Encaisser · 2026-10-21",
+        "title": null,
+        "rect": {
+          "top": 605,
+          "width": 76,
+          "height": 26
+        }
+      }
+    ],
+    "alerts": []
+  }
+]
