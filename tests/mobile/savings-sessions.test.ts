@@ -60,10 +60,14 @@ test('épargne : cinq séances, voir plus et recherche de tous les membres', asy
   await expect(summaries.nth(1)).toContainText('7 juil');
   const compact = summaries.first().locator('.compact-session-body > .compact-card-line');
   await expect(compact).toHaveCount(3);
-  const heights = await compact.evaluateAll((nodes) =>
-    nodes.map((n) => n.getBoundingClientRect().height),
-  );
-  expect(Math.max(...heights)).toBeLessThanOrEqual(24);
+  await page.evaluate(() => document.fonts.ready);
+  // La charte autorise le retour à la ligne des montants : trois rangées logiques,
+  // sans hauteur fixe ni coupure de chiffres selon la police et le navigateur.
+  for (const row of await compact.all()) {
+    expect(await row.evaluate((el) => el.scrollWidth <= el.clientWidth)).toBe(true);
+  }
+  await expect(compact.nth(1)).toContainText(/Versé.*500 FCFA/);
+  await expect(compact.nth(1)).toContainText(/Attendu.*2.?000 FCFA/);
 
   await section.getByRole('button', { name: 'Voir plus de séances', exact: true }).tap();
   await expect(summaries).toHaveCount(7);
