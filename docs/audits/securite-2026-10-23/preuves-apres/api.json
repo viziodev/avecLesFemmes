@@ -29,16 +29,7 @@
   },
   "SEC-02": {
     "concurrentFailures": 8,
-    "statuses": [
-      401,
-      401,
-      401,
-      401,
-      401,
-      401,
-      401,
-      401
-    ],
+    "statuses": [401, 401, 401, 401, 401, 401, 401, 401],
     "persistedAttempts": 5,
     "locked": true,
     "correctPinAfterEightFailures": 401
@@ -55,10 +46,7 @@
     "expiredSessionHeartbeat": 401
   },
   "throttleOrderControl": {
-    "guardOrder": [
-      "AccountThrottlerGuard",
-      "AuthGuard"
-    ],
+    "guardOrder": ["AccountThrottlerGuard", "AuthGuard"],
     "limiterCallsForRejectedConfirmation": 1,
     "additionalLimiterCallsForSuccessfulRead": 1,
     "loadTestPerformed": false
