@@ -36,6 +36,8 @@ jobs:
       - name: Vérifier le remplacement du jeu de recette Nguith
         run: node --test scripts/demo/nguith-data.test.mjs
       - run: npm run build
+      - name: Régression de décompression HTTP
+        run: node --test tests/security/dependency-regressions.test.mjs
       - name: Régressions de sécurité API isolées
         run: node --import tsx --test tests/security/api-audit.ts
       - run: npm run openapi --workspace @aveclesfemmes/api

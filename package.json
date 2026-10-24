@@ -36,6 +36,10 @@
   "overrides": {
     "@nestjs/swagger": {
       "js-yaml": "^5.4.3"
+    },
+    "body-parser": "2.4.0",
+    "@nestjs/platform-express": {
+      "multer": "2.5.0"
     }
   },
   "devDependencies": {

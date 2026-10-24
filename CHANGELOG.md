@@ -2,6 +2,8 @@
 
 ## 1.0.0 — Livraison de l’incrément AvecLesFemmes
 
+- Correctifs transitifs body-parser 2.4.0 et Multer 2.5.0 contre les dénis de service signalés en octobre 2026 ; test de survie du serveur après corps comprimé avec octets tardifs.
+
 - Livraison unifiée des espaces Super Admin, administratrice et membre : campagnes, séances d’épargne, tontines, QR, reçus, historique et préférences d’affichage.
 - Authentification par mot de passe initial et appareil autorisé, code secret, verrouillage après inactivité, coffre chiffré et synchronisation contrôlée des saisies hors ligne.
 - Thèmes et palettes paramétrables, calendrier du premier dimanche du mois, contrôles métier et isolation PostgreSQL.

@@ -24,3 +24,7 @@ Un seul groupement : **Cabalabasse des Femmes de Nguith**, adresse Nguith. Une m
 ## Retour arrière
 
 Conserver l’archive privée et son empreinte hors du dépôt. Le retour à une image antérieure ne restaure pas les données supprimées ni les anciennes sessions. Une restauration de sauvegarde doit être effectuée dans une base isolée, vérifiée, puis faire l’objet d’une décision explicite avant de remplacer la recette. Ne pas modifier les migrations déjà appliquées. Render gratuit peut se mettre en veille ; les vérifications de santé peuvent nécessiter le réveil du service.
+
+## Dépendances corrigées avant publication
+
+Les surcharges npm imposent body-parser **2.4.0** et Multer **2.5.0**, versions corrigées selon les avis upstream [GHSA-27r3-jxmh-p828](https://github.com/expressjs/body-parser/security/advisories/GHSA-27r3-jxmh-p828) et [GHSA-q7qp-rjg7-q26m](https://github.com/expressjs/multer/security/advisories/GHSA-q7qp-rjg7-q26m). NestJS n’est pas rétrogradé. Conserver les surcharges tant que les dépendances upstream n’imposent pas elles-mêmes ces corrections ; les réévaluer lors d’une mise à jour contrôlée. L’audit de production et un test de requête comprimée avec octets tardifs sont obligatoires en CI.
