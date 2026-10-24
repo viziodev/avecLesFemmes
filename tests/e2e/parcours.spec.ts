@@ -26,18 +26,23 @@ async function login(page: Page, url: string, user: string) {
     page.getByRole('heading', { name: /^(Vue d’ensemble|Mon groupement)$/, exact: true }),
   ).toBeVisible();
 }
-test('super administrateur consulte, crée et active une campagne', async ({ page }) => {
+test('super administrateur archive et réactive la même campagne puis crée un groupement', async ({
+  page,
+}) => {
   await login(page, './', 'superadmin');
   await page.locator('#group-select').selectOption({ label: 'Les Femmes de Grand Yoff' });
   await expect(page.getByRole('button', { name: 'Enregistrer une cotisation' })).toHaveCount(0);
   await page.getByRole('button', { name: 'Campagnes', exact: true }).click();
-  await expect(page.getByText('Épargne solidaire 2026', { exact: true }).first()).toBeVisible();
-  await page.getByRole('button', { name: 'Désactiver', exact: true }).first().click();
+  const targetCampaign = page.getByRole('row').filter({ hasText: 'Épargne solidaire 2026' });
+  await expect(targetCampaign).toBeVisible();
+  await targetCampaign.getByRole('button', { name: 'Désactiver', exact: true }).click();
   await page.getByRole('button', { name: 'Archives', exact: true }).click();
-  await expect(page.getByRole('button', { name: 'Activer', exact: true }).first()).toBeVisible();
-  await page.getByRole('button', { name: 'Activer', exact: true }).first().click();
+  await expect(targetCampaign.getByRole('button', { name: 'Activer', exact: true })).toBeVisible();
+  await targetCampaign.getByRole('button', { name: 'Activer', exact: true }).click();
   await page.getByRole('button', { name: 'Campagnes', exact: true }).click();
-  await expect(page.getByRole('button', { name: 'Désactiver', exact: true }).first()).toBeVisible();
+  await expect(
+    targetCampaign.getByRole('button', { name: 'Désactiver', exact: true }),
+  ).toBeVisible();
   await page.getByRole('button', { name: 'Masquer', exact: true }).click();
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.screenshot({ path: 'test-results/super-admin.png', fullPage: true });

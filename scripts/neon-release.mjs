@@ -31,7 +31,8 @@ ownerUrl.searchParams.set('sslmode', 'verify-full');
 const pool = new Pool({ connectionString: ownerUrl.toString(), connectionTimeoutMillis: 20000 });
 const c = await pool.connect();
 const report = `.releases/neon-${version}.preflight.json`;
-const backupPath = `.releases/neon-before-v${version}.dump`;
+const beforeReset = mode === 'reset-nguith' || process.argv.includes('--before-reset');
+const backupPath = `.releases/neon-before-v${version}${beforeReset ? '-reset' : ''}.dump`;
 try {
   const current = (await c.query('SELECT name,checksum FROM schema_migrations ORDER BY name')).rows;
   const files = readdirSync('database/migrations')
@@ -145,6 +146,10 @@ try {
       const { migrate } = await import('../apps/api/dist/database/migrate.js');
       await migrate();
     } else {
+      if (Date.now() - Date.parse(evidence.createdAt) > 15 * 60_000)
+        throw new Error(
+          'Sauvegarde avant remplacement trop ancienne ; en créer une nouvelle sans écraser les archives.',
+        );
       if (pending.length)
         throw new Error('Appliquer toutes les migrations avant la réinitialisation.');
       const live = await fetch(target.webUrl + '/api/v1/health/live', {
