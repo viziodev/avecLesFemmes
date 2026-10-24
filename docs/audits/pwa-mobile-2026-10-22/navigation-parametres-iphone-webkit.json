@@ -1,0 +1,20 @@
+{
+  "settings": {
+    "switch": {
+      "ariaLabel": null,
+      "ariaLabelledby": null,
+      "labels": [""],
+      "opacity": "0"
+    },
+    "hint": {
+      "color": "rgb(148, 163, 184)",
+      "background": "rgb(255, 255, 255)",
+      "fontSize": "12px"
+    },
+    "staticStatus": ["Sécurité & Code PINActif", "Vérifier conformité CalebasseConforme"],
+    "support": "tel:+221770000000"
+  },
+  "stackBefore": 2,
+  "stackAfter": 2,
+  "urlAfterBack": "about:blank"
+}

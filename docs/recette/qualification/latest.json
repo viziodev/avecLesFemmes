@@ -1,0 +1,28 @@
+{
+  "date": "2026-10-18T22:36:20.501Z",
+  "image": "aveclesfemmes-api:0.6.2",
+  "status": "passed",
+  "checks": [
+    "fixture_1001_groupements_201201_adhesions",
+    "role_applicatif_sans_privilege_et_non_proprietaire",
+    "recherche_paginee_sur_volume",
+    "isolation_RLS_et_portee_membre",
+    "concurrence_idempotence_conflit_et_rapprochement_des_totaux"
+  ],
+  "timings": {
+    "fixture_ms": 14742,
+    "recherche_et_pagination_ms": 64,
+    "20_confirmations_meme_cle_ms": 99,
+    "20_versements_distincts_ms": 64
+  },
+  "fixture": {
+    "groups": 1001,
+    "memberships": 201201,
+    "participations": 201201,
+    "contributions": 201201
+  },
+  "afterConcurrentWrites": {
+    "n": 222,
+    "total": "22850"
+  }
+}

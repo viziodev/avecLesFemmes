@@ -1,0 +1,49 @@
+name: aveclesfemmes-qualification
+services:
+  qualification-db:
+    image: postgres:18-bookworm@sha256:afc7e2d441324c0388fa80c3d24f733b4194a4eb7f47dd8ee2b08eb1a24a647c
+    environment:
+      POSTGRES_DB: qualification
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: isolated-test-owner
+      APP_DATABASE_PASSWORD: isolated-test-app
+    volumes:
+      - ./docker/init-db.sql:/docker-entrypoint-initdb.d/01-role.sql:ro
+      - qualification_data:/var/lib/postgresql
+    mem_limit: 1536m
+    cpus: 2
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d qualification']
+      interval: 2s
+      timeout: 2s
+      retries: 30
+    networks: [qualification]
+  qualification:
+    image: ${QUALIFICATION_IMAGE:?Indiquer une image API locale déjà construite}
+    command: ['node', '/app/qualification/run.cjs']
+    user: '${QUALIFICATION_UID:-1000}:${QUALIFICATION_GID:-1000}'
+    environment:
+      NODE_ENV: test
+      DATABASE_URL: postgresql://aveclesfemmes_app:isolated-test-app@qualification-db:5432/qualification
+      MIGRATION_DATABASE_URL: postgresql://postgres:isolated-test-owner@qualification-db:5432/qualification
+      MIGRATIONS_DIR: /app/database/migrations
+      OTP_SECRET: isolated-qualification-only-secret-32-characters
+      SMS_MODE: disabled
+      QUALIFICATION_IMAGE: ${QUALIFICATION_IMAGE}
+      QUALIFICATION_REPORT: ${QUALIFICATION_REPORT:-latest.json}
+      QUALIFICATION_HISTORY: ${QUALIFICATION_HISTORY:-1}
+      QUALIFICATION_ROUNDS: ${QUALIFICATION_ROUNDS:-0}
+    volumes:
+      - ./scripts/qualification:/app/qualification:ro
+      - ./docs/recette/qualification:/reports
+    mem_limit: 768m
+    cpus: 2
+    depends_on:
+      qualification-db: { condition: service_healthy }
+    networks: [qualification]
+networks:
+  qualification:
+    internal: true
+
+volumes:
+  qualification_data:

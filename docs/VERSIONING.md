@@ -65,3 +65,22 @@ Lors du tout premier déploiement du service ou après une réinitialisation vol
 L’image combinée Render est une exception de recette gratuite, avec l’API sur loopback, PWA à la racine et administration sous /admin/. Elle ne qualifie pas à elle seule la topologie de production à trois images : cette dernière doit être testée avant promotion vers Dokploy.
 
 Références : [API Render : mise à jour persistante du service](https://api-docs.render.com/reference/update-service) et [déclenchement d’un déploiement](https://api-docs.render.com/reference/create-deploy).
+
+## Mise à jour de la PWA à partir de 0.2.1
+
+La PWA recherche une nouvelle version au lancement, au retour au premier plan,
+au retour du réseau et toutes les cinq minutes lorsqu’elle est visible. Le worker
+reste en attente tant que l’utilisateur est sur l’écran de connexion, dans une
+fenêtre de saisie ou pendant une opération asynchrone. L’activation puis le
+rechargement sont automatiques dès que l’écran est disponible et connecté.
+Chaque onglet diffère aussi son rechargement si un autre onglet active la version.
+Une erreur réseau conserve l’application courante ; elle n’entraîne aucun renvoi
+de cotisation. Les données API restent en mode réseau uniquement.
+
+Les installations 0.2.0 doivent utiliser une dernière fois « Mettre à jour » pour
+recevoir ce mécanisme. La publication d’une version ne force pas rétroactivement
+le rechargement des anciens clients.
+
+Validation : `node --test scripts/pwa-update.test.mjs` (Node 24), typecheck et
+construction PWA. Vérifier en recette deux versions successives, dont une avec
+un formulaire ouvert, avant de généraliser les mises à jour aux appareils.

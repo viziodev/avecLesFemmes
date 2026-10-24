@@ -63,6 +63,70 @@
         ]
       }
     },
+    "/api/v1/auth/login/secret-code": {
+      "post": {
+        "operationId": "loginSecretCode",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CodeLoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActorView"
+                }
+              }
+            }
+          }
+        },
+        "summary": "",
+        "tags": [
+          "Authentification"
+        ]
+      }
+    },
+    "/api/v1/auth/secret-code": {
+      "post": {
+        "operationId": "setSecretCode",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetSecretCodeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActorView"
+                }
+              }
+            }
+          }
+        },
+        "summary": "",
+        "tags": [
+          "Authentification"
+        ]
+      }
+    },
     "/api/v1/auth/login/pin": {
       "post": {
         "operationId": "loginPin",
@@ -173,6 +237,51 @@
                 }
               }
             }
+          }
+        },
+        "summary": "",
+        "tags": [
+          "Authentification"
+        ]
+      }
+    },
+    "/api/v1/auth/activity": {
+      "post": {
+        "operationId": "sessionActivity",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "",
+        "tags": [
+          "Authentification"
+        ]
+      }
+    },
+    "/api/v1/auth/lock": {
+      "post": {
+        "operationId": "lockSession",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "",
+        "tags": [
+          "Authentification"
+        ]
+      }
+    },
+    "/api/v1/auth/forget-device": {
+      "post": {
+        "operationId": "forgetDevice",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
           }
         },
         "summary": "",
@@ -310,6 +419,52 @@
             "schema": {
               "default": 25,
               "type": "number"
+            }
+          },
+          {
+            "name": "from",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "valid",
+                "voided"
+              ]
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "description": "Recherche par nom ou téléphone, avant pagination",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "paidOn",
+            "required": false,
+            "in": "query",
+            "description": "Date exacte du versement, YYYY-MM-DD",
+            "schema": {
+              "type": "string"
             }
           },
           {
@@ -1110,6 +1265,141 @@
         ]
       }
     },
+    "/api/v1/groupements/{groupId}/campaigns/shortcuts": {
+      "get": {
+        "operationId": "getCampaignShortcuts",
+        "parameters": [
+          {
+            "name": "groupId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CampaignShortcutsDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "",
+        "tags": [
+          "Campagnes"
+        ]
+      },
+      "put": {
+        "operationId": "saveCampaignShortcuts",
+        "parameters": [
+          {
+            "name": "groupId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CampaignShortcutsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CampaignShortcutsDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "",
+        "tags": [
+          "Campagnes"
+        ]
+      }
+    },
+    "/api/v1/groupements/{groupId}/campaigns/{id}/eligible-members": {
+      "get": {
+        "operationId": "eligibleCampaignMembers",
+        "parameters": [
+          {
+            "name": "groupId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": 25,
+              "type": "number"
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EligibleMemberPage"
+                }
+              }
+            }
+          }
+        },
+        "summary": "",
+        "tags": [
+          "Campagnes"
+        ]
+      }
+    },
     "/api/v1/groupements/{groupId}/campaigns/{id}/activation": {
       "patch": {
         "operationId": "activateCampaign",
@@ -1144,6 +1434,55 @@
         "responses": {
           "200": {
             "description": ""
+          }
+        },
+        "summary": "",
+        "tags": [
+          "Campagnes"
+        ]
+      }
+    },
+    "/api/v1/groupements/{groupId}/campaigns/{id}/resolve-member-qr": {
+      "post": {
+        "operationId": "resolveMemberQr",
+        "parameters": [
+          {
+            "name": "groupId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MemberQrDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ParticipationView"
+                }
+              }
+            }
           }
         },
         "summary": "",
@@ -1188,6 +1527,52 @@
             "schema": {
               "default": 25,
               "type": "number"
+            }
+          },
+          {
+            "name": "from",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "valid",
+                "voided"
+              ]
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "description": "Recherche par nom ou téléphone, avant pagination",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "paidOn",
+            "required": false,
+            "in": "query",
+            "description": "Date exacte du versement, YYYY-MM-DD",
+            "schema": {
+              "type": "string"
             }
           },
           {
@@ -1333,6 +1718,45 @@
         ]
       }
     },
+    "/api/v1/groupements/{groupId}/campaigns/{id}/tontine/status": {
+      "get": {
+        "operationId": "getTontineStatus",
+        "parameters": [
+          {
+            "name": "groupId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TontineStatusView"
+                }
+              }
+            }
+          }
+        },
+        "summary": "",
+        "tags": [
+          "Campagnes"
+        ]
+      }
+    },
     "/api/v1/groupements/{groupId}/campaigns/{id}/tontine/draw": {
       "post": {
         "operationId": "generateTontineDraw",
@@ -1456,6 +1880,92 @@
                   "items": {
                     "$ref": "#/components/schemas/TontineRoundView"
                   }
+                }
+              }
+            }
+          }
+        },
+        "summary": "",
+        "tags": [
+          "Campagnes"
+        ]
+      }
+    },
+    "/api/v1/groupements/{groupId}/campaigns/{id}/tontine/members": {
+      "get": {
+        "operationId": "listTontineMembers",
+        "parameters": [
+          {
+            "name": "groupId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": 25,
+              "type": "number"
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "state",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "all",
+                "paid",
+                "unpaid"
+              ]
+            }
+          },
+          {
+            "name": "roundNumber",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TontineMembersPage"
                 }
               }
             }
@@ -1638,6 +2148,82 @@
         ]
       }
     },
+    "/api/v1/groupements/{groupId}/campaigns/{id}/savings-session": {
+      "get": {
+        "operationId": "savingsSessionStatus",
+        "parameters": [
+          {
+            "name": "groupId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SavingsSessionStatusView"
+                }
+              }
+            }
+          }
+        },
+        "summary": "",
+        "tags": [
+          "Campagnes"
+        ]
+      },
+      "post": {
+        "operationId": "openSavingsSession",
+        "parameters": [
+          {
+            "name": "groupId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SavingsSessionStatusView"
+                }
+              }
+            }
+          }
+        },
+        "summary": "",
+        "tags": [
+          "Campagnes"
+        ]
+      }
+    },
     "/api/v1/groupements/{groupId}/campaigns/{id}/cashbox": {
       "get": {
         "operationId": "campaignCashbox",
@@ -1738,6 +2324,52 @@
             }
           },
           {
+            "name": "from",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "valid",
+                "voided"
+              ]
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "description": "Recherche par nom ou téléphone, avant pagination",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "paidOn",
+            "required": false,
+            "in": "query",
+            "description": "Date exacte du versement, YYYY-MM-DD",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "scope",
             "required": false,
             "in": "query",
@@ -1829,6 +2461,55 @@
         ]
       }
     },
+    "/api/v1/groupements/{groupId}/campaigns/{campaignId}/contributions/self": {
+      "post": {
+        "operationId": "recordSelfContribution",
+        "parameters": [
+          {
+            "name": "groupId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SelfContributionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContributionView"
+                }
+              }
+            }
+          }
+        },
+        "summary": "",
+        "tags": [
+          "Cotisations"
+        ]
+      }
+    },
     "/api/v1/groupements/{groupId}/campaigns/{campaignId}/contributions/{id}/void": {
       "post": {
         "operationId": "voidContribution",
@@ -1878,6 +2559,471 @@
           "Cotisations"
         ]
       }
+    },
+    "/api/v1/groupements/{groupId}/member/campaigns": {
+      "get": {
+        "operationId": "memberCampaigns",
+        "parameters": [
+          {
+            "name": "groupId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": 25,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemberPortalCampaignPage"
+                }
+              }
+            }
+          }
+        },
+        "summary": "",
+        "tags": [
+          "Espace membre"
+        ]
+      }
+    },
+    "/api/v1/groupements/{groupId}/member/campaigns/shortcuts": {
+      "get": {
+        "operationId": "memberShortcuts",
+        "parameters": [
+          {
+            "name": "groupId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemberShortcutsView"
+                }
+              }
+            }
+          }
+        },
+        "summary": "",
+        "tags": [
+          "Espace membre"
+        ]
+      },
+      "put": {
+        "operationId": "saveMemberShortcuts",
+        "parameters": [
+          {
+            "name": "groupId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CampaignShortcutsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemberShortcutsView"
+                }
+              }
+            }
+          }
+        },
+        "summary": "",
+        "tags": [
+          "Espace membre"
+        ]
+      }
+    },
+    "/api/v1/groupements/{groupId}/member/campaigns/{campaignId}": {
+      "get": {
+        "operationId": "memberCampaignStatus",
+        "parameters": [
+          {
+            "name": "groupId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemberPortalStatusView"
+                }
+              }
+            }
+          }
+        },
+        "summary": "",
+        "tags": [
+          "Espace membre"
+        ]
+      }
+    },
+    "/api/v1/groupements/{groupId}/member/history/options": {
+      "get": {
+        "operationId": "memberHistoryOptions",
+        "parameters": [
+          {
+            "name": "groupId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemberHistoryOptionsView"
+                }
+              }
+            }
+          }
+        },
+        "summary": "",
+        "tags": [
+          "Espace membre"
+        ]
+      }
+    },
+    "/api/v1/groupements/{groupId}/member/history": {
+      "get": {
+        "operationId": "memberHistory",
+        "parameters": [
+          {
+            "name": "groupId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": 25,
+              "type": "number"
+            }
+          },
+          {
+            "name": "campaignIds",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "typeIds",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "sessions",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "rounds",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemberHistoryPage"
+                }
+              }
+            }
+          }
+        },
+        "summary": "",
+        "tags": [
+          "Espace membre"
+        ]
+      }
+    },
+    "/api/v1/appearance": {
+      "get": {
+        "operationId": "getAppearance",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaletteDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "",
+        "tags": [
+          "Apparence"
+        ]
+      },
+      "put": {
+        "operationId": "setAppearance",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PaletteDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaletteDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Palette commune, super administrateur uniquement",
+        "tags": [
+          "Apparence"
+        ]
+      }
+    },
+    "/api/v1/groupements/{groupId}/appearance": {
+      "get": {
+        "operationId": "getGroupAppearance",
+        "parameters": [
+          {
+            "name": "groupId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaletteDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "",
+        "tags": [
+          "Apparence"
+        ]
+      },
+      "put": {
+        "operationId": "setGroupAppearance",
+        "parameters": [
+          {
+            "name": "groupId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PaletteDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaletteDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "",
+        "tags": [
+          "Apparence"
+        ]
+      },
+      "delete": {
+        "operationId": "resetGroupAppearance",
+        "parameters": [
+          {
+            "name": "groupId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaletteDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "",
+        "tags": [
+          "Apparence"
+        ]
+      }
+    },
+    "/api/v1/auth/offline-replay": {
+      "post": {
+        "operationId": "replayOfflineContribution",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OfflineReplayDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContributionView"
+                }
+              }
+            }
+          }
+        },
+        "summary": "",
+        "tags": [
+          "Synchronisation hors ligne"
+        ]
+      }
     }
   },
   "info": {
@@ -1915,6 +3061,9 @@
       "ActorView": {
         "type": "object",
         "properties": {
+          "hasSecretCode": {
+            "type": "boolean"
+          },
           "id": {
             "type": "string"
           },
@@ -1933,6 +3082,36 @@
           "login",
           "name",
           "isSuper"
+        ]
+      },
+      "CodeLoginDto": {
+        "type": "object",
+        "properties": {
+          "login": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "login",
+          "code"
+        ]
+      },
+      "SetSecretCodeDto": {
+        "type": "object",
+        "properties": {
+          "password": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "password",
+          "code"
         ]
       },
       "PinLoginDto": {
@@ -2092,6 +3271,41 @@
           "phone"
         ]
       },
+      "MemberCampaignView": {
+        "type": "object",
+        "properties": {
+          "campaign_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "type_name": {
+            "type": "string"
+          },
+          "type_code": {
+            "type": "string"
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "is_savings": {
+            "type": "boolean"
+          },
+          "paid_amount": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "campaign_id",
+          "name",
+          "type_name",
+          "type_code",
+          "active",
+          "is_savings",
+          "paid_amount"
+        ]
+      },
       "MemberView": {
         "type": "object",
         "properties": {
@@ -2136,6 +3350,12 @@
           },
           "is_blocked": {
             "type": "boolean"
+          },
+          "campaigns": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MemberCampaignView"
+            }
           }
         },
         "required": [
@@ -2179,9 +3399,6 @@
             "type": "string"
           },
           "password": {
-            "type": "string"
-          },
-          "pin": {
             "type": "string"
           },
           "address": {
@@ -2249,14 +3466,7 @@
       },
       "ResetPinDto": {
         "type": "object",
-        "properties": {
-          "pin": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "pin"
-        ]
+        "properties": {}
       },
       "GroupFunctionView": {
         "type": "object",
@@ -2545,6 +3755,10 @@
             "type": "string",
             "nullable": true
           },
+          "monthly_week": {
+            "type": "number",
+            "nullable": true
+          },
           "due_day": {
             "type": "number",
             "nullable": true
@@ -2603,6 +3817,59 @@
           "total"
         ]
       },
+      "CampaignShortcutsDto": {
+        "type": "object",
+        "properties": {
+          "campaignIds": {
+            "maxItems": 6,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "campaignIds"
+        ]
+      },
+      "EligibleMemberView": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "phone"
+        ]
+      },
+      "EligibleMemberPage": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EligibleMemberView"
+            }
+          },
+          "total": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "items",
+          "total"
+        ]
+      },
       "CreateCampaignDto": {
         "type": "object",
         "properties": {
@@ -2647,6 +3914,12 @@
               "MONTHLY"
             ]
           },
+          "monthlyWeek": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 4,
+            "description": "Rang du jour de semaine dans le mois ; exige MONTHLY."
+          },
           "dueDay": {
             "type": "number",
             "minimum": 1,
@@ -2656,6 +3929,17 @@
         "required": [
           "name",
           "typeId"
+        ]
+      },
+      "MemberQrDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code"
         ]
       },
       "ParticipationView": {
@@ -2779,6 +4063,48 @@
           "updatedAt"
         ]
       },
+      "TontineStatusView": {
+        "type": "object",
+        "properties": {
+          "today": {
+            "type": "string"
+          },
+          "round_number": {
+            "type": "number",
+            "nullable": true
+          },
+          "round_date": {
+            "type": "string",
+            "nullable": true
+          },
+          "scheduled": {
+            "type": "boolean"
+          },
+          "drawn": {
+            "type": "boolean"
+          },
+          "can_draw": {
+            "type": "boolean"
+          },
+          "can_collect": {
+            "type": "boolean"
+          },
+          "beneficiary_name": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "today",
+          "round_number",
+          "round_date",
+          "scheduled",
+          "drawn",
+          "can_draw",
+          "can_collect",
+          "beneficiary_name"
+        ]
+      },
       "SessionMemberContributionView": {
         "type": "object",
         "properties": {
@@ -2812,6 +4138,16 @@
       "TontineRoundView": {
         "type": "object",
         "properties": {
+          "drawn_at": {
+            "type": "string",
+            "nullable": true
+          },
+          "contributed_count": {
+            "type": "number"
+          },
+          "unpaid_count": {
+            "type": "number"
+          },
           "id": {
             "type": "string"
           },
@@ -2819,10 +4155,12 @@
             "type": "number"
           },
           "beneficiary_id": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "beneficiary_name": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "expected_date": {
             "type": "string"
@@ -2848,6 +4186,7 @@
           }
         },
         "required": [
+          "drawn_at",
           "id",
           "round_number",
           "beneficiary_id",
@@ -2895,6 +4234,81 @@
         },
         "required": [
           "rounds"
+        ]
+      },
+      "SessionAttendanceView": {
+        "type": "object",
+        "properties": {
+          "member_id": {
+            "type": "string"
+          },
+          "member_name": {
+            "type": "string"
+          },
+          "paid_amount": {
+            "type": "string"
+          },
+          "expected_amount": {
+            "type": "string",
+            "nullable": true
+          },
+          "contributed": {
+            "type": "boolean"
+          },
+          "grace_deadline": {
+            "type": "string",
+            "nullable": true
+          },
+          "absent": {
+            "type": "boolean"
+          },
+          "can_grant_grace": {
+            "type": "boolean"
+          },
+          "is_beneficiary": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "member_id",
+          "member_name",
+          "paid_amount",
+          "contributed"
+        ]
+      },
+      "TontineMembersPage": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SessionAttendanceView"
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "contributed_count": {
+            "type": "number"
+          },
+          "unpaid_count": {
+            "type": "number"
+          },
+          "period_start": {
+            "type": "string"
+          },
+          "period_end": {
+            "type": "string",
+            "description": "Borne de fin exclue"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "contributed_count",
+          "unpaid_count",
+          "period_start",
+          "period_end"
         ]
       },
       "CreateGracePeriodDto": {
@@ -2957,6 +4371,18 @@
       "CampaignSessionView": {
         "type": "object",
         "properties": {
+          "expected_amount": {
+            "type": "string"
+          },
+          "free_members_count": {
+            "type": "number"
+          },
+          "members": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SessionAttendanceView"
+            }
+          },
           "session_date": {
             "type": "string"
           },
@@ -2981,6 +4407,29 @@
           "total_amount",
           "count",
           "contributions"
+        ]
+      },
+      "SavingsSessionStatusView": {
+        "type": "object",
+        "properties": {
+          "today": {
+            "type": "string"
+          },
+          "scheduled": {
+            "type": "boolean"
+          },
+          "opened": {
+            "type": "boolean"
+          },
+          "can_collect": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "today",
+          "scheduled",
+          "opened",
+          "can_collect"
         ]
       },
       "CashboxStateView": {
@@ -3043,6 +4492,9 @@
       "ContributionView": {
         "type": "object",
         "properties": {
+          "created_at": {
+            "type": "string"
+          },
           "id": {
             "type": "string"
           },
@@ -3119,6 +4571,26 @@
           "idempotencyKey"
         ]
       },
+      "SelfContributionDto": {
+        "type": "object",
+        "properties": {
+          "paidOn": {
+            "type": "string",
+            "description": "Date de la séance ou du tour choisi pour éviter de déplacer une saisie hors ligne."
+          },
+          "amount": {
+            "type": "number"
+          },
+          "idempotencyKey": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "amount",
+          "idempotencyKey"
+        ]
+      },
       "VoidDto": {
         "type": "object",
         "properties": {
@@ -3128,6 +4600,477 @@
         },
         "required": [
           "reason"
+        ]
+      },
+      "MemberPortalCampaignView": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "start_date": {
+            "type": "string"
+          },
+          "end_date": {
+            "type": "string"
+          },
+          "weekday": {
+            "type": "number"
+          },
+          "interval_weeks": {
+            "type": "number"
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "type_name": {
+            "type": "string"
+          },
+          "event_id": {
+            "type": "string",
+            "nullable": true
+          },
+          "event_name": {
+            "type": "string",
+            "nullable": true
+          },
+          "event_code": {
+            "type": "string",
+            "nullable": true
+          },
+          "is_mandatory": {
+            "type": "boolean"
+          },
+          "standard_amount": {
+            "type": "string",
+            "nullable": true
+          },
+          "rotation_interval": {
+            "type": "string",
+            "nullable": true
+          },
+          "monthly_week": {
+            "type": "number",
+            "nullable": true
+          },
+          "due_day": {
+            "type": "number",
+            "nullable": true
+          },
+          "type_code": {
+            "type": "string",
+            "nullable": true
+          },
+          "member_count": {
+            "type": "number"
+          },
+          "collected_amount": {
+            "type": "string"
+          },
+          "session_count": {
+            "type": "number"
+          },
+          "payouts_count": {
+            "type": "number"
+          },
+          "remaining_count": {
+            "type": "number"
+          },
+          "next_due_date": {
+            "type": "string",
+            "nullable": true
+          },
+          "participation_id": {
+            "type": "string"
+          },
+          "forfait": {
+            "type": "string",
+            "nullable": true
+          },
+          "is_random": {
+            "type": "boolean"
+          },
+          "total_paid": {
+            "type": "string"
+          },
+          "arrears_count": {
+            "type": "number"
+          },
+          "unpaid_count": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "start_date",
+          "end_date",
+          "weekday",
+          "interval_weeks",
+          "active",
+          "type_name",
+          "is_mandatory",
+          "participation_id",
+          "forfait",
+          "is_random",
+          "total_paid",
+          "arrears_count"
+        ]
+      },
+      "MemberPortalCampaignPage": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MemberPortalCampaignView"
+            }
+          },
+          "total": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "items",
+          "total"
+        ]
+      },
+      "MemberShortcutsView": {
+        "type": "object",
+        "properties": {
+          "campaignIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "campaignIds"
+        ]
+      },
+      "MemberPortalRoundView": {
+        "type": "object",
+        "properties": {
+          "round_number": {
+            "type": "number"
+          },
+          "expected_date": {
+            "type": "string"
+          },
+          "period_end": {
+            "type": "string"
+          },
+          "beneficiary_name": {
+            "type": "string",
+            "nullable": true
+          },
+          "paid": {
+            "type": "boolean"
+          },
+          "drawn": {
+            "type": "boolean"
+          },
+          "my_paid_amount": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "round_number",
+          "expected_date",
+          "period_end",
+          "beneficiary_name",
+          "paid",
+          "drawn",
+          "my_paid_amount"
+        ]
+      },
+      "MemberPortalStatusView": {
+        "type": "object",
+        "properties": {
+          "today": {
+            "type": "string"
+          },
+          "can_pay": {
+            "type": "boolean"
+          },
+          "already_paid": {
+            "type": "boolean"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "total_paid": {
+            "type": "string"
+          },
+          "sessions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "rounds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MemberPortalRoundView"
+            }
+          },
+          "payouts_count": {
+            "type": "number"
+          },
+          "remaining_months": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "today",
+          "can_pay",
+          "already_paid",
+          "reason",
+          "total_paid",
+          "sessions",
+          "rounds",
+          "payouts_count",
+          "remaining_months"
+        ]
+      },
+      "MemberHistoryCampaignView": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "type_id": {
+            "type": "string"
+          },
+          "type_name": {
+            "type": "string"
+          },
+          "type_code": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "active",
+          "type_id",
+          "type_name",
+          "type_code"
+        ]
+      },
+      "MemberHistoryRoundOption": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "campaign_id": {
+            "type": "string"
+          },
+          "campaign_name": {
+            "type": "string"
+          },
+          "round_number": {
+            "type": "number"
+          },
+          "expected_date": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "campaign_id",
+          "campaign_name",
+          "round_number",
+          "expected_date"
+        ]
+      },
+      "MemberHistoryOptionsView": {
+        "type": "object",
+        "properties": {
+          "campaigns": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MemberHistoryCampaignView"
+            }
+          },
+          "sessions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "rounds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MemberHistoryRoundOption"
+            }
+          }
+        },
+        "required": [
+          "campaigns",
+          "sessions",
+          "rounds"
+        ]
+      },
+      "MemberHistoryContributionView": {
+        "type": "object",
+        "properties": {
+          "created_at": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "participation_id": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "string"
+          },
+          "paid_on": {
+            "type": "string"
+          },
+          "reference": {
+            "type": "string"
+          },
+          "voided_at": {
+            "type": "string",
+            "nullable": true
+          },
+          "campaign_id": {
+            "type": "string"
+          },
+          "campaign_name": {
+            "type": "string"
+          },
+          "campaign_active": {
+            "type": "boolean"
+          },
+          "type_id": {
+            "type": "string"
+          },
+          "type_name": {
+            "type": "string"
+          },
+          "type_code": {
+            "type": "string"
+          },
+          "session_date": {
+            "type": "string",
+            "nullable": true
+          },
+          "round_number": {
+            "type": "number",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "participation_id",
+          "amount",
+          "paid_on",
+          "reference",
+          "voided_at",
+          "campaign_id",
+          "campaign_name",
+          "campaign_active",
+          "type_id",
+          "type_name",
+          "type_code",
+          "session_date",
+          "round_number"
+        ]
+      },
+      "MemberHistoryPage": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MemberHistoryContributionView"
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "total_paid": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "total_paid"
+        ]
+      },
+      "PaletteDto": {
+        "type": "object",
+        "properties": {
+          "primary": {
+            "type": "string",
+            "example": "#155d50",
+            "pattern": "^#[0-9a-fA-F]{6}$"
+          },
+          "savings": {
+            "type": "string",
+            "example": "#197647",
+            "pattern": "^#[0-9a-fA-F]{6}$"
+          },
+          "tontine": {
+            "type": "string",
+            "example": "#6d3fc0",
+            "pattern": "^#[0-9a-fA-F]{6}$"
+          },
+          "solidarity": {
+            "type": "string",
+            "example": "#a85d12",
+            "pattern": "^#[0-9a-fA-F]{6}$"
+          }
+        },
+        "required": [
+          "primary",
+          "savings",
+          "tontine",
+          "solidarity"
+        ]
+      },
+      "OfflineReplayDto": {
+        "type": "object",
+        "properties": {
+          "login": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "payload": {
+            "type": "string",
+            "description": "JSON exact de la saisie confirmée hors ligne ; date et référence requises."
+          },
+          "signature": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "login",
+          "path",
+          "payload",
+          "signature"
         ]
       }
     }

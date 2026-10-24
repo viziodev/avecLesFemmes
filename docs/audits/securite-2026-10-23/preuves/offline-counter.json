@@ -1,0 +1,7 @@
+{
+  "scope": "Fresh browser context, fictitious encrypted vault only",
+  "failed": 5,
+  "blockedAfterFive": true,
+  "additionalFailures": 3,
+  "readAfterCounterReset": true
+}

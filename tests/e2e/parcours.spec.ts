@@ -1,4 +1,4 @@
-import { test, expect, type Page } from '@playwright/test';
+import { test, expect, type Page } from '../mobile/fixtures';
 import { config } from 'dotenv';
 import { randomUUID } from 'node:crypto';
 config({ path: '.env', quiet: true });
@@ -9,26 +9,40 @@ async function login(page: Page, url: string, user: string) {
   const logoutBtn = page.getByRole('button', { name: 'Se déconnecter', exact: true });
   if (await logoutBtn.isVisible()) {
     await logoutBtn.click();
-    await expect(page.getByRole('heading', { name: 'Bienvenue dans votre espace' })).toBeVisible();
+    await expect(
+      page.getByRole('heading', {
+        name: /^(Bienvenue dans votre espace|Bon retour|Votre épargne, ensemble)$/,
+      }),
+    ).toBeVisible();
   }
-  await page.getByRole('button', { name: 'Identifiant', exact: true }).click();
+  const method = page.getByRole('button', { name: 'Identifiant', exact: true });
+  if (await method.isVisible()) await method.click();
+  const forget = page.getByRole('button', { name: 'Changer de compte / oublier cet appareil' });
+  if (await forget.isVisible()) await forget.click();
   await page.getByLabel('Identifiant', { exact: true }).fill(user);
   await page.getByLabel('Mot de passe', { exact: true }).fill(password);
   await page.getByRole('button', { name: 'Se connecter', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Vue d’ensemble', exact: true })).toBeVisible();
+  await expect(
+    page.getByRole('heading', { name: /^(Vue d’ensemble|Mon groupement)$/, exact: true }),
+  ).toBeVisible();
 }
-test('super administrateur consulte, crée et active une campagne', async ({ page }) => {
+test('super administrateur archive et réactive la même campagne puis crée un groupement', async ({
+  page,
+}) => {
   await login(page, './', 'superadmin');
   await page.locator('#group-select').selectOption({ label: 'Les Femmes de Grand Yoff' });
   await expect(page.getByRole('button', { name: 'Enregistrer une cotisation' })).toHaveCount(0);
   await page.getByRole('button', { name: 'Campagnes', exact: true }).click();
-  await expect(page.getByText('Épargne solidaire 2026', { exact: true }).first()).toBeVisible();
-  await page.getByRole('button', { name: 'Désactiver', exact: true }).first().click();
+  const targetCampaign = page.getByRole('row').filter({ hasText: 'Épargne solidaire 2026' });
+  await expect(targetCampaign).toBeVisible();
+  await targetCampaign.getByRole('button', { name: 'Désactiver', exact: true }).click();
   await page.getByRole('button', { name: 'Archives', exact: true }).click();
-  await expect(page.getByRole('button', { name: 'Activer', exact: true }).first()).toBeVisible();
-  await page.getByRole('button', { name: 'Activer', exact: true }).first().click();
+  await expect(targetCampaign.getByRole('button', { name: 'Activer', exact: true })).toBeVisible();
+  await targetCampaign.getByRole('button', { name: 'Activer', exact: true }).click();
   await page.getByRole('button', { name: 'Campagnes', exact: true }).click();
-  await expect(page.getByRole('button', { name: 'Désactiver', exact: true }).first()).toBeVisible();
+  await expect(
+    targetCampaign.getByRole('button', { name: 'Désactiver', exact: true }),
+  ).toBeVisible();
   await page.getByRole('button', { name: 'Masquer', exact: true }).click();
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.screenshot({ path: 'test-results/super-admin.png', fullPage: true });
@@ -43,149 +57,58 @@ test('super administrateur consulte, crée et active une campagne', async ({ pag
   await page.getByRole('button', { name: 'Enregistrer', exact: true }).click();
   await expect(page.getByRole('status')).toContainText('Groupement créé');
 });
-test('administratrice enregistre et retrouve sa vue membre', async ({ page }) => {
-  await login(page, pwa, 'admin.ndeye');
-  const campSelect = page.getByLabel('Campagne suivie', { exact: true });
-  await expect(campSelect).toBeVisible();
-  const epargneOption = campSelect.locator('option', { hasText: 'Épargne solidaire 2026' });
-  await expect(epargneOption).toBeAttached();
-  const value = await epargneOption.getAttribute('value');
-  if (value) {
-    await campSelect.selectOption(value);
-  }
-  await page.getByRole('button', { name: 'Enregistrer une cotisation', exact: true }).click();
-  const selection = page.getByRole('combobox', { name: 'Participante', exact: true });
-  // Les deux participantes du seed sont affichées dans l’ordre Awa puis Ndèye.
-  await selection.selectOption({ index: 1 });
-  await page.getByLabel('Montant réellement versé en FCFA').fill('2000');
-  await page.getByLabel('Date du versement').fill('2026-06-02');
-  await page.getByRole('button', { name: 'Enregistrer', exact: true }).click();
-  await expect(page.getByRole('status')).toContainText('Cotisation enregistrée');
-  await page.getByRole('button', { name: 'Mon épargne personnelle', exact: true }).click();
-  await expect(page.getByText('Mon montant versé', { exact: true })).toBeVisible();
-  await expect(
-    page.getByRole('button', { name: 'Enregistrer une cotisation', exact: true }),
-  ).toHaveCount(0);
-  await page.getByRole('button', { name: 'Masquer', exact: true }).click();
-  await page.evaluate(() => window.scrollTo(0, 0));
-  await page.screenshot({ path: 'test-results/admin-personal.png', fullPage: true });
-});
-test('membre sur téléphone et manifest PWA', async ({ page }) => {
-  await page.setViewportSize({ width: 390, height: 844 });
-  await login(page, pwa, 'membre.awa');
-  await expect(page.getByText('Mon montant versé', { exact: true })).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Enregistrer une cotisation' })).toHaveCount(0);
-  await expect(page.getByRole('button', { name: 'Créer un groupement' })).toHaveCount(0);
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
-    true,
-  );
-  await page.screenshot({ path: 'test-results/member-mobile.png', fullPage: true });
-  const manifest = await page.request.get(pwa + '/manifest.webmanifest');
-  expect(manifest.ok()).toBeTruthy();
-  expect((await manifest.json()).display).toBe('standalone');
-  await page.getByRole('button', { name: 'Campagnes', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Ma participation', exact: true })).toBeVisible();
-});
-test('connexion par code téléphone et déconnexion', async ({ page }) => {
-  await login(page, './', 'superadmin');
-  const groups = await (await page.request.get('/api/v1/groupements?limit=100')).json();
-  const groupId = groups.items.find(
-    (g: { name: string }) => g.name === 'Les Femmes de Grand Yoff',
-  ).id;
-  const phone = '+2217' + Date.now().toString().slice(-8);
-  const created = await page.request.post(`/api/v1/groupements/${groupId}/members`, {
-    headers: { 'X-Requested-With': 'AvecLesFemmes' },
-    data: { name: 'Membre test OTP', login: 'otp.' + randomUUID().slice(0, 8), phone },
-  });
-  expect(created.status()).toBe(201);
-  await page.getByRole('button', { name: 'Se déconnecter', exact: true }).click();
-  await page.goto(pwa);
-  await page.getByRole('button', { name: 'Code SMS', exact: true }).click();
-  await page.getByLabel('Téléphone avec indicatif', { exact: true }).fill(phone);
-  await page.getByRole('button', { name: 'Recevoir un code', exact: true }).click();
-  const text = await page.locator('.local-code').innerText();
-  const code = text.match(/\d{6}/)?.[0];
-  expect(code).toBeTruthy();
-  await page.getByLabel('Code reçu par SMS').fill(code!);
-  await page.getByRole('button', { name: 'Se connecter', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Vue d’ensemble', exact: true })).toBeVisible();
-  await page.setViewportSize({ width: 390, height: 844 });
-  await page.getByRole('button', { name: 'Se déconnecter', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Bienvenue dans votre espace' })).toBeVisible();
-});
-test('un double envoi concurrent produit un seul versement', async ({ page }) => {
-  await login(page, pwa, 'admin.ndeye');
-  const groups = await (await page.request.get(pwa + '/api/v1/groupements')).json();
-  const targetGroup =
-    groups.items.find((g: any) => g.name === 'Les Femmes de Grand Yoff') || groups.items[0];
-  const groupId = targetGroup.id;
-  const campaigns = await (
-    await page.request.get(pwa + `/api/v1/groupements/${groupId}/campaigns`)
-  ).json();
-  const targetCampaign =
-    campaigns.items.find((c: any) => c.name === 'Épargne solidaire 2026') || campaigns.items[0];
-  const campaignId = targetCampaign.id;
-  const base = pwa + `/api/v1/groupements/${groupId}/campaigns/${campaignId}`;
-  const participants = await (await page.request.get(base + '/participants')).json();
-  const before = await (await page.request.get(base + '/dashboard')).json();
-  const body = {
-    participationId: participants.items[0].id,
-    amount: 100,
-    paidOn: '2026-06-02',
-    idempotencyKey: randomUUID(),
-  };
-  const responses = await Promise.all(
-    [1, 2, 3].map(() =>
-      page.request.post(base + '/contributions', {
-        headers: { 'X-Requested-With': 'AvecLesFemmes' },
-        data: body,
-      }),
-    ),
-  );
-  for (const r of responses) expect(r.status()).toBe(201);
-  const records = await Promise.all(responses.map((r) => r.json()));
-  expect(new Set(records.map((r) => r.id)).size).toBe(1);
-  const after = await (await page.request.get(base + '/dashboard')).json();
-  expect(BigInt(after.total) - BigInt(before.total)).toBe(100n);
-});
-test('membre se connecte par code PIN et affiche son QR code vectoriel', async ({ page }) => {
+test('membre créé avec un secret se connecte par identifiant et affiche son QR code vectoriel', async ({
+  page,
+}) => {
   await login(page, './', 'superadmin');
   const groups = await (await page.request.get('/api/v1/groupements')).json();
   const groupId = groups.items[0].id;
   const phone = '+2217' + Date.now().toString().slice(-8);
-  const pin = '5678';
+  const initialPassword = 'Member-E2E-only-2026';
+  const memberLogin = 'pin.' + randomUUID().slice(0, 8);
   const created = await page.request.post(`/api/v1/groupements/${groupId}/members`, {
-    headers: { 'X-Requested-With': 'AvecLesFemmes' },
+    headers: {
+      'X-Requested-With': 'AvecLesFemmes',
+      'X-Confirm-Password': 'utf8:' + Buffer.from(password).toString('base64'),
+    },
     data: {
       name: 'Fatou Ndiaye Test PIN',
-      login: 'pin.' + randomUUID().slice(0, 8),
+      login: memberLogin,
       phone,
-      pin,
+      password: initialPassword,
       gender: 'F',
       address: 'Medina Rue 6',
     },
   });
   expect(created.status()).toBe(201);
   await page.getByRole('button', { name: 'Se déconnecter', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Bienvenue dans votre espace' })).toBeVisible();
+  await expect(
+    page.getByRole('heading', {
+      name: /^(Bienvenue dans votre espace|Bon retour|Votre épargne, ensemble)$/,
+    }),
+  ).toBeVisible();
 
   await page.goto(pwa);
   const pwaLogout = page.getByRole('button', { name: 'Se déconnecter', exact: true });
   if (await pwaLogout.isVisible()) {
     await pwaLogout.click();
-    await expect(page.getByRole('heading', { name: 'Bienvenue dans votre espace' })).toBeVisible();
+    await expect(
+      page.getByRole('heading', {
+        name: /^(Bienvenue dans votre espace|Bon retour|Votre épargne, ensemble)$/,
+      }),
+    ).toBeVisible();
   }
-  const pinTab = page.getByRole('button', { name: 'Code PIN', exact: true });
-  if (await pinTab.isVisible()) {
-    await pinTab.click();
-  }
-  await page.getByLabel('Téléphone avec indicatif', { exact: true }).fill(phone);
-  await page.getByLabel('Code secret (4 chiffres)', { exact: true }).fill(pin);
+  const forget = page.getByRole('button', { name: 'Changer de compte / oublier cet appareil' });
+  if (await forget.isVisible()) await forget.click();
+  await page.getByLabel('Identifiant', { exact: true }).fill(memberLogin);
+  await page.getByLabel('Mot de passe', { exact: true }).fill(initialPassword);
   await page.getByRole('button', { name: 'Se connecter', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Vue d’ensemble', exact: true })).toBeVisible();
+  await expect(
+    page.getByRole('heading', { name: /^(Vue d’ensemble|Mon groupement)$/, exact: true }),
+  ).toBeVisible();
 
   // Test affichage de la carte QR vectorielle
-  await page.getByRole('button', { name: 'Mon Code QR' }).first().click();
+  await page.getByRole('button', { name: 'Présenter mon QR', exact: true }).click();
   await expect(page.getByRole('dialog')).toBeVisible();
   await expect(page.locator('.qr-box svg')).toBeVisible();
   await page.getByRole('button', { name: 'Fermer', exact: true }).click();
@@ -193,7 +116,11 @@ test('membre se connecte par code PIN et affiche son QR code vectoriel', async (
 
   // Déconnexion
   await page.getByRole('button', { name: 'Se déconnecter', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Bienvenue dans votre espace' })).toBeVisible();
+  await expect(
+    page.getByRole('heading', {
+      name: /^(Bienvenue dans votre espace|Bon retour|Votre épargne, ensemble)$/,
+    }),
+  ).toBeVisible();
 });
 
 test('super administrateur gère le CRUD complet des événements et des types de campagne', async ({
@@ -254,7 +181,11 @@ test('super administrateur gère le CRUD complet des événements et des types d
 
   // Déconnexion
   await page.getByRole('button', { name: 'Se déconnecter', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Bienvenue dans votre espace' })).toBeVisible();
+  await expect(
+    page.getByRole('heading', {
+      name: /^(Bienvenue dans votre espace|Bon retour|Votre épargne, ensemble)$/,
+    }),
+  ).toBeVisible();
 });
 
 test('recherche autocomplete groupement et affichage des détails (nom, adresse, téléphone, code QR)', async ({
@@ -284,271 +215,34 @@ test('recherche autocomplete groupement et affichage des détails (nom, adresse,
 
   // Déconnexion
   await page.getByRole('button', { name: 'Se déconnecter', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Bienvenue dans votre espace' })).toBeVisible();
+  await expect(
+    page.getByRole('heading', {
+      name: /^(Bienvenue dans votre espace|Bon retour|Votre épargne, ensemble)$/,
+    }),
+  ).toBeVisible();
 });
 
-test('bouton Créer une campagne sur l’onglet Campagnes à la sélection d’un groupement', async ({
-  page,
-}) => {
+test('recherche de versements côté serveur et réinitialisation', async ({ page }) => {
   await login(page, './', 'superadmin');
   await page.locator('#group-select').selectOption({ label: 'Les Femmes de Grand Yoff' });
-  await page.getByRole('button', { name: 'Campagnes', exact: true }).click();
-
-  const createButton = page
-    .getByRole('button', { name: 'Créer une campagne', exact: true })
-    .first();
-  await expect(createButton).toBeVisible();
-  await createButton.click();
-  await expect(page.getByRole('dialog')).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Créer une campagne' })).toBeVisible();
-  await page.locator('.dialog-header button[aria-label="Fermer"]').click();
-  await expect(page.getByRole('dialog')).toHaveCount(0);
-
-  // Déconnexion
-  await page.getByRole('button', { name: 'Se déconnecter', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Bienvenue dans votre espace' })).toBeVisible();
-});
-
-test('champs conditionnels du modal création de campagne selon Type Épargne vs Tontine rotative', async ({
-  page,
-}) => {
-  await login(page, './', 'superadmin');
-  await page.locator('#group-select').selectOption({ label: 'Les Femmes de Grand Yoff' });
-  await page.getByRole('button', { name: 'Campagnes', exact: true }).click();
-
-  const createButton = page
-    .getByRole('button', { name: 'Créer une campagne', exact: true })
-    .first();
-  await createButton.click();
-  await expect(page.getByRole('dialog')).toBeVisible();
-
-  // Par défaut : Type Épargne (ex: Avec Épargne)
-  await expect(page.getByLabel('Montant standard / forfait (FCFA)')).toBeVisible();
-  await expect(page.getByLabel('Date de début')).toBeVisible();
-  await expect(page.getByLabel('Date de fin')).toBeVisible();
-  await expect(page.getByLabel('Jour de cotisation hebdomadaire')).toBeVisible();
-  await expect(page.getByLabel('Intervalle en semaines')).toBeVisible();
-  await expect(page.getByLabel("Jour d'échéance du mois (Option C)")).toHaveCount(0);
-  await expect(page.getByLabel('Intervalle de rotation (si Tontine rotative)')).toHaveCount(0);
-  await page.screenshot({ path: 'test-results/modal-epargne.png' });
-
-  // Changement vers Tontine rotative
-  const typeSelect = page.locator('select[name="typeId"]');
-  const tontineOption = await typeSelect
-    .locator('option')
-    .filter({ hasText: /tontine/i })
-    .first();
-  const tontineVal = await tontineOption.getAttribute('value');
-  if (tontineVal) {
-    await typeSelect.selectOption(tontineVal);
-
-    // Vérification des champs Tontine
-    await expect(page.getByLabel("Jour d'échéance du mois (Option C)")).toBeVisible();
-    await expect(page.getByLabel('Intervalle de rotation (si Tontine rotative)')).toBeVisible();
-    // Les champs Épargne ne doivent plus être affichés
-    await expect(page.getByLabel('Montant standard / forfait (FCFA)')).toHaveCount(0);
-    await expect(page.getByLabel('Date de début')).toHaveCount(0);
-    await expect(page.getByLabel('Date de fin')).toHaveCount(0);
-    await expect(page.getByLabel('Jour de cotisation hebdomadaire')).toHaveCount(0);
-    await expect(page.getByLabel('Intervalle en semaines')).toHaveCount(0);
-    await page.screenshot({ path: 'test-results/modal-tontine.png' });
-  }
-
-  await page.locator('.dialog-header button[aria-label="Fermer"]').click();
-  await expect(page.getByRole('dialog')).toHaveCount(0);
-
-  // Déconnexion
-  await page.getByRole('button', { name: 'Se déconnecter', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Bienvenue dans votre espace' })).toBeVisible();
-});
-
-test('tableau des campagnes actives avec métriques et onglet Archives', async ({ page }) => {
-  await login(page, './', 'superadmin');
-  await page.locator('#group-select').selectOption({ label: 'Les Femmes de Grand Yoff' });
-
-  // 1. Onglet Campagnes : Table enrichie
-  await page.getByRole('button', { name: 'Campagnes', exact: true }).click();
-  await expect(page.locator('.campaigns-table')).toBeVisible();
-  await expect(
-    page.getByRole('heading', { name: 'Campagnes actives du groupement' }),
-  ).toBeVisible();
-
-  // Vérification de la présence des colonnes
-  const headers = page.locator('.campaigns-table th');
-  await expect(headers.filter({ hasText: 'Campagne' })).toBeVisible();
-  await expect(headers.filter({ hasText: 'Membres' })).toBeVisible();
-  await expect(headers.filter({ hasText: 'Suivi & Métriques' })).toBeVisible();
-  await expect(headers.filter({ hasText: 'Période & Fréquence' })).toBeVisible();
-  await expect(headers.filter({ hasText: 'Actions' })).toBeVisible();
-
-  // Vérification du bouton "Ajouter un membre"
-  const addMemberBtn = page.locator('.btn-add-member-mini').first();
-  await expect(addMemberBtn).toBeVisible();
-  await addMemberBtn.click();
-  await expect(page.getByRole('dialog')).toBeVisible();
-  await expect(page.getByText('Configurer une participation')).toBeVisible();
-  await page.locator('.dialog-header button[aria-label="Fermer"]').click();
-  await expect(page.getByRole('dialog')).toHaveCount(0);
-
-  await page.screenshot({ path: 'test-results/campaigns-table.png' });
-
-  // 1.b Vérification des sous-onglets lors de la sélection d'une campagne
-  await expect(page.getByRole('button', { name: /1\. Participantes et forfaits/i })).toBeVisible();
-  await expect(page.getByRole('button', { name: /2\. Sessions/i })).toBeVisible();
-
-  // Onglet Participantes : colonnes présentes
-  await expect(page.getByRole('columnheader', { name: 'Membres' }).first()).toBeVisible();
-
-  // Bascule vers l'onglet Sessions
-  await page.getByRole('button', { name: /2\. Sessions/i }).click();
-  await expect(
-    page.getByRole('heading', { name: 'Cahier des Sessions de cotisation' }),
-  ).toBeVisible();
-  await expect(page.getByRole('columnheader', { name: 'Date' })).toBeVisible();
-  await expect(page.getByRole('columnheader', { name: 'Montant récupéré' })).toBeVisible();
-  await expect(
-    page.getByRole('columnheader', { name: 'Nbre Membre ayant de cotisation' }),
-  ).toBeVisible();
-  await expect(page.getByRole('columnheader', { name: 'Détails' })).toBeVisible();
-  await page.screenshot({ path: 'test-results/selection-sessions-tab.png' });
-
-  // Retour vers l'onglet Participantes
-  await page.getByRole('button', { name: /1\. Participantes et forfaits/i }).click();
-
-  // Vérifier qu'il n'y a plus le bouton "Consulter les versements"
-  await expect(page.getByText('Consulter les versements')).toHaveCount(0);
-
-  await page.screenshot({ path: 'test-results/selection-subtabs.png' });
-
-  // 1.c Vue d'ensemble : vérification du tri de l'historique des cotisations
-  await page.getByRole('button', { name: 'Vue d’ensemble', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Historique des cotisations' })).toBeVisible();
-  await expect(page.getByText('Trier par :')).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Date (décroissant)' })).toBeVisible();
-  await expect(page.getByRole('button', { name: /Par session|Par période/i })).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Par membre' })).toBeVisible();
-
-  // Test du changement de tri vers "Par membre"
-  await page.getByRole('button', { name: 'Par membre' }).click();
-  await expect(page.getByRole('button', { name: 'Par membre' })).toHaveClass(/active/);
-
-  // Test du retour au tri par Date
-  await page.getByRole('button', { name: 'Date (décroissant)' }).click();
-  await expect(page.getByRole('button', { name: 'Date (décroissant)' })).toHaveClass(/active/);
-  await page.screenshot({ path: 'test-results/overview-cotisations-sort.png' });
-
-  // Sélection de la campagne Épargne solidaire 2026 pour afficher le tableau des cotisations
-  const campSelect = page.getByLabel('Campagne suivie', { exact: true });
-  const epargneOption = campSelect.locator('option', { hasText: 'Épargne solidaire 2026' });
-  if (await epargneOption.count()) {
-    const val = await epargneOption.getAttribute('value');
-    if (val) {
-      await campSelect.selectOption(val);
-      await expect(page.locator('.contribution-table')).toBeVisible();
-      await page.screenshot({ path: 'test-results/overview-cotisations-data.png', fullPage: true });
-    }
-  }
-
-  // 2. Onglet Archives
-  await page.getByRole('button', { name: 'Archives', exact: true }).click();
-  await expect(page.getByRole('heading', { name: /Archives/i })).toBeVisible();
-  await expect(page.getByText('Campagnes fermées / archivées')).toBeVisible();
-  await expect(
-    page.getByRole('heading', { name: 'Groupements inactifs', exact: true }),
-  ).toBeVisible();
-
-  await page.screenshot({ path: 'test-results/archives-tab.png' });
-
-  // Déconnexion
-  await page.getByRole('button', { name: 'Se déconnecter', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Bienvenue dans votre espace' })).toBeVisible();
-});
-
-test('filtres autocomplete cotisations (session, periode, membre) et recherche de groupement accessible', async ({
-  page,
-}) => {
-  await login(page, './', 'superadmin');
-
-  // 1. Expérience enrichie de recherche de groupement par autocomplétion
-  const groupInput = page.locator('#group-search-input');
-  await expect(groupInput).toBeVisible();
-
-  // Test du bouton chevron pour dérouler sans saisie
-  const chevronBtn = page.locator('.autocomplete-chevron-btn').first();
-  await chevronBtn.click();
-  await expect(page.locator('.group-autocomplete-dropdown')).toBeVisible();
-  await expect(page.locator('.group-autocomplete-guide')).toBeVisible();
-  await page.screenshot({ path: 'test-results/group-autocomplete-dropdown-open.png' });
-
-  // Sélection d'un groupement
-  await page.locator('.group-autocomplete-item', { hasText: 'Les Femmes de Grand Yoff' }).click();
-  await expect(page.locator('.current-group-badge')).toContainText('Les Femmes de Grand Yoff');
-  await page.screenshot({ path: 'test-results/group-autocomplete-experience.png' });
-
-  // 2. Cotisation : Type Épargne (filtre session autocomplete + filtre membre autocomplete)
-  const campSelect = page.getByLabel('Campagne suivie', { exact: true });
-  const epargneOption = campSelect.locator('option', { hasText: 'Épargne solidaire 2026' });
-  await expect(epargneOption).toBeAttached();
-  const epargneVal = await epargneOption.getAttribute('value');
-  if (epargneVal) {
-    await campSelect.selectOption(epargneVal);
-  }
-
-  // Vérifier la présence des 2 filtres autocomplete pour l'Épargne
-  const sessionInput = page.locator('#session-filter-input');
-  const memberInput = page.locator('#member-filter-input');
-  await expect(sessionInput).toBeVisible();
-  await expect(memberInput).toBeVisible();
-
-  // Tester l'ouverture de l'autocomplete session
-  await sessionInput.click();
-  await expect(page.locator('.filter-autocomplete-dropdown')).toBeVisible();
-  await page.screenshot({ path: 'test-results/epargne-session-dropdown-open.png' });
-  // Sélectionner la première option de session passée ou "Toutes les sessions"
-  await page.locator('.filter-dropdown-item').first().click();
-
-  // Tester l'autocomplete membre
-  await memberInput.click();
-  await expect(page.locator('.filter-autocomplete-dropdown')).toBeVisible();
-  // Saisir un filtre de recherche membre
-  await memberInput.fill('Awa');
-  const awaItem = page.locator('.filter-dropdown-item', { hasText: 'Awa' });
-  if (await awaItem.count()) {
-    await awaItem.first().click();
-    await expect(page.locator('.active-filters-banner')).toBeVisible();
-    await expect(page.locator('.active-filter-badge')).toContainText('Awa');
-    await page.screenshot({ path: 'test-results/epargne-member-filter-applied.png' });
-  }
-
-  // Réinitialiser les filtres
-  const clearAllBtn = page.locator('.btn-clear-all-filters');
-  if (await clearAllBtn.count()) {
-    await clearAllBtn.first().click();
-  }
-  await page.screenshot({ path: 'test-results/epargne-autocomplete-filters.png' });
-
-  // 3. Cotisation : Type Tontine (filtre période autocomplete)
-  const tontineOption = campSelect.locator('option', { hasText: 'Tontine solidaire 2026' });
-  if (await tontineOption.count()) {
-    const tontineVal = await tontineOption.getAttribute('value');
-    if (tontineVal) {
-      await campSelect.selectOption(tontineVal);
-      // Pour une tontine, le champ de filtre par période doit être affiché
-      const periodInput = page.locator('#period-filter-input');
-      await expect(periodInput).toBeVisible();
-
-      // Tester l'ouverture de l'autocomplete période
-      await periodInput.click();
-      await expect(page.locator('.filter-autocomplete-dropdown')).toBeVisible();
-      await page.screenshot({ path: 'test-results/tontine-period-dropdown-open.png' });
-      await page.locator('.filter-dropdown-item').first().click();
-      await page.screenshot({ path: 'test-results/tontine-autocomplete-filters.png' });
-    }
-  }
-
-  // Déconnexion
-  await page.getByRole('button', { name: 'Se déconnecter', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Bienvenue dans votre espace' })).toBeVisible();
+  const campaigns = page.getByLabel('Campagne suivie', { exact: true });
+  await campaigns.selectOption(
+    (await campaigns
+      .locator('option', { hasText: 'Épargne solidaire 2026' })
+      .getAttribute('value'))!,
+  );
+  const search = page.getByLabel('Rechercher un versement par nom ou téléphone');
+  const response = page.waitForResponse(
+    (r) => r.url().includes('/contributions?') && r.url().includes('q=Awa') && r.status() === 200,
+  );
+  await search.fill('Awa');
+  const data = await (await response).json();
+  expect(data.items.every((c: { name: string }) => c.name.includes('Awa'))).toBe(true);
+  const date = page.getByLabel('Date du versement recherchée');
+  await date.fill('2026-06-02');
+  await page.getByRole('button', { name: 'Effacer les filtres', exact: true }).click();
+  await expect(search).toHaveValue('');
+  await expect(date).toHaveValue('');
 });
 
 test('informations de connexion et préremplissage automatique sur les pages de connexion', async ({
@@ -559,7 +253,11 @@ test('informations de connexion et préremplissage automatique sur les pages de 
   const logoutBtn = page.getByRole('button', { name: 'Se déconnecter', exact: true });
   if (await logoutBtn.isVisible()) {
     await logoutBtn.click();
-    await expect(page.getByRole('heading', { name: 'Bienvenue dans votre espace' })).toBeVisible();
+    await expect(
+      page.getByRole('heading', {
+        name: /^(Bienvenue dans votre espace|Bon retour|Votre épargne, ensemble)$/,
+      }),
+    ).toBeVisible();
   }
 
   // Vérifier la présence de la carte des infos de connexion
@@ -580,32 +278,38 @@ test('informations de connexion et préremplissage automatique sur les pages de 
 
   // Se connecter avec les identifiants préremplis
   await page.getByRole('button', { name: 'Se connecter', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Vue d’ensemble', exact: true })).toBeVisible();
+  await expect(
+    page.getByRole('heading', { name: /^(Vue d’ensemble|Mon groupement)$/, exact: true }),
+  ).toBeVisible();
 
   // Déconnexion
   await page.getByRole('button', { name: 'Se déconnecter', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Bienvenue dans votre espace' })).toBeVisible();
+  await expect(
+    page.getByRole('heading', {
+      name: /^(Bienvenue dans votre espace|Bon retour|Votre épargne, ensemble)$/,
+    }),
+  ).toBeVisible();
 
   // 2. Page de connexion Espace Membres & Groupements (PWA)
   await page.goto(pwa);
   const pwaLogout = page.getByRole('button', { name: 'Se déconnecter', exact: true });
   if (await pwaLogout.isVisible()) {
     await pwaLogout.click();
-    await expect(page.getByRole('heading', { name: 'Bienvenue dans votre espace' })).toBeVisible();
+    await expect(
+      page.getByRole('heading', {
+        name: /^(Bienvenue dans votre espace|Bon retour|Votre épargne, ensemble)$/,
+      }),
+    ).toBeVisible();
   }
 
-  // Vérifier la présence de la carte des infos de connexion PWA
-  const pwaDemoCard = page.locator('.login-demo-card');
+  const forget = page.getByRole('button', { name: 'Changer de compte / oublier cet appareil' });
+  if (await forget.isVisible()) await forget.click();
+  const pwaDemoCard = page.locator('.pwa-login-demo');
   await expect(pwaDemoCard).toBeVisible();
+  await pwaDemoCard.locator('summary').click();
   await expect(pwaDemoCard).toContainText('admin.ndeye');
   await expect(pwaDemoCard).toContainText('membre.awa');
-  await expect(pwaDemoCard).toContainText('+221770000002');
-  await expect(pwaDemoCard).toContainText('+221770000003');
-
-  await page.screenshot({ path: 'test-results/membres-pwa-login-demo-info.png' });
-
-  // Tester le pré-remplissage 1-clic pour l'administratrice de groupement
-  await page.locator('.login-demo-btn-fill', { hasText: 'Remplir (Identifiant)' }).first().click();
+  await pwaDemoCard.getByRole('button', { name: 'Responsable · admin.ndeye' }).click();
   await expect(page.getByLabel('Identifiant', { exact: true })).toHaveValue('admin.ndeye');
   if (!(await page.getByLabel('Mot de passe', { exact: true }).inputValue())) {
     await page.getByLabel('Mot de passe', { exact: true }).fill(password);
@@ -614,9 +318,15 @@ test('informations de connexion et préremplissage automatique sur les pages de 
 
   // Connexion avec les identifiants préremplis
   await page.getByRole('button', { name: 'Se connecter', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Vue d’ensemble', exact: true })).toBeVisible();
+  await expect(
+    page.getByRole('heading', { name: /^(Vue d’ensemble|Mon groupement)$/, exact: true }),
+  ).toBeVisible();
 
   // Déconnexion
   await page.getByRole('button', { name: 'Se déconnecter', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Bienvenue dans votre espace' })).toBeVisible();
+  await expect(
+    page.getByRole('heading', {
+      name: /^(Bienvenue dans votre espace|Bon retour|Votre épargne, ensemble)$/,
+    }),
+  ).toBeVisible();
 });

@@ -1,0 +1,28 @@
+{
+  "date": "2026-10-19T08:41:30.020Z",
+  "image": "sha256:123017dbb7ce88fb6863f0f5973a41a8e5a693491d6b3bb282a97b7900cfcdde",
+  "status": "passed",
+  "checks": [
+    "fixture_1001_groupements_201201_adhesions",
+    "role_applicatif_sans_privilege_et_non_proprietaire",
+    "recherche_paginee_sur_volume",
+    "isolation_RLS_et_portee_membre",
+    "concurrence_idempotence_conflit_et_rapprochement_des_totaux"
+  ],
+  "timings": {
+    "fixture_ms": 14864,
+    "recherche_et_pagination_ms": 77,
+    "20_confirmations_meme_cle_ms": 108,
+    "20_versements_distincts_ms": 103
+  },
+  "fixture": {
+    "groups": 1001,
+    "memberships": 201201,
+    "participations": 201201,
+    "contributions": 201201
+  },
+  "afterConcurrentWrites": {
+    "n": 222,
+    "total": "22850"
+  }
+}

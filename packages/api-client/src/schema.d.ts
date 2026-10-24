@@ -52,6 +52,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/auth/login/secret-code": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["loginSecretCode"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/secret-code": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["setSecretCode"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/login/pin": {
         parameters: {
             query?: never;
@@ -110,6 +142,54 @@ export interface paths {
         get: operations["currentUser"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/activity": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["sessionActivity"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/lock": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["lockSession"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/forget-device": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["forgetDevice"];
         delete?: never;
         options?: never;
         head?: never;
@@ -388,6 +468,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/groupements/{groupId}/campaigns/shortcuts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getCampaignShortcuts"];
+        put: operations["saveCampaignShortcuts"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/groupements/{groupId}/campaigns/{id}/eligible-members": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["eligibleCampaignMembers"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/groupements/{groupId}/campaigns/{id}/activation": {
         parameters: {
             query?: never;
@@ -402,6 +514,22 @@ export interface paths {
         options?: never;
         head?: never;
         patch: operations["activateCampaign"];
+        trace?: never;
+    };
+    "/api/v1/groupements/{groupId}/campaigns/{id}/resolve-member-qr": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["resolveMemberQr"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/v1/groupements/{groupId}/campaigns/{id}/participants": {
@@ -436,6 +564,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/groupements/{groupId}/campaigns/{id}/tontine/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getTontineStatus"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/groupements/{groupId}/campaigns/{id}/tontine/draw": {
         parameters: {
             query?: never;
@@ -461,6 +605,22 @@ export interface paths {
         };
         get: operations["listTontineRounds"];
         put: operations["reorderTontineRounds"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/groupements/{groupId}/campaigns/{id}/tontine/members": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listTontineMembers"];
+        put?: never;
         post?: never;
         delete?: never;
         options?: never;
@@ -516,6 +676,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/groupements/{groupId}/campaigns/{id}/savings-session": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["savingsSessionStatus"];
+        put?: never;
+        post: operations["openSavingsSession"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/groupements/{groupId}/campaigns/{id}/cashbox": {
         parameters: {
             query?: never;
@@ -564,6 +740,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/groupements/{groupId}/campaigns/{campaignId}/contributions/self": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["recordSelfContribution"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/groupements/{groupId}/campaigns/{campaignId}/contributions/{id}/void": {
         parameters: {
             query?: never;
@@ -580,6 +772,135 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/groupements/{groupId}/member/campaigns": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["memberCampaigns"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/groupements/{groupId}/member/campaigns/shortcuts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["memberShortcuts"];
+        put: operations["saveMemberShortcuts"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/groupements/{groupId}/member/campaigns/{campaignId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["memberCampaignStatus"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/groupements/{groupId}/member/history/options": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["memberHistoryOptions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/groupements/{groupId}/member/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["memberHistory"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/appearance": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getAppearance"];
+        /** Palette commune, super administrateur uniquement */
+        put: operations["setAppearance"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/groupements/{groupId}/appearance": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getGroupAppearance"];
+        put: operations["setGroupAppearance"];
+        post?: never;
+        delete: operations["resetGroupAppearance"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/offline-replay": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["replayOfflineContribution"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -589,10 +910,19 @@ export interface components {
             password: string;
         };
         ActorView: {
+            hasSecretCode?: boolean;
             id: string;
             login: string;
             name: string;
             isSuper: boolean;
+        };
+        CodeLoginDto: {
+            login: string;
+            code: string;
+        };
+        SetSecretCodeDto: {
+            password: string;
+            code: string;
         };
         PinLoginDto: {
             phone: string;
@@ -636,6 +966,15 @@ export interface components {
             /** @description IDs des événements autorisés */
             eventIds?: string[];
         };
+        MemberCampaignView: {
+            campaign_id: string;
+            name: string;
+            type_name: string;
+            type_code: string;
+            active: boolean;
+            is_savings: boolean;
+            paid_amount: string;
+        };
         MemberView: {
             id: string;
             name: string;
@@ -649,6 +988,7 @@ export interface components {
             function_id?: string | null;
             function_name?: string | null;
             is_blocked: boolean;
+            campaigns?: components["schemas"]["MemberCampaignView"][];
         };
         MemberPage: {
             items: components["schemas"]["MemberView"][];
@@ -659,7 +999,6 @@ export interface components {
             phone?: string;
             login?: string;
             password?: string;
-            pin?: string;
             address?: string;
             /**
              * @default F
@@ -684,9 +1023,7 @@ export interface components {
         BlockMemberDto: {
             blocked: boolean;
         };
-        ResetPinDto: {
-            pin: string;
-        };
+        ResetPinDto: Record<string, never>;
         GroupFunctionView: {
             id: string;
             code: string;
@@ -767,6 +1104,7 @@ export interface components {
             is_mandatory: boolean;
             standard_amount?: string | null;
             rotation_interval?: string | null;
+            monthly_week?: number | null;
             due_day?: number | null;
             type_code?: string | null;
             member_count?: number;
@@ -778,6 +1116,18 @@ export interface components {
         };
         CampaignPage: {
             items: components["schemas"]["CampaignView"][];
+            total: number;
+        };
+        CampaignShortcutsDto: {
+            campaignIds: string[];
+        };
+        EligibleMemberView: {
+            id: string;
+            name: string;
+            phone: string | null;
+        };
+        EligibleMemberPage: {
+            items: components["schemas"]["EligibleMemberView"][];
             total: number;
         };
         CreateCampaignDto: {
@@ -796,7 +1146,12 @@ export interface components {
             standardAmount?: number;
             /** @enum {string} */
             rotationInterval?: "WEEKLY" | "BIWEEKLY" | "MONTHLY";
+            /** @description Rang du jour de semaine dans le mois ; exige MONTHLY. */
+            monthlyWeek?: number;
             dueDay?: number;
+        };
+        MemberQrDto: {
+            code: string;
         };
         ParticipationView: {
             id: string;
@@ -831,6 +1186,16 @@ export interface components {
             personal: boolean;
             updatedAt: string;
         };
+        TontineStatusView: {
+            today: string;
+            round_number: number | null;
+            round_date: string | null;
+            scheduled: boolean;
+            drawn: boolean;
+            can_draw: boolean;
+            can_collect: boolean;
+            beneficiary_name: string | null;
+        };
         SessionMemberContributionView: {
             contribution_id: string;
             member_id: string;
@@ -840,10 +1205,13 @@ export interface components {
             paid_on?: string;
         };
         TontineRoundView: {
+            drawn_at: string | null;
+            contributed_count?: number;
+            unpaid_count?: number;
             id: string;
             round_number: number;
-            beneficiary_id: string;
-            beneficiary_name: string;
+            beneficiary_id: string | null;
+            beneficiary_name: string | null;
             expected_date: string;
             payout_amount: string;
             paid: boolean;
@@ -860,6 +1228,26 @@ export interface components {
         };
         TontineReorderDto: {
             rounds: components["schemas"]["TontineRoundOrderDto"][];
+        };
+        SessionAttendanceView: {
+            member_id: string;
+            member_name: string;
+            paid_amount: string;
+            expected_amount?: string | null;
+            contributed: boolean;
+            grace_deadline?: string | null;
+            absent?: boolean;
+            can_grant_grace?: boolean;
+            is_beneficiary?: boolean;
+        };
+        TontineMembersPage: {
+            items: components["schemas"]["SessionAttendanceView"][];
+            total: number;
+            contributed_count: number;
+            unpaid_count: number;
+            period_start: string;
+            /** @description Borne de fin exclue */
+            period_end: string;
         };
         CreateGracePeriodDto: {
             /** Format: uuid */
@@ -878,11 +1266,20 @@ export interface components {
             created_at: string;
         };
         CampaignSessionView: {
+            expected_amount?: string;
+            free_members_count?: number;
+            members?: components["schemas"]["SessionAttendanceView"][];
             session_date: string;
             total_amount: string;
             count: number;
             members_count?: number;
             contributions: components["schemas"]["SessionMemberContributionView"][];
+        };
+        SavingsSessionStatusView: {
+            today: string;
+            scheduled: boolean;
+            opened: boolean;
+            can_collect: boolean;
         };
         CashboxStateView: {
             campaign_id: string;
@@ -899,6 +1296,7 @@ export interface components {
             cashboxes: components["schemas"]["CashboxStateView"][];
         };
         ContributionView: {
+            created_at?: string;
             id: string;
             name: string;
             participation_id: string;
@@ -919,8 +1317,133 @@ export interface components {
             /** Format: uuid */
             idempotencyKey: string;
         };
+        SelfContributionDto: {
+            /** @description Date de la séance ou du tour choisi pour éviter de déplacer une saisie hors ligne. */
+            paidOn?: string;
+            amount: number;
+            /** Format: uuid */
+            idempotencyKey: string;
+        };
         VoidDto: {
             reason: string;
+        };
+        MemberPortalCampaignView: {
+            id: string;
+            name: string;
+            start_date: string;
+            end_date: string;
+            weekday: number;
+            interval_weeks: number;
+            active: boolean;
+            type_name: string;
+            event_id?: string | null;
+            event_name?: string | null;
+            event_code?: string | null;
+            is_mandatory: boolean;
+            standard_amount?: string | null;
+            rotation_interval?: string | null;
+            monthly_week?: number | null;
+            due_day?: number | null;
+            type_code?: string | null;
+            member_count?: number;
+            collected_amount?: string;
+            session_count?: number;
+            payouts_count?: number;
+            remaining_count?: number;
+            next_due_date?: string | null;
+            participation_id: string;
+            forfait: string | null;
+            is_random: boolean;
+            total_paid: string;
+            arrears_count: number;
+            unpaid_count?: number;
+        };
+        MemberPortalCampaignPage: {
+            items: components["schemas"]["MemberPortalCampaignView"][];
+            total: number;
+        };
+        MemberShortcutsView: {
+            campaignIds: string[];
+        };
+        MemberPortalRoundView: {
+            round_number: number;
+            expected_date: string;
+            period_end: string;
+            beneficiary_name: string | null;
+            paid: boolean;
+            drawn: boolean;
+            my_paid_amount: string;
+        };
+        MemberPortalStatusView: {
+            today: string;
+            can_pay: boolean;
+            already_paid: boolean;
+            reason: string;
+            total_paid: string;
+            sessions: string[];
+            rounds: components["schemas"]["MemberPortalRoundView"][];
+            payouts_count: number;
+            remaining_months: number;
+        };
+        MemberHistoryCampaignView: {
+            id: string;
+            name: string;
+            active: boolean;
+            type_id: string;
+            type_name: string;
+            type_code: string;
+        };
+        MemberHistoryRoundOption: {
+            key: string;
+            campaign_id: string;
+            campaign_name: string;
+            round_number: number;
+            expected_date: string;
+        };
+        MemberHistoryOptionsView: {
+            campaigns: components["schemas"]["MemberHistoryCampaignView"][];
+            sessions: string[];
+            rounds: components["schemas"]["MemberHistoryRoundOption"][];
+        };
+        MemberHistoryContributionView: {
+            created_at?: string;
+            id: string;
+            name: string;
+            participation_id: string;
+            amount: string;
+            paid_on: string;
+            reference: string;
+            voided_at: string | null;
+            campaign_id: string;
+            campaign_name: string;
+            campaign_active: boolean;
+            type_id: string;
+            type_name: string;
+            type_code: string;
+            session_date: string | null;
+            round_number: number | null;
+        };
+        MemberHistoryPage: {
+            items: components["schemas"]["MemberHistoryContributionView"][];
+            total: number;
+            total_paid: string;
+        };
+        PaletteDto: {
+            /** @example #155d50 */
+            primary: string;
+            /** @example #197647 */
+            savings: string;
+            /** @example #6d3fc0 */
+            tontine: string;
+            /** @example #a85d12 */
+            solidarity: string;
+        };
+        OfflineReplayDto: {
+            login: string;
+            path: string;
+            /** @description JSON exact de la saisie confirmée hors ligne ; date et référence requises. */
+            payload: string;
+            signature: string;
         };
     };
     responses: never;
@@ -975,6 +1498,52 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["LoginDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ActorView"];
+                };
+            };
+        };
+    };
+    loginSecretCode: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CodeLoginDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ActorView"];
+                };
+            };
+        };
+    };
+    setSecretCode: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetSecretCodeDto"];
             };
         };
         responses: {
@@ -1076,6 +1645,57 @@ export interface operations {
             };
         };
     };
+    sessionActivity: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    lockSession: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    forgetDevice: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     logout: {
         parameters: {
             query?: never;
@@ -1160,6 +1780,13 @@ export interface operations {
             query?: {
                 page?: number;
                 limit?: number;
+                from?: string;
+                to?: string;
+                status?: "valid" | "voided";
+                /** @description Recherche par nom ou téléphone, avant pagination */
+                q?: string;
+                /** @description Date exacte du versement, YYYY-MM-DD */
+                paidOn?: string;
                 scope?: "personal" | "group";
                 sort?: "date" | "session" | "period" | "member";
             };
@@ -1678,6 +2305,78 @@ export interface operations {
             };
         };
     };
+    getCampaignShortcuts: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                groupId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CampaignShortcutsDto"];
+                };
+            };
+        };
+    };
+    saveCampaignShortcuts: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                groupId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CampaignShortcutsDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CampaignShortcutsDto"];
+                };
+            };
+        };
+    };
+    eligibleCampaignMembers: {
+        parameters: {
+            query?: {
+                page?: number;
+                limit?: number;
+                q?: string;
+            };
+            header?: never;
+            path: {
+                groupId: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EligibleMemberPage"];
+                };
+            };
+        };
+    };
     activateCampaign: {
         parameters: {
             query?: never;
@@ -1702,11 +2401,44 @@ export interface operations {
             };
         };
     };
+    resolveMemberQr: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                groupId: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MemberQrDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParticipationView"];
+                };
+            };
+        };
+    };
     listParticipants: {
         parameters: {
             query?: {
                 page?: number;
                 limit?: number;
+                from?: string;
+                to?: string;
+                status?: "valid" | "voided";
+                /** @description Recherche par nom ou téléphone, avant pagination */
+                q?: string;
+                /** @description Date exacte du versement, YYYY-MM-DD */
+                paidOn?: string;
                 scope?: "personal" | "group";
                 sort?: "date" | "session" | "period" | "member";
             };
@@ -1779,6 +2511,28 @@ export interface operations {
             };
         };
     };
+    getTontineStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                groupId: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TontineStatusView"];
+                };
+            };
+        };
+    };
     generateTontineDraw: {
         parameters: {
             query?: never;
@@ -1845,6 +2599,34 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TontineRoundView"][];
+                };
+            };
+        };
+    };
+    listTontineMembers: {
+        parameters: {
+            query?: {
+                page?: number;
+                limit?: number;
+                q?: string;
+                state?: "all" | "paid" | "unpaid";
+                roundNumber?: number;
+            };
+            header?: never;
+            path: {
+                groupId: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TontineMembersPage"];
                 };
             };
         };
@@ -1941,6 +2723,50 @@ export interface operations {
             };
         };
     };
+    savingsSessionStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                groupId: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SavingsSessionStatusView"];
+                };
+            };
+        };
+    };
+    openSavingsSession: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                groupId: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SavingsSessionStatusView"];
+                };
+            };
+        };
+    };
     campaignCashbox: {
         parameters: {
             query?: never;
@@ -1987,6 +2813,13 @@ export interface operations {
             query?: {
                 page?: number;
                 limit?: number;
+                from?: string;
+                to?: string;
+                status?: "valid" | "voided";
+                /** @description Recherche par nom ou téléphone, avant pagination */
+                q?: string;
+                /** @description Date exacte du versement, YYYY-MM-DD */
+                paidOn?: string;
                 scope?: "personal" | "group";
                 sort?: "date" | "session" | "period" | "member";
             };
@@ -2035,6 +2868,32 @@ export interface operations {
             };
         };
     };
+    recordSelfContribution: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                groupId: string;
+                campaignId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SelfContributionDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ContributionView"];
+                };
+            };
+        };
+    };
     voidContribution: {
         parameters: {
             query?: never;
@@ -2057,6 +2916,279 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    memberCampaigns: {
+        parameters: {
+            query?: {
+                page?: number;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                groupId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemberPortalCampaignPage"];
+                };
+            };
+        };
+    };
+    memberShortcuts: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                groupId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemberShortcutsView"];
+                };
+            };
+        };
+    };
+    saveMemberShortcuts: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                groupId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CampaignShortcutsDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemberShortcutsView"];
+                };
+            };
+        };
+    };
+    memberCampaignStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                groupId: string;
+                campaignId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemberPortalStatusView"];
+                };
+            };
+        };
+    };
+    memberHistoryOptions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                groupId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemberHistoryOptionsView"];
+                };
+            };
+        };
+    };
+    memberHistory: {
+        parameters: {
+            query?: {
+                page?: number;
+                limit?: number;
+                campaignIds?: string[];
+                typeIds?: string[];
+                sessions?: string[];
+                rounds?: string[];
+            };
+            header?: never;
+            path: {
+                groupId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemberHistoryPage"];
+                };
+            };
+        };
+    };
+    getAppearance: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaletteDto"];
+                };
+            };
+        };
+    };
+    setAppearance: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PaletteDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaletteDto"];
+                };
+            };
+        };
+    };
+    getGroupAppearance: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                groupId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaletteDto"];
+                };
+            };
+        };
+    };
+    setGroupAppearance: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                groupId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PaletteDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaletteDto"];
+                };
+            };
+        };
+    };
+    resetGroupAppearance: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                groupId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaletteDto"];
+                };
+            };
+        };
+    };
+    replayOfflineContribution: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OfflineReplayDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ContributionView"];
+                };
             };
         };
     };

@@ -6,6 +6,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'prompt',
+      injectRegister: false,
       includeAssets: ['icon-192.png', 'icon-512.png'],
       manifest: {
         name: 'AvecLesFemmes',
@@ -16,13 +17,16 @@ export default defineConfig({
         scope: '/',
         display: 'standalone',
         theme_color: '#155d50',
-        background_color: '#f7f6f2',
+        background_color: '#f6f8f7',
         icons: [
           { src: '/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
           { src: '/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
         ],
       },
       workbox: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        clientsClaim: true,
+        skipWaiting: false,
         navigateFallbackDenylist: [/^\/api\//, /^\/admin(?:\/|$)/],
         runtimeCaching: [{ urlPattern: /\/api\//, handler: 'NetworkOnly' }],
       },

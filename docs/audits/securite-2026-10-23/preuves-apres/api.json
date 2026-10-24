@@ -1,0 +1,67 @@
+{
+  "scope": "PGlite isolated; synthetic identities only; production configuration",
+  "version": "1.0.0",
+  "cookieFlags": {
+    "secure": true,
+    "httpOnly": true,
+    "sameSiteLax": true
+  },
+  "positiveControls": {
+    "unauthenticated": 401,
+    "csrfMissing": 403,
+    "foreignOrigin": 403,
+    "crossGroup": 404,
+    "missingConfirmation": 403,
+    "memberReset": 403
+  },
+  "SEC-01": {
+    "adminReset": 403,
+    "loginWithChosenPinAsPassword": 401,
+    "originalPassword": 201,
+    "otherGroupAsAdminA": 404
+  },
+  "recovery": {
+    "originalHashPreserved": true,
+    "chosenSecretRefused": 400,
+    "oldSessionRevoked": 401,
+    "oldDeviceRevoked": 403,
+    "originalPasswordWorks": 201
+  },
+  "SEC-02": {
+    "concurrentFailures": 8,
+    "statuses": [401, 401, 401, 401, 401, 401, 401, 401],
+    "persistedAttempts": 5,
+    "locked": true,
+    "correctPinAfterEightFailures": 401
+  },
+  "SEC-03": {
+    "privateFirstHopOnly": true,
+    "forgedLeftmostIgnored": true,
+    "clientAddressesSeparated": true,
+    "authenticatedAccountQuotasSeparated": true
+  },
+  "productionControls": {
+    "demoCredentialsHidden": true,
+    "expiredSessionMe": 401,
+    "expiredSessionHeartbeat": 401
+  },
+  "throttleOrderControl": {
+    "guardOrder": ["AccountThrottlerGuard", "AuthGuard"],
+    "limiterCallsForRejectedConfirmation": 1,
+    "additionalLimiterCallsForSuccessfulRead": 1,
+    "loadTestPerformed": false
+  },
+  "shortCredentials": {
+    "codeAsPassword": 401,
+    "creationWithPinOnly": 400,
+    "creationWithShortPassword": 400
+  },
+  "SEC-06": {
+    "newClientCodeOnly": 403,
+    "validatedDevice": 201,
+    "crossAccountProof": 403,
+    "revokedDevice": 403,
+    "deviceCookieHttpOnlySecureStrict": true,
+    "vaultKeyInActor": false
+  }
+}

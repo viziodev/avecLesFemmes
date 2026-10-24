@@ -1,9 +1,9 @@
 import { existsSync, mkdirSync } from 'node:fs';
-import { test } from '@playwright/test';
+import { test } from '../mobile/fixtures';
 import { config } from 'dotenv';
 config({ path: '.env', quiet: true });
 
-const password = process.env.DEMO_PASSWORD || 'Secret123!';
+const password = process.env.DEMO_PASSWORD!;
 const pwa = process.env.PWA_URL || 'http://localhost:8086';
 const preferredDir =
   '/Users/douvewane/.gemini/antigravity-ide/brain/b57b82e7-be24-4ec8-844a-0189236e4483';
@@ -11,13 +11,13 @@ const artifactDir =
   process.env.ARTIFACT_DIR || (existsSync(preferredDir) ? preferredDir : 'test-results');
 
 test('capture des interfaces Wave Membre et Admin Groupement', async ({ page }) => {
-  test.skip(!!process.env.CI, 'Capture d’écrans visuels réservée aux tests locaux');
+  test.skip(process.env.CAPTURE_WAVE !== '1', 'Capture manuelle : CAPTURE_WAVE=1');
   mkdirSync(artifactDir, { recursive: true });
   await page.setViewportSize({ width: 390, height: 844 });
 
   // 1. Connexion Membre (Wave Particulier)
   await page.goto(pwa);
-  await page.getByRole('button', { name: 'Identifiant', exact: true }).click();
+
   await page.getByLabel('Identifiant', { exact: true }).fill('membre.awa');
   await page.getByLabel('Mot de passe', { exact: true }).fill(password);
   await page.getByRole('button', { name: 'Se connecter', exact: true }).click();
@@ -30,7 +30,6 @@ test('capture des interfaces Wave Membre et Admin Groupement', async ({ page }) 
   await page.getByRole('button', { name: 'Se déconnecter', exact: true }).click();
   await page.waitForTimeout(500);
 
-  await page.getByRole('button', { name: 'Identifiant', exact: true }).click();
   await page.getByLabel('Identifiant', { exact: true }).fill('admin.ndeye');
   await page.getByLabel('Mot de passe', { exact: true }).fill(password);
   await page.getByRole('button', { name: 'Se connecter', exact: true }).click();
@@ -43,11 +42,6 @@ test('capture des interfaces Wave Membre et Admin Groupement', async ({ page }) 
   await page.getByRole('button', { name: 'Afficher les chiffres', exact: true }).click();
   await page.waitForTimeout(500);
   await page.screenshot({ path: `${artifactDir}/wave_admin_chiffres.png` });
-
-  // Basculer sur l'onglet Semaine
-  await page.getByRole('button', { name: 'Semaine', exact: true }).click();
-  await page.waitForTimeout(400);
-  await page.screenshot({ path: `${artifactDir}/wave_admin_chiffres_semaine.png` });
 
   // Retour au dashboard
   await page.getByRole('button', { name: 'Retour', exact: true }).click();

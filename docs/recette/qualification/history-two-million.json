@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-19T08:47:19.077Z",
+  "image": "sha256:123017dbb7ce88fb6863f0f5973a41a8e5a693491d6b3bb282a97b7900cfcdde",
+  "status": "passed",
+  "checks": [
+    "fixture_1001_groupements_201201_adhesions",
+    "role_applicatif_sans_privilege_et_non_proprietaire",
+    "recherche_paginee_sur_volume",
+    "isolation_RLS_et_portee_membre",
+    "concurrence_idempotence_conflit_et_rapprochement_des_totaux",
+    "charge_mixte_deux_groupements_et_totaux_API_SQL"
+  ],
+  "timings": {
+    "fixture_ms": 139223,
+    "recherche_et_pagination_ms": 388,
+    "20_confirmations_meme_cle_ms": 151,
+    "20_versements_distincts_ms": 72
+  },
+  "parameters": {
+    "historyDepth": 10,
+    "loadRounds": 30
+  },
+  "databaseBytes": 1196897983,
+  "fixture": {
+    "groups": 1001,
+    "memberships": 201201,
+    "participations": 201201,
+    "contributions": 2012010
+  },
+  "afterConcurrentWrites": {
+    "n": 2031,
+    "total": "203750"
+  },
+  "mixedLoad": {
+    "durationMs": 64999,
+    "errors": [],
+    "readMs": {
+      "count": 60,
+      "p50": 151,
+      "p95": 184,
+      "p99": 243,
+      "max": 243
+    },
+    "writeMs": {
+      "count": 60,
+      "p50": 6,
+      "p95": 10,
+      "p99": 28,
+      "max": 28
+    },
+    "groups": 2
+  }
+}

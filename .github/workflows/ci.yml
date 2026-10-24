@@ -1,6 +1,8 @@
 name: Vérification du premier incrément
 on:
   push:
+    branches: [main]
+    tags: ['v*']
   pull_request:
   workflow_dispatch:
 permissions:
@@ -23,7 +25,7 @@ jobs:
       - run: npm run format:check
       - run: npm run version:check
       - run: npm run test:version
-      - run: node --test scripts/deploy-render.test.mjs
+      - run: node --test scripts/deploy-render.test.mjs scripts/pwa-update.test.mjs scripts/ui-reliability.test.mjs
       - name: Vérifier la version de la modification
         if: github.event_name == 'pull_request'
         env:
@@ -31,7 +33,13 @@ jobs:
         run: node scripts/check-pr-version.mjs
       - run: npm run typecheck
       - run: npm test
+      - name: Vérifier le remplacement du jeu de recette Nguith
+        run: node --test scripts/demo/nguith-data.test.mjs
       - run: npm run build
+      - name: Régression de décompression HTTP
+        run: node --test tests/security/dependency-regressions.test.mjs
+      - name: Régressions de sécurité API isolées
+        run: node --import tsx --test tests/security/api-audit.ts
       - run: npm run openapi --workspace @aveclesfemmes/api
       - run: npm run contracts:generate
       - run: git diff --exit-code -- docs/openapi.json packages/api-client/src/schema.d.ts
@@ -42,6 +50,32 @@ jobs:
       - run: docker compose --profile demo run --rm seed
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
+      - name: Protections HTTP et coffre hors ligne
+        run: npx playwright test --config playwright.security.config.ts
+      - run: npx playwright install --with-deps webkit
+      - name: Recette mobile émulée (Chromium et WebKit)
+        run: npm run test:mobile
+      - name: Vérifier le scénario de charge local
+        run: docker compose --profile load-test run --rm -e LOAD_VUS=1 -e LOAD_DURATION=5s load-tester
+      - name: Qualifier volumes, isolation et encaissements concurrents
+        timeout-minutes: 5
+        run: |
+          export QUALIFICATION_REPORT=ci.json
+          export QUALIFICATION_UID="$(id -u)"
+          export QUALIFICATION_GID="$(id -g)"
+          image_tag="aveclesfemmes-api:$(node -p "require('./package.json').version")"
+          export QUALIFICATION_IMAGE="$(docker image inspect "$image_tag" --format '{{.Id}}')"
+          npm run test:qualification
+      - name: Conserver le rapport de qualification
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qualification-volumes
+          path: docs/recette/qualification/ci.json
+          if-no-files-found: ignore
+      - name: Nettoyer la base temporaire de qualification
+        if: always()
+        run: QUALIFICATION_IMAGE=unused docker compose -f compose.qualification.yaml down --volumes
       - name: Vérifier le conteneur unique Render
         run: |
           docker compose --profile render-test build render-test

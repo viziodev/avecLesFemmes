@@ -1,0 +1,51 @@
+[
+  {
+    "screen": "tontine",
+    "width": 390,
+    "viewportHeight": 844,
+    "documentHeight": 1410,
+    "overflow": 0,
+    "h1": "Vue d’ensemble",
+    "historyLength": 2,
+    "url": "/",
+    "hero": {
+      "top": 113,
+      "width": 358,
+      "height": 382
+    },
+    "cta": {
+      "top": 686,
+      "width": 358,
+      "height": 180
+    },
+    "nav": {
+      "top": 771,
+      "width": 374,
+      "height": 66
+    },
+    "controlsUnder44": [
+      {
+        "tag": "SELECT",
+        "label": "Filtrer par tourTous les tours passés",
+        "rect": {
+          "top": 1164,
+          "width": 320,
+          "height": 23
+        }
+      }
+    ],
+    "unnamedInputs": [],
+    "clippedText": [
+      {
+        "text": "Tontine TEST À tirer · 2026-10-21",
+        "title": null,
+        "rect": {
+          "top": 608,
+          "width": 76,
+          "height": 26
+        }
+      }
+    ],
+    "alerts": []
+  }
+]

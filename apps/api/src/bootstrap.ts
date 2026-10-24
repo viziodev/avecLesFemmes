@@ -7,10 +7,26 @@ import { settings } from './config';
 import { ApiExceptionFilter } from './app.module';
 import { API_VERSION } from './version';
 export function configure(app: INestApplication) {
+  // Only the closest private/loopback reverse proxy is trusted by default.
+  // Public direct clients cannot choose req.ip by supplying X-Forwarded-For.
+  const proxyaddr = require('proxy-addr') as {
+    compile: (ranges: string[]) => (address: string) => boolean;
+  };
+  const trusted = proxyaddr.compile(
+    (process.env.TRUSTED_PROXY_CIDRS || 'loopback,uniquelocal').split(',').filter(Boolean),
+  );
+  app
+    .getHttpAdapter()
+    .getInstance()
+    .set('trust proxy', (ip: string, hop: number) => hop === 0 && trusted(ip));
   app.setGlobalPrefix('api/v1');
   app.use(helmet());
   app.use(cookieParser());
-  app.enableCors({ origin: settings.origins, credentials: true });
+  app.enableCors({
+    origin: settings.origins,
+    credentials: true,
+    exposedHeaders: ['X-ALF-Vault-Key', 'X-ALF-Sync-Key'],
+  });
   app.use((req: any, res: any, next: any) => {
     if (!['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
       if (

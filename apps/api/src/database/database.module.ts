@@ -6,6 +6,7 @@ export interface Actor {
   login: string;
   name: string;
   isSuper: boolean;
+  hasSecretCode?: boolean;
 }
 export interface SqlClient {
   query<T extends QueryResultRow = any>(

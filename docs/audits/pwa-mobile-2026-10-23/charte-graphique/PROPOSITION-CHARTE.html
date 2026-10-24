@@ -1,0 +1,1058 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>AvecLesFemmes · Proposition de charte</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: #f1f4f0;
+        color: #182b25;
+        font:
+          16px/1.5 'DM Sans',
+          system-ui,
+          sans-serif;
+      }
+      button,
+      select {
+        font: inherit;
+      }
+      button {
+        cursor: pointer;
+      }
+      button:focus-visible,
+      select:focus-visible,
+      a:focus-visible {
+        outline: 3px solid #175cd3;
+        outline-offset: 4px;
+      }
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
+      }
+      button svg,
+      span svg,
+      a svg {
+        width: 22px;
+        height: 22px;
+        flex-shrink: 0;
+      }
+      svg {
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 1.8;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      header,
+      .workspace,
+      footer {
+        max-width: 1120px;
+        margin: auto;
+        padding: 32px;
+      }
+      header {
+        padding-bottom: 24px;
+      }
+      .eyebrow {
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #53665d;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .eyebrow:before {
+        content: '';
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #155d50;
+      }
+      h1 {
+        font-size: clamp(26px, 4vw, 38px);
+        line-height: 1.2;
+        letter-spacing: -1px;
+        margin: 16px 0 12px;
+      }
+      header p {
+        color: #53665d;
+        max-width: 700px;
+      }
+      .toolbar {
+        display: flex;
+        align-items: end;
+        flex-wrap: wrap;
+        gap: 20px;
+        margin-top: 26px;
+      }
+      .field {
+        display: grid;
+        gap: 7px;
+        font-size: 12px;
+        font-weight: 600;
+      }
+      .field select {
+        color: #182b25;
+        min-height: 44px;
+        padding: 8px 36px 8px 12px;
+        background: white;
+        border: 1px solid #83978b;
+        border-radius: 10px;
+      }
+      .segment {
+        display: flex;
+        padding: 4px;
+        background: #e3ebe5;
+        border-radius: 12px;
+        gap: 4px;
+      }
+      .segment button {
+        border: 0;
+        background: transparent;
+        border-radius: 9px;
+        min-height: 38px;
+        padding: 6px 16px;
+        color: #334d40;
+        font-size: 14px;
+        font-weight: 600;
+      }
+      .segment button[aria-pressed='true'] {
+        background: #155d50;
+        color: white;
+      }
+      .workspace {
+        padding-top: 8px;
+      }
+      .comparison {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 44px;
+        align-items: start;
+      }
+      .column {
+        min-width: 0;
+      }
+      .column-label {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 14px;
+      }
+      .column-label h2 {
+        font-size: 18px;
+      }
+      .pill {
+        font-size: 12px;
+        border-radius: 7px;
+        padding: 4px 8px;
+        background: #e2ebe6;
+        color: #334d40;
+      }
+      .current {
+        display: block;
+        width: 100%;
+        max-width: 390px;
+        margin: auto;
+        border-radius: 24px;
+        border: 1px solid #c4d2c9;
+      }
+      .phone {
+        --page: #f6f8f7;
+        --surface: #fff;
+        --soft: #edf3ef;
+        --text: #182b25;
+        --muted: #53665d;
+        --border: #d7e2db;
+        --brand: #155d50;
+        --brand-ink: #155d50;
+        --success: #16714a;
+        --success-bg: #e9f5ee;
+        --danger: #b42332;
+        --danger-bg: #fff0f1;
+        --type: #197647;
+        --ink: #197647;
+        --tint: #edf7f1;
+        --savings: #197647;
+        --tontine: #6d3fc0;
+        --solidarity: #a85d12;
+        background: var(--page);
+        color: var(--text);
+        border: 1px solid #c4d2c9;
+        border-radius: 24px;
+        overflow: hidden;
+        max-width: 390px;
+        margin: auto;
+        font-size: 16px;
+        line-height: 1.5;
+      }
+      .phone.dark {
+        --page: #101a16;
+        --surface: #182620;
+        --soft: #21362c;
+        --text: #eff6f1;
+        --muted: #b8cbc0;
+        --border: #3c5347;
+        --brand-ink: #8bd9bd;
+        --success: #8fdfb0;
+        --success-bg: #213b2d;
+        --danger: #ffb3ba;
+        --danger-bg: #3d242a;
+        --savings: #8fdfb0;
+        --tontine: #d0b2ff;
+        --solidarity: #f3c17d;
+      }
+      .phone[data-type='tontine'] {
+        --type: #6d3fc0;
+        --ink: #6d3fc0;
+        --tint: #f4effb;
+      }
+      .phone[data-type='solidarity'] {
+        --type: #a85d12;
+        --ink: #a85d12;
+        --tint: #fcf3e8;
+      }
+      .phone.dark[data-type='savings'] {
+        --ink: #8fdfb0;
+        --tint: #20362b;
+      }
+      .phone.dark[data-type='tontine'] {
+        --ink: #d0b2ff;
+        --tint: #30243e;
+      }
+      .phone.dark[data-type='solidarity'] {
+        --ink: #f3c17d;
+        --tint: #3a2e20;
+      }
+      .phone button {
+        color: inherit;
+      }
+      .appbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--border);
+        background: var(--surface);
+        color: var(--brand-ink);
+        font-size: 14px;
+        font-weight: 700;
+      }
+      .wordmark {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+      .network {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 500;
+      }
+      .network i {
+        background: var(--success);
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+      }
+      .main {
+        padding: 20px;
+      }
+      .main > h2 {
+        font-size: 24px;
+        line-height: 1.25;
+        letter-spacing: -0.5px;
+        margin-bottom: 16px;
+      }
+      .identity {
+        padding: 16px;
+        background: var(--brand);
+        color: #fff;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .identity div {
+        flex: 1;
+        min-width: 0;
+      }
+      .identity strong {
+        font-size: 16px;
+        line-height: 1.4;
+        display: block;
+      }
+      .identity p {
+        font-size: 14px;
+        margin-top: 6px;
+        color: #e1f2e9;
+      }
+      .identity .qr {
+        width: 46px;
+        height: 46px;
+        display: grid;
+        place-items: center;
+        border-radius: 12px;
+        background: #ffffff1f;
+        flex-shrink: 0;
+      }
+      .identity .qr svg {
+        width: 28px;
+        height: 28px;
+      }
+      .shortcuts {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 8px;
+        margin: 20px 0;
+      }
+      .shortcut {
+        display: grid;
+        justify-items: center;
+        text-align: center;
+        gap: 5px;
+        min-width: 0;
+        font-size: 12px;
+        font-weight: 600;
+      }
+      .shortcut .symbol {
+        width: 48px;
+        height: 48px;
+        display: grid;
+        place-items: center;
+        border-radius: 16px;
+        background: var(--soft);
+        color: var(--muted);
+        position: relative;
+      }
+      .shortcut.selected .symbol {
+        background: var(--tint);
+        color: var(--ink);
+        outline: 2px solid var(--ink);
+        outline-offset: 2px;
+      }
+      .shortcut .symbol.savings {
+        color: var(--savings);
+      }
+      .shortcut .symbol.tontine {
+        color: var(--tontine);
+      }
+      .shortcut .symbol.solidarity {
+        color: var(--solidarity);
+      }
+      .badge {
+        position: absolute;
+        right: -6px;
+        top: -6px;
+        min-width: 20px;
+        border-radius: 10px;
+        padding: 0 5px;
+        background: var(--danger);
+        color: var(--page);
+        font-size: 12px;
+      }
+      .phone:not(.dark) .badge {
+        color: #fff;
+      }
+      .day {
+        padding: 18px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+      }
+      .type-label {
+        font-size: 12px;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--ink);
+      }
+      .type-label:before {
+        content: '';
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--ink);
+      }
+      .day h3 {
+        font-size: 20px;
+        line-height: 1.35;
+        margin: 8px 0 10px;
+        letter-spacing: -0.25px;
+      }
+      .period {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+      .state {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 3px 7px;
+        border-radius: 8px;
+        background: var(--success-bg);
+        color: var(--success);
+        font-size: 12px;
+        font-weight: 600;
+      }
+      .state svg {
+        width: 14px;
+        height: 14px;
+      }
+      .stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin: 20px 0;
+      }
+      .stats.three {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+      }
+      .metric span {
+        display: block;
+        font-size: 14px;
+        color: var(--muted);
+        margin-bottom: 5px;
+      }
+      .metric strong {
+        font-size: 20px;
+        line-height: 1.25;
+        letter-spacing: -0.3px;
+        font-variant-numeric: tabular-nums;
+      }
+      .metric small {
+        font-size: 12px;
+        font-weight: 500;
+      }
+      .stats.three .metric span {
+        font-size: 12px;
+      }
+      .stats.three .metric strong {
+        font-size: 18px;
+      }
+      .personal-total {
+        margin: 20px 0;
+      }
+      .personal-total span {
+        display: block;
+        color: var(--muted);
+        font-size: 14px;
+      }
+      .personal-total strong {
+        display: block;
+        font-size: 32px;
+        line-height: 1.15;
+        margin-top: 8px;
+        letter-spacing: -0.5px;
+        font-variant-numeric: tabular-nums;
+      }
+      .personal-total strong small {
+        font-size: 16px;
+        font-weight: 500;
+      }
+      .main-action {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+        background: var(--type);
+        color: #fff !important;
+        border-radius: 12px;
+        min-height: 50px;
+        padding: 12px 14px;
+        font-size: 16px;
+        font-weight: 600;
+      }
+      .main-action svg {
+        width: 20px;
+        height: 20px;
+      }
+      .context {
+        margin-top: 10px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+      .list-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin: 24px 0 12px;
+      }
+      .list-title h3 {
+        font-size: 20px;
+        line-height: 1.35;
+      }
+      .list-title span {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .rows {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        overflow: hidden;
+      }
+      .transaction {
+        padding: 16px;
+        border-bottom: 1px solid var(--border);
+      }
+      .transaction:last-child {
+        border-bottom: 0;
+      }
+      .transaction > div {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 10px;
+      }
+      .transaction strong {
+        font-weight: 600;
+        font-size: 16px;
+      }
+      .transaction .amount {
+        white-space: nowrap;
+        font-variant-numeric: tabular-nums;
+      }
+      .transaction p {
+        font-size: 14px;
+        color: var(--muted);
+        margin-top: 5px;
+      }
+      .transaction .meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 6px;
+        color: var(--muted);
+        font-size: 12px;
+        margin-top: 7px;
+      }
+      .unpaid {
+        color: var(--danger);
+        font-weight: 600;
+      }
+      .mock-link {
+        color: var(--brand-ink);
+        font-weight: 600;
+        font-size: 14px;
+        margin: 12px 0 0;
+        display: block;
+      }
+      .bottom {
+        border-top: 1px solid var(--border);
+        background: var(--surface);
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        padding: 10px 8px 14px;
+        gap: 4px;
+      }
+      .bottom div {
+        display: grid;
+        justify-items: center;
+        gap: 4px;
+        font-size: 12px;
+        color: var(--muted);
+        padding: 8px 0;
+        border-radius: 12px;
+      }
+      .bottom div.active {
+        color: var(--brand-ink);
+        background: var(--soft);
+        font-weight: 600;
+      }
+      .bottom svg {
+        width: 22px;
+        height: 22px;
+      }
+      .note {
+        font-size: 12px;
+        color: #53665d;
+        margin-top: 12px;
+      }
+      .foundations {
+        margin-top: 44px;
+        padding-top: 28px;
+        border-top: 1px solid #c4d2c9;
+      }
+      .foundations h2 {
+        font-size: 24px;
+        letter-spacing: -0.5px;
+      }
+      .foundations > p {
+        margin: 8px 0 24px;
+        color: #53665d;
+      }
+      .swatches {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+      }
+      .swatch {
+        padding: 18px;
+        border-radius: 14px;
+        background: var(--swatch);
+        color: #fff;
+        min-height: 110px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+      .swatch strong {
+        font-size: 16px;
+      }
+      .swatch code {
+        font-size: 12px;
+        color: #fff;
+      }
+      .rules {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 24px;
+        margin-top: 28px;
+      }
+      .rule {
+        border-top: 2px solid #a8beb0;
+        padding-top: 16px;
+      }
+      .rule small {
+        color: #53665d;
+        font-size: 12px;
+      }
+      .rule h3 {
+        font-size: 18px;
+        margin: 6px 0;
+      }
+      .rule p {
+        font-size: 14px;
+        color: #53665d;
+      }
+      .footnote {
+        color: #53665d;
+        font-size: 12px;
+        margin-top: 24px;
+      }
+      footer {
+        display: flex;
+        gap: 20px;
+        align-items: center;
+        flex-wrap: wrap;
+        border-top: 1px solid #c4d2c9;
+        font-size: 14px;
+        color: #53665d;
+      }
+      a {
+        color: #155d50;
+        font-weight: 600;
+      }
+      .phone [hidden] {
+        display: none !important;
+      }
+      @media (max-width: 760px) {
+        header,
+        .workspace,
+        footer {
+          padding: 24px 16px;
+        }
+        .comparison {
+          grid-template-columns: 1fr;
+          gap: 28px;
+        }
+        .column-label {
+          max-width: 390px;
+          margin: 0 auto 12px;
+        }
+        .swatches {
+          grid-template-columns: 1fr 1fr;
+        }
+        .rules {
+          grid-template-columns: 1fr;
+        }
+        .toolbar {
+          gap: 14px;
+        }
+        .field select {
+          max-width: 100%;
+        }
+        .main {
+          padding: 16px;
+        }
+        .metric strong {
+          font-size: 18px;
+        }
+        .stats.three .metric strong {
+          font-size: 16px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <svg aria-hidden="true" style="position: absolute; width: 0; height: 0; overflow: hidden">
+      <defs>
+        <symbol id="leaf" viewBox="0 0 24 24">
+          <path d="M20 4C10 2 3 7 5 15c2 7 15 5 15-11Z" />
+          <path d="M4 21 16 9" />
+        </symbol>
+        <symbol id="users" viewBox="0 0 24 24">
+          <circle cx="9" cy="7" r="3" />
+          <path d="M2 21v-3a7 7 0 0 1 14 0v3M17 4a3 3 0 0 1 0 6M22 21v-3a7 7 0 0 0-4-6" />
+        </symbol>
+        <symbol id="history" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="9" />
+          <path d="M12 6v6l4 2" />
+        </symbol>
+        <symbol id="plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" /></symbol>
+        <symbol id="qr" viewBox="0 0 24 24">
+          <path
+            d="M3 3h6v6H3zM15 3h6v6h-6zM3 15h6v6H3zM15 15h2v2h-2zM20 14v4h-2v3M12 3v3M12 9v3H8M3 12h3M12 16v5M21 21h-1"
+          />
+        </symbol>
+        <symbol id="check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6" /></symbol>
+        <symbol id="arrow" viewBox="0 0 24 24"><path d="M4 12h16m-6-6 6 6-6 6" /></symbol>
+        <symbol id="home" viewBox="0 0 24 24">
+          <rect x="3" y="3" width="7" height="7" rx="1" />
+          <rect x="14" y="3" width="7" height="7" rx="1" />
+          <rect x="3" y="14" width="7" height="7" rx="1" />
+          <rect x="14" y="14" width="7" height="7" rx="1" />
+        </symbol>
+        <symbol id="folder" viewBox="0 0 24 24">
+          <path d="M21 9V6H11L9 3H3v17h8M16 14c-4-4-7 2 1 6 8-4 5-10 1-6Z" />
+        </symbol>
+        <symbol id="settings" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="3" />
+          <path d="m9 3-1 3-3 1-2 3 2 2-1 3 3 3 3-1 2 2 3-2 3 1 3-3-1-3 2-2-2-3-3-1-1-3Z" />
+        </symbol>
+      </defs>
+    </svg>
+    <header>
+      <div class="eyebrow">AvecLesFemmes · Étude graphique · 23 octobre 2026</div>
+      <h1>Proposition de charte PWA</h1>
+      <p>
+        Conserver l’identité verte et l’accueil « Action du jour ». Donner plus de place aux textes
+        utiles, aux montants et aux états de chaque opération.
+      </p>
+      <div class="toolbar">
+        <div class="field">
+          <span id="mode-label">Apparence</span>
+          <div class="segment" role="group" aria-labelledby="mode-label">
+            <button type="button" data-theme="light" aria-pressed="true">Clair</button
+            ><button type="button" data-theme="dark" aria-pressed="false">Sombre</button>
+          </div>
+        </div>
+        <label class="field"
+          >Profil<select id="profile">
+            <option value="admin.ndeye">Admin groupement</option>
+            <option value="membre.awa">Membre</option>
+          </select></label
+        >
+        <label class="field"
+          >Type dans la proposition<select id="campaign">
+            <option value="savings">Épargne</option>
+            <option value="tontine">Tontine</option>
+            <option value="solidarity">Solidarité</option>
+          </select></label
+        >
+      </div>
+      <p style="margin-top: 20px">
+        <strong>Intégrée en local · version 0.25.0.</strong>
+        <a href="http://localhost:8086/">Ouvrir la PWA mise à jour →</a>
+      </p>
+    </header>
+    <main class="workspace">
+      <div class="comparison">
+        <section class="column" aria-label="Charte actuelle">
+          <div class="column-label">
+            <h2>Actuel</h2>
+            <span class="pill">Capture locale · 0.24.0</span>
+          </div>
+          <img
+            id="current"
+            class="current"
+            src="admin.ndeye-light-apercu.png"
+            alt="Accueil actuel de la responsable, thème clair"
+            width="390"
+            height="844"
+          />
+          <p class="note">
+            Capture de l’accueil à 390 px. Les campagnes et états dépendent des données locales ; le
+            choix de type à droite ne modifie pas cette capture.
+          </p>
+        </section>
+        <section class="column" aria-label="Charte proposée">
+          <div class="column-label">
+            <h2>Proposition</h2>
+            <span class="pill">Données fictives</span>
+          </div>
+          <div class="phone" id="phone" data-type="savings">
+            <div class="appbar">
+              <span class="wordmark"
+                ><svg><use href="#leaf" /></svg>AvecLesFemmes</span
+              ><span class="network"><i></i>En ligne</span>
+            </div>
+            <div class="main">
+              <h2>Mon groupement</h2>
+              <div class="identity">
+                <div>
+                  <strong>Les Femmes de Grand Yoff</strong>
+                  <p id="person">Ndèye Diop · responsable</p>
+                </div>
+                <span class="qr" role="img" aria-label="Accès à la carte QR"
+                  ><svg><use href="#qr" /></svg
+                ></span>
+              </div>
+              <div class="shortcuts" aria-label="Exemple de raccourcis">
+                <div class="shortcut selected" id="type-shortcut">
+                  <span class="symbol"
+                    ><svg><use id="type-symbol" href="#leaf" /></svg
+                    ><span class="badge" id="badge" hidden>2</span></span
+                  ><span id="shortcut-label">Épargne</span>
+                </div>
+                <div class="shortcut">
+                  <span class="symbol tontine"
+                    ><svg><use href="#users" /></svg></span
+                  ><span id="other-shortcut">Tontine</span>
+                </div>
+                <div class="shortcut">
+                  <span class="symbol"
+                    ><svg><use href="#history" /></svg></span
+                  ><span>Historique</span>
+                </div>
+                <div class="shortcut">
+                  <span class="symbol"
+                    ><svg><use href="#plus" /></svg></span
+                  ><span>Plus</span>
+                </div>
+              </div>
+              <section class="day" aria-label="Exemple Action du jour">
+                <span class="type-label" id="type-label">Avec Épargne</span>
+                <h3 id="campaign-title">Épargne solidaire 2026</h3>
+                <div class="period">
+                  <span class="state"
+                    ><svg><use href="#check" /></svg><span id="state">Séance ouverte</span></span
+                  ><span id="period">23 octobre 2026</span>
+                </div>
+                <div class="stats" id="stats">
+                  <div class="metric">
+                    <span>Total disponible</span><strong>123 500 <small>FCFA</small></strong>
+                  </div>
+                  <div class="metric">
+                    <span>Total collecté</span><strong>148 500 <small>FCFA</small></strong>
+                  </div>
+                </div>
+                <div class="personal-total" id="personal-total" hidden>
+                  <span>Mon montant collecté</span><strong>25 000 <small>FCFA</small></strong>
+                </div>
+                <div class="main-action">
+                  <svg><use href="#qr" /></svg><span id="action">Encaisser l’épargne</span
+                  ><svg><use href="#arrow" /></svg>
+                </div>
+                <p class="context" id="context">12 membres ont cotisé aujourd’hui.</p>
+              </section>
+              <div class="list-title">
+                <h3 id="list-title">Cahiers de séance</h3>
+                <span>Les plus récents</span>
+              </div>
+              <div class="rows" id="rows"></div>
+              <span class="mock-link">Voir plus →</span>
+            </div>
+            <nav class="bottom" aria-label="Aperçu de navigation">
+              <div class="active">
+                <svg><use href="#home" /></svg>Accueil
+              </div>
+              <div>
+                <svg><use href="#folder" /></svg>Campagnes
+              </div>
+              <div>
+                <svg><use id="third-icon" href="#users" /></svg
+                ><span id="third-label">Membres</span>
+              </div>
+              <div>
+                <svg><use href="#settings" /></svg><span id="fourth-label">Plus</span>
+              </div>
+            </nav>
+          </div>
+          <p class="note">
+            Maquette de charte : les raccourcis et actions du téléphone sont illustratifs. Les
+            commandes au-dessus permettent de comparer les profils, types et thèmes.
+          </p>
+        </section>
+      </div>
+      <section class="foundations">
+        <h2>Une couleur, un rôle explicite</h2>
+        <p>
+          Les couleurs de type restent paramétrables. Les états succès, erreur et attente gardent
+          leurs propres règles et leurs libellés.
+        </p>
+        <div class="swatches">
+          <div class="swatch" style="--swatch: #155d50">
+            <strong>Identité</strong><code>#155D50 · 7,74:1*</code>
+          </div>
+          <div class="swatch" style="--swatch: #197647">
+            <strong>Épargne</strong><code>#197647 · 5,64:1*</code>
+          </div>
+          <div class="swatch" style="--swatch: #6d3fc0">
+            <strong>Tontine</strong><code>#6D3FC0 · 6,73:1*</code>
+          </div>
+          <div class="swatch" style="--swatch: #a85d12">
+            <strong>Solidarité</strong><code>#A85D12 · 4,95:1*</code>
+          </div>
+        </div>
+        <p class="footnote">
+          * Contraste avec un texte blanc sur le fond plein. Les variantes d’encre sombre et les
+          surfaces sont distinctes ; voir le rapport.
+        </p>
+        <div class="rules">
+          <div class="rule">
+            <small>01 · Typographie</small>
+            <h3>Une famille : DM Sans</h3>
+            <p>
+              Corps 16 px · secondaire 14 px · navigation 12 px. Quatre graisses, titres 20/24 px et
+              montant principal 32 px.
+            </p>
+          </div>
+          <div class="rule">
+            <small>02 · Surfaces</small>
+            <h3>Des cartes plus calmes</h3>
+            <p>
+              Fond neutre, un contour utile et une couleur concentrée sur le type ou l’action.
+              Arrondis de 16 px sur les cartes et 12 px sur les boutons.
+            </p>
+          </div>
+          <div class="rule">
+            <small>03 · Lisibilité</small>
+            <h3>Le montant avant le décor</h3>
+            <p>
+              Chiffres tabulaires, unité FCFA et espaces insécables. Couleur accompagnée d’un texte
+              ou d’une icône pour les états importants.
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+    <footer>
+      <a href="AUDIT-CHARTE.md">Lire l’audit et le plan de correction</a
+      ><span>Proposition graphique uniquement · aucune opération réelle</span
+      ><span>Police distante dans cet aperçu ; auto-hébergement recommandé pour la PWA.</span>
+    </footer>
+    <script>
+      const el = (id) => document.getElementById(id);
+      let theme = 'light';
+      const data = {
+        savings: {
+          label: 'Épargne',
+          type: 'Avec Épargne',
+          title: 'Épargne solidaire 2026',
+          icon: 'leaf',
+          state: 'Séance ouverte',
+        },
+        tontine: {
+          label: 'Tontine',
+          type: 'Tontine rotative',
+          title: 'Tontine des projets',
+          icon: 'users',
+          state: 'Tour lancé',
+        },
+        solidarity: {
+          label: 'Solidarité',
+          type: 'Solidarité',
+          title: 'Fonds de solidarité',
+          icon: 'folder',
+          state: 'Campagne active',
+        },
+      };
+      function update() {
+        const member = el('profile').value === 'membre.awa',
+          type = el('campaign').value,
+          d = data[type],
+          phone = el('phone');
+        phone.classList.toggle('dark', theme === 'dark');
+        phone.dataset.type = type;
+        el('current').src = `${el('profile').value}-${theme}-apercu.png`;
+        el('current').alt =
+          `Accueil actuel ${member ? 'membre' : 'responsable'}, thème ${theme === 'light' ? 'clair' : 'sombre'}`;
+        el('person').textContent = member ? 'Awa Fall · membre' : 'Ndèye Diop · responsable';
+        el('badge').hidden = !member;
+        el('type-symbol').setAttribute('href', '#' + d.icon);
+        el('shortcut-label').textContent = d.label;
+        el('other-shortcut').textContent = type === 'tontine' ? 'Épargne' : 'Tontine';
+        const other = el('other-shortcut').previousElementSibling;
+        other.className = 'symbol ' + (type === 'tontine' ? 'savings' : 'tontine');
+        other.querySelector('use').setAttribute('href', type === 'tontine' ? '#leaf' : '#users');
+        el('type-label').textContent = d.type;
+        el('campaign-title').textContent = d.title;
+        el('state').textContent = d.state;
+        el('period').textContent = type === 'tontine' ? 'Tour 4 · 23 octobre' : '23 octobre 2026';
+        el('stats').hidden = member;
+        el('personal-total').hidden = !member;
+        el('personal-total').querySelector('span').textContent =
+          type === 'tontine' ? 'Mon montant versé dans cette tontine' : 'Mon montant collecté';
+        el('stats').classList.toggle('three', type === 'tontine');
+        el('stats').innerHTML =
+          type === 'tontine'
+            ? '<div class="metric"><span>Par membre</span><strong>5 000 <small>FCFA</small></strong></div><div class="metric"><span>Encaissé</span><strong>80 000 <small>FCFA</small></strong></div><div class="metric"><span>Reversé</span><strong>60 000 <small>FCFA</small></strong></div>'
+            : '<div class="metric"><span>Total disponible</span><strong>123 500 <small>FCFA</small></strong></div><div class="metric"><span>Total collecté</span><strong>148 500 <small>FCFA</small></strong></div>';
+        el('action').textContent = member
+          ? 'Faire un versement'
+          : type === 'savings'
+            ? 'Encaisser l’épargne'
+            : 'Encaisser une membre';
+        el('context').textContent =
+          type === 'tontine'
+            ? 'Bénéficiaire désignée : Mariama Bâ.'
+            : member
+              ? 'Vous pouvez verser pour la période ouverte.'
+              : '12 membres ont cotisé aujourd’hui.';
+        el('list-title').textContent = member
+          ? 'Mes derniers versements'
+          : type === 'tontine'
+            ? 'Derniers tours'
+            : 'Cahiers de séance';
+        el('rows').innerHTML = [0, 1]
+          .map((i) =>
+            member
+              ? `<article class="transaction"><div><strong>${i ? '16' : '23'} oct. 2026</strong><strong class="amount">5 000 FCFA</strong></div><p>${type === 'tontine' ? 'Tour ' + (4 - i) : 'Séance du ' + (i ? '16' : '23') + ' octobre'}</p><div class="meta"><span>✓ Versement enregistré</span><span>Réf. DEMO-${i + 1}</span></div></article>`
+              : `<article class="transaction"><div><strong>${type === 'tontine' ? 'Tour ' + (3 - i) : 'Séance du ' + (i ? '9' : '16') + ' oct.'}</strong><svg style="width:18px;height:18px;color:var(--ink)"><use href="#arrow"/></svg></div><p>${type === 'tontine' ? 'Bénéficiaire : ' + (i ? 'Awa Fall' : 'Mariama Bâ') : 'Versé : 20 000 FCFA'}</p><div class="meta"><span>${type === 'tontine' ? '✓ Reversement effectué' : '10 cotisées'}</span>${type === 'tontine' ? '' : '<span class="unpaid">2 non cotisées</span>'}</div></article>`,
+          )
+          .join('');
+        el('third-label').textContent = member ? 'Versements' : 'Membres';
+        el('third-icon').setAttribute('href', member ? '#history' : '#users');
+        el('fourth-label').textContent = member ? 'Compte' : 'Plus';
+      }
+      document.querySelectorAll('[data-theme]').forEach((button) =>
+        button.addEventListener('click', () => {
+          theme = button.dataset.theme;
+          document
+            .querySelectorAll('[data-theme]')
+            .forEach((b) => b.setAttribute('aria-pressed', String(b === button)));
+          update();
+        }),
+      );
+      el('profile').addEventListener('change', update);
+      el('campaign').addEventListener('change', update);
+      update();
+    </script>
+  </body>
+</html>

@@ -127,19 +127,53 @@ export class GroupementsService {
     return this.db.run(actor, async (c) => {
       await requireGroup(c, groupId);
       const personal = page.scope === 'personal';
+      const search = (page.q || '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .trim();
       const count = await c.query(
-        'SELECT count(*) FROM memberships WHERE group_id=$1 AND (NOT $2::boolean OR app_owns_membership(id))',
-        [groupId, personal],
+        `SELECT count(*) FROM memberships WHERE group_id=$1 AND (NOT $2::boolean OR app_owns_membership(id)) AND (strpos(translate(lower(name),'àâäéèêëîïôöùûüç','aaaeeeeiioouuuc'),$3)>0 OR strpos(coalesce(phone,''),$3)>0)`,
+        [groupId, personal, search],
       );
       const r = await c.query(
         `SELECT m.id,m.name,m.phone,m.role,m.active,m.address,m.gender,m.function_id,f.name function_name,m.is_blocked
          FROM memberships m
          LEFT JOIN group_functions f ON f.id=m.function_id
-         WHERE m.group_id=$1 AND (NOT $4::boolean OR app_owns_membership(m.id))
+         WHERE m.group_id=$1 AND (NOT $4::boolean OR app_owns_membership(m.id)) AND (strpos(translate(lower(m.name),'àâäéèêëîïôöùûüç','aaaeeeeiioouuuc'),$5)>0 OR strpos(coalesce(m.phone,''),$5)>0)
          ORDER BY m.created_at DESC,m.id LIMIT $2 OFFSET $3`,
-        [groupId, page.limit, (page.page - 1) * page.limit, personal],
+        [groupId, page.limit, (page.page - 1) * page.limit, personal, search],
       );
-      return { items: r.rows, total: Number(count.rows[0].count) };
+      const campaigns = r.rows.length
+        ? await c.query(
+            `
+        SELECT p.membership_id,x.id campaign_id,x.name,t.name type_name,t.code type_code,x.active,
+          coalesce(sum(cb.amount),0)::text paid_amount
+        FROM participations p JOIN campaigns x ON x.id=p.campaign_id JOIN campaign_types t ON t.id=x.type_id
+        LEFT JOIN contributions cb ON cb.participation_id=p.id AND cb.voided_at IS NULL
+        WHERE p.group_id=$1 AND p.membership_id=ANY($2::uuid[])
+        GROUP BY p.membership_id,x.id,x.name,t.name,t.code,x.active,x.created_at
+        ORDER BY x.active DESC,x.created_at DESC,x.id`,
+            [groupId, r.rows.map((m: any) => m.id)],
+          )
+        : { rows: [] };
+      return {
+        items: r.rows.map((m: any) => ({
+          ...m,
+          campaigns: campaigns.rows
+            .filter((p: any) => p.membership_id === m.id)
+            .map(({ membership_id, ...entry }: any) => ({
+              ...entry,
+              is_savings: /avec|epargne/.test(
+                `${entry.type_code} ${entry.type_name}`
+                  .normalize('NFD')
+                  .replace(/[\u0300-\u036f]/g, '')
+                  .toLowerCase(),
+              ),
+            })),
+        })),
+        total: Number(count.rows[0].count),
+      };
     });
   }
 
@@ -167,21 +201,19 @@ export class GroupementsService {
       }
 
       let userId: string | null = null;
-      const credential = input.pin || input.password;
+      const credential = input.password;
       const login = input.login || input.phone;
 
       if (credential) {
         userId = randomUUID();
         const userLogin = login || `membre.${userId.slice(0, 8)}`;
         await c.query(
-          'INSERT INTO app_users(id,login,name,phone,password_hash) VALUES($1,$2,$3,$4,$5)',
-          [userId, userLogin, input.name, input.phone || null, hashPassword(credential)],
+          'INSERT INTO app_users(id,login,name,phone,password_hash,secret_code_hash) VALUES($1,$2,$3,$4,$5,$6)',
+          [userId, userLogin, input.name, input.phone || null, hashPassword(credential), null],
         );
       } else if (input.login) {
-        userId = randomUUID();
-        await c.query(
-          'INSERT INTO app_users(id,login,name,phone,password_hash) VALUES($1,$2,$3,$4,$5)',
-          [userId, input.login, input.name, input.phone || null, null],
+        throw new BadRequestException(
+          'Un mot de passe initial d’au moins douze caractères est requis pour créer un accès.',
         );
       }
 
@@ -295,34 +327,33 @@ export class GroupementsService {
     });
   }
 
-  resetPin(actor: Actor, groupId: string, memberId: string, input: ResetPinDto) {
+  resetPin(actor: Actor, groupId: string, memberId: string, _input: ResetPinDto) {
+    requireSuper(actor);
     return this.db.run(actor, async (c) => {
       await requireGroup(c, groupId, true);
       const m = await c.query('SELECT * FROM memberships WHERE id=$1 AND group_id=$2', [
         memberId,
         groupId,
       ]);
-      if (!m.rows[0]) throw new NotFoundException('Membre introuvable.');
-
       const member = m.rows[0];
-      const newHash = hashPassword(input.pin);
-
-      if (member.user_id) {
-        await c.query(
-          'UPDATE app_users SET password_hash=$1, failed_attempts=0, locked_until=NULL WHERE id=$2',
-          [newHash, member.user_id],
+      if (!member) throw new NotFoundException('Membre introuvable.');
+      if (!member.user_id)
+        throw new BadRequestException(
+          'Ce membre ne possède pas de compte. Créez son accès séparément.',
         );
-      } else {
-        const userId = randomUUID();
-        const login = member.phone || `membre.${memberId.slice(0, 8)}`;
-        await c.query(
-          'INSERT INTO app_users(id,login,name,phone,password_hash) VALUES($1,$2,$3,$4,$5)',
-          [userId, login, member.name, member.phone, newHash],
-        );
-        await c.query('UPDATE memberships SET user_id=$1 WHERE id=$2', [userId, memberId]);
-      }
-
-      await audit(c, actor, groupId, 'MEMBER_PIN_RESET', memberId);
+      const target = await c.query('SELECT is_super FROM app_users WHERE id=$1 FOR UPDATE', [
+        member.user_id,
+      ]);
+      if (target.rows[0]?.is_super)
+        throw new ForbiddenException('Utilisez la récupération du compte Super Admin.');
+      // Recovery never installs a credential chosen by another person.
+      await c.query(
+        'UPDATE app_users SET secret_code_hash=NULL,failed_attempts=0,locked_until=NULL WHERE id=$1',
+        [member.user_id],
+      );
+      await c.query('DELETE FROM sessions WHERE user_id=$1', [member.user_id]);
+      await c.query('DELETE FROM trusted_devices WHERE user_id=$1', [member.user_id]);
+      await audit(c, actor, groupId, 'MEMBER_CODE_REVOKED', memberId);
       return { id: memberId, pinReset: true };
     });
   }
