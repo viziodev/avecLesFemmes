@@ -1,5 +1,5 @@
 import { expectEncryptedVault } from './vault-assertions';
-import { test, expect } from './fixtures';
+import { test, expect, testCode } from './fixtures';
 import { mockSpace, unlockMockSpace } from './pwa-space';
 import { config } from 'dotenv';
 config({ path: '.env', quiet: true });
@@ -20,20 +20,18 @@ test('réponse 502 incertaine : conservation chiffrée, abandon protégé et rep
   await page.getByRole('button', { name: 'Faire un versement', exact: true }).click();
   await page.getByRole('button', { name: 'Vérifier mon versement', exact: true }).click();
   await page.getByRole('button', { name: 'Confirmer mon versement', exact: true }).click();
-  const confirm = page.getByRole('dialog', { name: 'Confirmer avec mon mot de passe' });
-  await confirm.getByLabel('Mot de passe de confirmation').fill(password);
+  const confirm = page.getByRole('dialog', { name: 'Confirmer avec mon code secret' });
+  await confirm.getByLabel('Code secret de confirmation').fill(testCode);
   await confirm.getByRole('button', { name: 'Confirmer l’opération' }).click();
   await expect(page.getByRole('alert').filter({ hasText: 'Saisie conservée' })).toBeVisible();
   await page.getByRole('dialog').getByRole('button', { name: 'Fermer', exact: true }).click();
   await page.getByRole('button', { name: /1 saisie\(s\) en attente/ }).click();
   await page.getByRole('button', { name: 'Abandonner cette saisie locale' }).click();
-  await confirm
-    .getByLabel('Mot de passe de confirmation')
-    .fill('Incorrect-password-for-this-vault');
+  await confirm.getByLabel('Code secret de confirmation').fill('Incorrect-password-for-this-vault');
   await confirm.getByRole('button', { name: 'Confirmer l’opération' }).click();
   await expect(page.getByRole('alert')).toContainText('incorrect');
   await page.getByRole('button', { name: 'Abandonner cette saisie locale' }).click();
-  await confirm.getByLabel('Mot de passe de confirmation').fill(password);
+  await confirm.getByLabel('Code secret de confirmation').fill(testCode);
   await confirm.getByRole('button', { name: 'Confirmer l’opération' }).click();
   await expect(page.getByText('Aucune saisie en attente.')).toBeVisible();
   await page.getByRole('dialog').getByRole('button', { name: 'Fermer', exact: true }).click();
@@ -95,7 +93,7 @@ test('confirmation sensible : annulation sans envoi, mot de passe transmis uniqu
   await page.getByRole('button', { name: 'Vérifier mon versement', exact: true }).click();
   await page.getByRole('button', { name: 'Confirmer mon versement', exact: true }).click();
   const confirm = page.getByRole('dialog', {
-    name: 'Confirmer avec mon mot de passe',
+    name: 'Confirmer avec mon code secret',
     exact: true,
   });
   await expect(confirm).toBeVisible();
@@ -103,7 +101,7 @@ test('confirmation sensible : annulation sans envoi, mot de passe transmis uniqu
   await confirm.getByRole('button', { name: 'Annuler', exact: true }).click();
   expect(writes).toBe(0);
   await page.getByRole('button', { name: 'Confirmer mon versement', exact: true }).click();
-  await confirm.getByLabel('Mot de passe de confirmation').fill(password);
+  await confirm.getByLabel('Code secret de confirmation').fill(testCode);
   await confirm.getByRole('button', { name: 'Confirmer l’opération', exact: true }).click();
   await expect(page.getByRole('dialog', { name: 'Versement confirmé' })).toContainText(
     'TEST-SENSITIVE',
@@ -139,8 +137,8 @@ test('responsable : palette du groupement avec aperçu et confirmation, membre s
   await colors.getByLabel('Couleur principale', { exact: true }).fill('#0044cc');
   expect(writes).toBe(0);
   await colors.getByRole('button', { name: 'Enregistrer les couleurs' }).click();
-  const confirm = page.getByRole('dialog', { name: 'Confirmer avec mon mot de passe' });
-  await confirm.getByLabel('Mot de passe de confirmation').fill(password);
+  const confirm = page.getByRole('dialog', { name: 'Confirmer avec mon code secret' });
+  await confirm.getByLabel('Code secret de confirmation').fill(testCode);
   await confirm.getByRole('button', { name: 'Confirmer l’opération' }).click();
   await expect(colors.getByRole('status')).toContainText('votre groupement');
   expect(writes).toBe(1);
@@ -186,10 +184,10 @@ test('hors ligne : brouillon chiffré, verrouillage, réouverture puis synchroni
   await page.getByRole('button', { name: 'Vérifier mon versement', exact: true }).click();
   await page.getByRole('button', { name: 'Confirmer mon versement', exact: true }).click();
   const confirm = page.getByRole('dialog', {
-    name: 'Confirmer avec mon mot de passe',
+    name: 'Confirmer avec mon code secret',
     exact: true,
   });
-  await confirm.getByLabel('Mot de passe de confirmation').fill(password);
+  await confirm.getByLabel('Code secret de confirmation').fill(testCode);
   await confirm.getByRole('button', { name: 'Confirmer l’opération', exact: true }).click();
   await expect(page.getByRole('alert').filter({ hasText: 'Saisie conservée' })).toBeVisible();
   expect(writes).toBe(0);
@@ -206,14 +204,14 @@ test('hors ligne : brouillon chiffré, verrouillage, réouverture puis synchroni
   await page.getByLabel('Mot de passe', { exact: true }).fill('Incorrect-password-for-this-vault');
   await page.getByRole('button', { name: 'Se connecter', exact: true }).click();
   await expect(page.getByRole('alert')).toContainText('incorrect');
-  await page.getByLabel('Mot de passe', { exact: true }).fill(password);
+  await page.getByLabel('Mot de passe', { exact: true }).fill(testCode);
   await page.getByRole('button', { name: 'Se connecter', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Mon groupement', exact: true })).toBeVisible();
   await page.getByRole('button', { name: /1 saisie\(s\) en attente/ }).click();
   await expect(page.getByRole('button', { name: 'Synchroniser cette saisie' })).toBeDisabled();
   await context.setOffline(false);
   await page.getByRole('button', { name: 'Synchroniser cette saisie' }).click();
-  await confirm.getByLabel('Mot de passe de confirmation').fill(password);
+  await confirm.getByLabel('Code secret de confirmation').fill(testCode);
   await confirm.getByRole('button', { name: 'Confirmer l’opération', exact: true }).click();
   await expect(page.getByRole('alert')).toContainText('La séance doit être ouverte');
   await page.screenshot({
@@ -222,7 +220,7 @@ test('hors ligne : brouillon chiffré, verrouillage, réouverture puis synchroni
   });
   fail = false;
   await page.getByRole('button', { name: 'Synchroniser cette saisie' }).click();
-  await confirm.getByLabel('Mot de passe de confirmation').fill(password);
+  await confirm.getByLabel('Code secret de confirmation').fill(testCode);
   await confirm.getByRole('button', { name: 'Confirmer l’opération', exact: true }).click();
   await expect(page.getByRole('dialog', { name: 'Versement confirmé' })).toContainText(
     'OFFLINE-TEST',

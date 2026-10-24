@@ -52,9 +52,6 @@ export function PwaSecurity({ children }: { children: ReactNode }) {
   const vault = useRef<OfflineVault | null>(null);
   const actorRef = useRef<Actor | null>(null);
   const [warning, setWarning] = useState('');
-  const [vaultSetup, setVaultSetup] = useState(false);
-  const [vaultPassword, setVaultPassword] = useState('');
-  const [vaultError, setVaultError] = useState('');
   const [vaultBusy, setVaultBusy] = useState(false);
   const [reason, setReason] = useState('');
   const [offline, setOffline] = useState(!navigator.onLine);
@@ -87,7 +84,7 @@ export function PwaSecurity({ children }: { children: ReactNode }) {
     setOffline(value);
     window.dispatchEvent(new CustomEvent('alf:network', { detail: { offline: value } }));
   }
-  function lock(message = 'Saisissez votre mot de passe pour ouvrir votre espace.') {
+  function lock(message = 'Saisissez votre PIN pour ouvrir votre espace.') {
     const wasOpen = open.current;
     initialPassword.current = '';
     authenticatedByCode.current = false;
@@ -96,9 +93,6 @@ export function PwaSecurity({ children }: { children: ReactNode }) {
     setFirstCode('');
     setAccessError('');
     setAccessBusy(false);
-    setVaultSetup(false);
-    setVaultPassword('');
-    setVaultError('');
     setVaultBusy(false);
     accessInFlight.current = false;
     feedback.clear();
@@ -132,7 +126,8 @@ export function PwaSecurity({ children }: { children: ReactNode }) {
       const request = {
         label,
         answer,
-        numeric: !!actorRef.current?.hasSecretCode && !down.current && navigator.onLine,
+        // Le PIN protège les opérations sensibles en ligne comme hors ligne.
+        numeric: !!actorRef.current?.hasSecretCode,
       };
       promptRef.current = request;
       setPassword('');
@@ -195,7 +190,8 @@ export function PwaSecurity({ children }: { children: ReactNode }) {
                 actor.login,
                 serverKey,
                 actor,
-                initialPassword.current || undefined,
+                numeric ? undefined : initialPassword.current || undefined,
+                numeric ? secret : undefined,
               )
             : !actor.hasSecretCode && !numeric
               ? await OfflineVault.open(actor.login, secret, actor)
@@ -264,7 +260,7 @@ export function PwaSecurity({ children }: { children: ReactNode }) {
     }
 
     if (document.visibilityState !== 'visible') {
-      lock('Saisissez votre mot de passe à la réouverture.');
+      lock('Saisissez votre PIN à la réouverture.');
       return;
     }
     sessionGeneration.current++;
@@ -285,14 +281,14 @@ export function PwaSecurity({ children }: { children: ReactNode }) {
     queueMicrotask(() => autoWake.current());
     setReason('');
   }
-  async function prepareOffline() {
-    if (vaultBusy || !actorRef.current || !open.current) return;
-    const actor = actorRef.current,
-      generation = sessionGeneration.current;
+  async function prepareOfflineWithPin() {
+    if (vaultBusy || !actorRef.current || !open.current || !navigator.onLine) return;
+    const actor = actorRef.current;
+    const confirmation = await ask('Activer le coffre hors ligne avec votre PIN personnel');
+    if (!confirmation?.numeric) return;
     setVaultBusy(true);
-    setVaultError('');
     try {
-      const response = await fetch('/api/v1/auth/vault/password', {
+      const response = await fetch('/api/v1/auth/login/secret-code', {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -300,35 +296,26 @@ export function PwaSecurity({ children }: { children: ReactNode }) {
           'X-Requested-With': 'AvecLesFemmes',
           'X-PWA-Actor': actor.id,
         },
-        body: JSON.stringify({ password: vaultPassword }),
+        body: JSON.stringify({ login: actor.login, code: confirmation.secret }),
         signal: AbortSignal.timeout(10000),
       });
       const data = await response.json();
-      if (!response.ok)
-        throw new Error(
-          typeof data.message === 'string' ? data.message : 'Mot de passe personnel refusé.',
-        );
-      if (generation !== sessionGeneration.current || !open.current) return;
-      const key = response.headers.get('X-ALF-Vault-Key');
-      if (!key) throw new Error('Clé du coffre indisponible. Réessayez.');
-      const previous =
-        vault.current || (await OfflineVault.open(actor.login, vaultPassword, actor));
-      const prepared = await previous.withOnlineKey(key, vaultPassword);
-      if (generation !== sessionGeneration.current || !open.current) {
-        prepared.close();
-        return;
-      }
-      vault.current = prepared;
+      if (!response.ok || data.id !== actor.id)
+        throw new Error(typeof data.message === 'string' ? data.message : 'PIN incorrect.');
+      const serverKey = response.headers.get('X-ALF-Vault-Key');
+      if (!serverKey || !vault.current) throw new Error('Clé du coffre indisponible.');
+      const prepared = await vault.current.withOnlineKey(serverKey, confirmation.secret, 'pin');
       await prepared.prepareSync(response.headers.get('X-ALF-Sync-Key'));
+      vault.current = prepared;
       setPending([...prepared.data.pending]);
-      setWarning('');
-      setVaultSetup(false);
-      feedback.notify('Accès hors ligne activé avec votre mot de passe personnel.', 'success');
+      setWarning('Accès hors ligne activé avec votre PIN personnel.');
+      feedback.notify('Accès hors ligne activé avec votre PIN personnel.', 'success');
     } catch (error) {
-      if (generation === sessionGeneration.current) setVaultError(errorText(error));
+      const message = errorText(error);
+      setWarning(message);
+      feedback.notify(message, 'error');
     } finally {
-      setVaultPassword('');
-      if (generation === sessionGeneration.current) setVaultBusy(false);
+      setVaultBusy(false);
     }
   }
   async function completeAccess(value: string) {
@@ -379,7 +366,7 @@ export function PwaSecurity({ children }: { children: ReactNode }) {
           current.data.actor = actor;
           const serverKey = response.headers.get('X-ALF-Vault-Key');
           if (!serverKey) throw new Error('Clé de synchronisation indisponible.');
-          vault.current = await current.withOnlineKey(serverKey, initialPassword.current);
+          vault.current = await current.withOnlineKey(serverKey, value, 'pin');
           await vault.current.prepareSync(response.headers.get('X-ALF-Sync-Key'));
           await forgetLegacyDeviceSecret(actor.login).catch(() => {});
           setWarning('');
@@ -465,16 +452,15 @@ export function PwaSecurity({ children }: { children: ReactNode }) {
     try {
       const proof = request.headers.get('X-Confirm-Password') || '';
       const numeric = request.headers.get('X-Confirm-Secret-Code');
-      if (numeric || !proof.startsWith('utf8:'))
-        throw new Error(
-          'Connexion interrompue. Passez en mode hors ligne puis confirmez la saisie avec votre mot de passe initial. Vérifiez son état avant de réessayer.',
-        );
+      if (!numeric && !proof.startsWith('utf8:'))
+        throw new Error('Confirmation PIN ou mot de passe du coffre requise.');
       const secret =
         numeric ||
         new TextDecoder().decode(
           Uint8Array.from(atob(proof.slice(5)), (char) => char.charCodeAt(0)),
         );
-      await current.verify(secret);
+      if (numeric) await current.verifyPin(secret);
+      else await current.verify(secret);
       if (!open.current || current !== vault.current || generation !== sessionGeneration.current)
         throw new Error('Espace verrouillé. Saisie non confirmée.');
       const entry = await current.queue(
@@ -512,8 +498,7 @@ export function PwaSecurity({ children }: { children: ReactNode }) {
         }
         if (path.startsWith('/api/v1/auth/') && path !== '/api/v1/auth/me') return;
         if (path === '/api/v1/appearance') return;
-        if (!open.current)
-          return json({ message: 'Espace verrouillé. Saisissez votre mot de passe.' }, 401);
+        if (!open.current) return json({ message: 'Espace verrouillé. Saisissez votre PIN.' }, 401);
         if (actorRef.current) request.headers.set('X-PWA-Actor', actorRef.current.id);
         if (request.method === 'GET') {
           if (down.current || !navigator.onLine) {
@@ -566,7 +551,7 @@ export function PwaSecurity({ children }: { children: ReactNode }) {
           path !== '/api/v1/auth/login' &&
           path !== '/api/v1/appearance'
         ) {
-          lock('Votre session a expiré. Saisissez votre mot de passe.');
+          lock('Votre session a expiré. Saisissez votre PIN.');
           return response;
         }
         if (
@@ -651,16 +636,15 @@ export function PwaSecurity({ children }: { children: ReactNode }) {
           },
         })
           .then((r) => {
-            if (r.status === 401) lock('Session expirée. Saisissez votre mot de passe.');
+            if (r.status === 401) lock('Session expirée. Saisissez votre PIN.');
           })
           .catch(() => network(true));
       }
     };
     const hidden = () => {
-      if (document.visibilityState === 'hidden')
-        lock('Saisissez votre mot de passe à la réouverture.');
+      if (document.visibilityState === 'hidden') lock('Saisissez votre PIN à la réouverture.');
     };
-    const pagehide = () => lock('Saisissez votre mot de passe à la réouverture.');
+    const pagehide = () => lock('Saisissez votre PIN à la réouverture.');
     const online = () => {
       if (open.current) void reconnect();
     };
@@ -712,14 +696,16 @@ export function PwaSecurity({ children }: { children: ReactNode }) {
     const { secret, numeric } = confirmation;
     try {
       if (numeric) {
-        const r = await fetch('/api/v1/auth/login/secret-code', {
-          method: 'POST',
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'AvecLesFemmes' },
-          body: JSON.stringify({ login: current.login, code: secret }),
-        });
-        if (!r.ok || (await r.json()).id !== current.data.actor.id)
-          throw new Error('Code secret incorrect ou compte indisponible.');
+        if (navigator.onLine) {
+          const r = await fetch('/api/v1/auth/login/secret-code', {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'AvecLesFemmes' },
+            body: JSON.stringify({ login: current.login, code: secret }),
+          });
+          if (!r.ok || (await r.json()).id !== current.data.actor.id)
+            throw new Error('Code PIN incorrect ou compte indisponible.');
+        } else await current.verifyPin(secret);
       } else await current.verify(secret);
       if (!open.current || generation !== sessionGeneration.current) return;
       await current.discard(entry.id);
@@ -767,7 +753,7 @@ export function PwaSecurity({ children }: { children: ReactNode }) {
       });
       const actor = await auth.json();
       if (!auth.ok || actor.id !== currentVault.data.actor.id)
-        throw new Error('Synchronisation refusée. Vérifiez votre mot de passe et votre compte.');
+        throw new Error('Synchronisation refusée. Vérifiez votre PIN et votre compte.');
       if (!open.current || sessionGeneration.current !== generation) return;
       const response = await fetch(entry.path, {
         method: 'POST',
@@ -983,7 +969,7 @@ export function PwaSecurity({ children }: { children: ReactNode }) {
       value={{
         offlineDrafts: !!vault.current?.hasOfflineAccess,
         offline,
-        busy: !!prompt || syncing || vaultSetup || feedback.receiptOpen,
+        busy: !!prompt || syncing || vaultBusy || feedback.receiptOpen,
         lock: () => lock(),
       }}
     >
@@ -1011,18 +997,8 @@ export function PwaSecurity({ children }: { children: ReactNode }) {
             {warning && <p role="status">{warning}</p>}
             {!offline && !vault.current?.hasOfflineAccess && (
               <div>
-                <p>
-                  Le PIN ouvre votre espace. Pour protéger aussi l’accès hors ligne, activez le
-                  coffre avec votre mot de passe personnel.
-                </p>
-                <button
-                  className="secondary"
-                  onClick={() => {
-                    setVaultPassword('');
-                    setVaultError('');
-                    setVaultSetup(true);
-                  }}
-                >
+                <p>Le PIN protège aussi l’accès au coffre hors ligne sur cet appareil.</p>
+                <button className="secondary" onClick={() => void prepareOfflineWithPin()}>
                   Activer l’accès hors ligne
                 </button>
               </div>
@@ -1159,51 +1135,9 @@ export function PwaSecurity({ children }: { children: ReactNode }) {
           {!pending.length && <p>Aucune saisie en attente.</p>}
         </Dialog>
       )}
-      {unlocked && vaultSetup && (
-        <Dialog
-          title="Préparer le mode hors ligne"
-          busy={vaultBusy}
-          onClose={() => {
-            setVaultSetup(false);
-            setVaultPassword('');
-          }}
-        >
-          <p>
-            Votre mot de passe personnel chiffre l’accès hors ligne. Il n’est pas mémorisé. Les
-            prochaines connexions en ligne restent par PIN.
-          </p>
-          <form
-            onSubmit={(event) => {
-              event.preventDefault();
-              void prepareOffline();
-            }}
-          >
-            <label className="field">
-              Mot de passe personnel
-              <input
-                autoFocus
-                type="password"
-                autoComplete="current-password"
-                minLength={12}
-                maxLength={128}
-                required
-                value={vaultPassword}
-                disabled={vaultBusy}
-                onChange={(event) => setVaultPassword(event.target.value)}
-              />
-            </label>
-            {vaultError && <p role="alert">{vaultError}</p>}
-            <button className="primary" disabled={vaultBusy}>
-              {vaultBusy ? 'Activation…' : 'Activer le coffre'}
-            </button>
-          </form>
-        </Dialog>
-      )}
       {prompt && (
         <Dialog
-          title={
-            prompt.numeric ? 'Confirmer avec mon code secret' : 'Confirmer avec mon mot de passe'
-          }
+          title="Confirmer avec mon code secret"
           subtitle={prompt.label}
           onClose={() => answer(null)}
         >
@@ -1213,32 +1147,13 @@ export function PwaSecurity({ children }: { children: ReactNode }) {
               answer(password);
             }}
           >
-            {prompt.numeric ? (
-              <SecretCodePad
-                value={password}
-                onChange={setPassword}
-                onComplete={(value) => answer(value)}
-                label="Code secret de confirmation"
-              />
-            ) : (
-              <label className="field">
-                Mot de passe de confirmation
-                <input
-                  autoFocus
-                  type="password"
-                  autoComplete="current-password"
-                  required
-                  maxLength={128}
-                  enterKeyHint="go"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-              </label>
-            )}
-            <button
-              className={prompt.numeric ? 'text-button secret-code-submit' : 'primary'}
-              disabled={!!prompt.numeric && password.length !== 4}
-            >
+            <SecretCodePad
+              value={password}
+              onChange={setPassword}
+              onComplete={(value) => answer(value)}
+              label="Code PIN de confirmation"
+            />
+            <button className="text-button secret-code-submit" disabled={password.length !== 4}>
               Confirmer l’opération
             </button>
             <button type="button" className="secondary" onClick={() => answer(null)}>

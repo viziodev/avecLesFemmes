@@ -201,7 +201,7 @@ test('code : hors ligne, conservation du brouillon après récupération et sync
   await expect(page.getByRole('button', { name: 'Faire un versement', exact: true })).toBeEnabled();
   await context.setOffline(true);
   await payment(page);
-  await page.getByLabel('Mot de passe de confirmation').fill(password);
+  await page.getByLabel('Code PIN de confirmation').fill(initialCode);
   await page.getByRole('button', { name: 'Confirmer l’opération', exact: true }).click();
   await expect(page.getByRole('alert').filter({ hasText: 'Saisie conservée' })).toBeVisible();
   await page.getByRole('dialog').getByRole('button', { name: 'Fermer', exact: true }).click();
@@ -226,7 +226,7 @@ test('code : hors ligne, conservation du brouillon après récupération et sync
   expect(syncedCode).toBe('1357');
 });
 
-test('hors ligne : mot de passe initial requis, le PIN ne déchiffre pas le coffre', async ({
+test('hors ligne : le PIN déchiffre le coffre après la première connexion', async ({
   page,
   context,
 }) => {
@@ -235,12 +235,9 @@ test('hors ligne : mot de passe initial requis, le PIN ne déchiffre pas le coff
   await enterPin(page);
   await context.setOffline(true);
   await page.evaluate(() => window.dispatchEvent(new Event('pagehide')));
-  await expect(page.getByLabel('Code secret', { exact: true })).toHaveCount(0);
-  await page.getByLabel('Mot de passe', { exact: true }).fill(initialCode);
-  await page.getByRole('button', { name: 'Se connecter', exact: true }).click();
-  await expect(page.getByRole('alert')).toContainText('incorrect');
-  await page.getByLabel('Mot de passe', { exact: true }).fill(password);
-  await page.getByRole('button', { name: 'Se connecter', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Bon retour', exact: true })).toBeVisible();
+  await expect(page.getByLabel('Code secret', { exact: true })).toHaveCount(1);
+  await page.getByLabel('Code secret', { exact: true }).fill(initialCode);
   await expect(page.getByRole('heading', { name: 'Mon groupement', exact: true })).toBeVisible();
 });
 

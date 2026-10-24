@@ -52,7 +52,11 @@ export async function mockSpace(page: Page, responsible = false, count = 2) {
     const path = new URL(route.request().url()).pathname;
     if (path.endsWith('/auth/vault/password'))
       return route.fulfill({ headers: { 'X-ALF-Vault-Key': 'a'.repeat(64) }, json: { ok: true } });
-    if (path.endsWith('/auth/login') || path.endsWith('/auth/login/phone-pin'))
+    if (
+      path.endsWith('/auth/login') ||
+      path.endsWith('/auth/login/phone-pin') ||
+      path.endsWith('/auth/login/secret-code')
+    )
       return route.fulfill({
         status: 201,
         headers: { 'X-ALF-Vault-Key': 'a'.repeat(64) },
@@ -61,6 +65,8 @@ export async function mockSpace(page: Page, responsible = false, count = 2) {
           name: responsible ? 'Ndèye Diop' : 'Awa Fall',
           login: responsible ? 'admin.ndeye' : 'membre.awa',
           isSuper: false,
+          phone: '+221770000003',
+          hasSecretCode: true,
         },
       });
     if (path.endsWith('/auth/activity')) return route.fulfill({ status: 201, json: { ok: true } });
@@ -74,6 +80,8 @@ export async function mockSpace(page: Page, responsible = false, count = 2) {
         name: responsible ? 'Ndèye Diop' : 'Awa Fall',
         login: responsible ? 'admin.ndeye' : 'membre.awa',
         isSuper: false,
+        phone: '+221770000003',
+        hasSecretCode: true,
       };
     else if (path.endsWith('/groupements'))
       json = {

@@ -1,5 +1,5 @@
 import { createHmac } from 'node:crypto';
-import { test, expect, type Page } from './fixtures';
+import { test, expect, type Page, testCode } from './fixtures';
 import { mockSpace, unlockMockSpace } from './pwa-space';
 const password = process.env.DEMO_PASSWORD || 'Test-password-only';
 const signingKey = 'c'.repeat(64);
@@ -92,10 +92,10 @@ async function draft(page: Page) {
   await page.getByRole('button', { name: 'Vérifier mon versement', exact: true }).click();
   await page.getByRole('button', { name: 'Confirmer mon versement', exact: true }).click();
   const confirm = page.getByRole('dialog', {
-    name: 'Confirmer avec mon mot de passe',
+    name: 'Confirmer avec mon code secret',
     exact: true,
   });
-  await confirm.getByLabel('Mot de passe de confirmation').fill(password);
+  await confirm.getByLabel('Code secret de confirmation').fill(testCode);
   await confirm.getByRole('button', { name: 'Confirmer l’opération', exact: true }).click();
   await expect(page.getByRole('alert').filter({ hasText: 'Saisie conservée' })).toBeVisible();
   await page.getByRole('dialog').getByRole('button', { name: 'Fermer', exact: true }).click();
