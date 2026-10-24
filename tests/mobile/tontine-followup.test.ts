@@ -1,3 +1,4 @@
+import { loginPwa } from './fixtures';
 import { mockDemoTontine } from './demo-tontine';
 import { chooseCampaign } from './campaign-choice';
 import { test, expect } from './fixtures';
@@ -61,9 +62,7 @@ test('tontine : trois totaux sur une ligne, membres filtrés par tour et état',
     });
   });
   await page.goto('/');
-  await page.getByLabel('Identifiant', { exact: true }).fill('admin.ndeye');
-  await page.getByLabel('Mot de passe', { exact: true }).fill(process.env.DEMO_PASSWORD!);
-  await page.getByRole('button', { name: 'Se connecter', exact: true }).click();
+  await loginPwa(page, 'admin.ndeye');
   await chooseCampaign(page, 'Tontine solidaire 2026');
   const totals = page.locator('.pwa-day-metrics.three');
   await expect(totals.locator(':scope > div')).toHaveCount(3);
@@ -139,9 +138,7 @@ test('tontine : tirage du jour puis encaissement, sans attribution des tours fut
     return route.fulfill({ json: [{ id: 'r-1', beneficiary_name: 'Awa Fall' }] });
   });
   await page.goto('/');
-  await page.getByLabel('Identifiant', { exact: true }).fill('admin.ndeye');
-  await page.getByLabel('Mot de passe', { exact: true }).fill(process.env.DEMO_PASSWORD!);
-  await page.getByRole('button', { name: 'Se connecter', exact: true }).click();
+  await loginPwa(page, 'admin.ndeye');
   await chooseCampaign(page, 'Tontine solidaire 2026');
   const draw = page.getByRole('button', { name: 'Tirer la bénéficiaire du tour 1', exact: true });
   await expect(draw).toBeEnabled();
@@ -250,9 +247,7 @@ test('tontine : tour du jour, trois tours passés, voir plus et délai individue
     return route.fulfill({ status: 201, json: { id: 'grace-test' } });
   });
   await page.goto('/');
-  await page.getByLabel('Identifiant', { exact: true }).fill('admin.ndeye');
-  await page.getByLabel('Mot de passe', { exact: true }).fill(process.env.DEMO_PASSWORD!);
-  await page.getByRole('button', { name: 'Se connecter', exact: true }).click();
+  await loginPwa(page, 'admin.ndeye');
   await chooseCampaign(page, 'Tontine solidaire 2026');
   const cards = page.getByRole('region', { name: 'Tours de tontine' });
   await expect(cards.locator('summary')).toHaveCount(4);

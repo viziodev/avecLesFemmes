@@ -1,3 +1,4 @@
+import { loginPwa } from './fixtures';
 import { mockDemoTontine } from './demo-tontine';
 import { chooseCampaign } from './campaign-choice';
 import { test, expect } from './fixtures';
@@ -70,9 +71,7 @@ test('séances et rotations en cartes : détails, libellés et état vide', asyn
     }),
   );
   await page.goto('/');
-  await page.getByLabel('Identifiant', { exact: true }).fill('admin.ndeye');
-  await page.getByLabel('Mot de passe', { exact: true }).fill(process.env.DEMO_PASSWORD!);
-  await page.getByRole('button', { name: 'Se connecter', exact: true }).tap();
+  await loginPwa(page, 'admin.ndeye');
   await chooseCampaign(page, 'Tontine solidaire 2026');
   const rounds = page.getByRole('region', { name: 'Tours de tontine' });
   await expect(rounds).toBeVisible();

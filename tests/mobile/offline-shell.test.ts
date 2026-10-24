@@ -1,3 +1,4 @@
+import { loginPwa } from './fixtures';
 import { test, expect, unlockReturning } from './fixtures';
 import { config } from 'dotenv';
 config({ path: '.env', quiet: true });
@@ -9,9 +10,7 @@ test('PWA installée : réouverture réellement hors ligne et déverrouillage du
 }) => {
   if (!process.env.DEMO_PASSWORD) throw new Error('DEMO_PASSWORD requis.');
   await page.goto('/');
-  await page.getByLabel('Identifiant', { exact: true }).fill('membre.awa');
-  await page.getByLabel('Mot de passe', { exact: true }).fill(process.env.DEMO_PASSWORD);
-  await page.getByRole('button', { name: 'Se connecter', exact: true }).click();
+  await loginPwa(page, 'membre.awa');
   await expect(
     page.getByRole('region', { name: 'Identité du groupement et du membre' }),
   ).toBeVisible();

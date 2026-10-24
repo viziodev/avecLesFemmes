@@ -1,5 +1,19 @@
 # Journal des versions
 
+## 1.1.0 — Connexion PWA par téléphone et PIN personnel
+
+- Première connexion des membres et administratrices par téléphone puis PIN existant ; ouvertures suivantes par PIN seul sur l’appareil mémorisé.
+- Téléphones normalisés, vérification serveur, compteur commun de cinq échecs et blocage temporaire. Connexion web du Super Admin conservée.
+- Préparation ou renouvellement du PIN par le Super Admin, sans remplacement du mot de passe personnel ; révocation des sessions et appareils, audit sans secret.
+- Préparation facultative du coffre hors ligne avec le mot de passe personnel ; cache en ligne chiffré sans utiliser le PIN comme clé, anciens brouillons conservés lors d’une récupération.
+- Contrats et tests adaptés, ADR 025. Livraison locale ; publication distante sur instruction `VIZIODEPLOIE`.
+
+## 1.0.1 — Accès PWA encadré et filtres de dates mobiles
+
+- Retrait des actions de reconnexion par mot de passe, récupération du code et changement de compte sur l’écran PWA habituel ; orientation vers le Super Admin.
+- Parcours d’oubli d’appareil dédié au Super Admin, protégé côté serveur par ses identifiants pour cette seule action, sans ouvrir de session administrative sur le téléphone ; identité retirée uniquement après révocation réussie, saisies chiffrées conservées.
+- Champs « Du / Au » de l’historique sans débordement sur iPhone et Android, avec disposition verticale sur les petits écrans et calendrier natif conservé.
+
 ## 1.0.0 — Livraison de l’incrément AvecLesFemmes
 
 - Correctifs transitifs body-parser 2.4.0 et Multer 2.5.0 contre les dénis de service signalés en octobre 2026 ; test de survie du serveur après corps comprimé avec octets tardifs.

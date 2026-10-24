@@ -1,3 +1,4 @@
+import { loginPwa } from './fixtures';
 import { test, expect } from './fixtures';
 import { config } from 'dotenv';
 config({ path: '.env', quiet: true });
@@ -8,9 +9,7 @@ for (const login of ['admin.ndeye', 'membre.awa']) {
     if (!process.env.DEMO_PASSWORD)
       throw new Error('DEMO_PASSWORD requis pour les comptes locaux.');
     await page.goto('/');
-    await page.getByLabel('Identifiant', { exact: true }).fill(login);
-    await page.getByLabel('Mot de passe', { exact: true }).fill(process.env.DEMO_PASSWORD!);
-    await page.getByRole('button', { name: 'Se connecter', exact: true }).tap();
+    await loginPwa(page, login);
     await expect(page.getByRole('heading', { name: 'Mon groupement', exact: true })).toBeVisible();
     const nav = page.getByRole('navigation', { name: 'Navigation principale' });
     await expect(nav).toBeVisible();

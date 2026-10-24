@@ -13,6 +13,11 @@ export function verifyPassword(password: string, hash: string) {
 export function digest(value: string) {
   return createHash('sha256').update(value).digest('hex');
 }
+// Explicit demo environments only. No shared PIN exists without a configured demo password.
+export function demoPin(password: string) {
+  if (!password || password.length < 12) throw new Error('Mot de passe de démonstration requis.');
+  return (BigInt('0x' + digest('alf:demo-pin:' + password)) % 10000n).toString().padStart(4, '0');
+}
 
 // Domain separation: this capability never unwraps the offline vault.
 export function offlineSigningKey(vaultSecret: string) {

@@ -1,3 +1,4 @@
+import { loginPwa } from './fixtures';
 import { test, expect, unlockReturning } from './fixtures';
 import { config } from 'dotenv';
 config({ path: '.env', quiet: true });
@@ -149,9 +150,7 @@ async function setup(page: any) {
     });
   });
   await page.goto('/');
-  await page.getByLabel('Identifiant', { exact: true }).fill('membre.awa');
-  await page.getByLabel('Mot de passe', { exact: true }).fill(process.env.DEMO_PASSWORD!);
-  await page.getByRole('button', { name: 'Se connecter', exact: true }).tap();
+  await loginPwa(page, 'membre.awa');
   return {
     failNext: () => {
       fail = true;

@@ -1,7 +1,7 @@
 import '../config';
 import { Pool } from 'pg';
 import { randomUUID } from 'node:crypto';
-import { hashPassword } from '../auth/password';
+import { demoPin, hashPassword } from '../auth/password';
 export async function seed() {
   if (process.env.NODE_ENV === 'production')
     throw new Error('Jeu de démonstration interdit en production.');
@@ -43,8 +43,16 @@ export async function seed() {
     ];
     for (const u of users)
       await c.query(
-        'INSERT INTO app_users(id,login,name,phone,password_hash,is_super) VALUES($1,$2,$3,$4,$5,$6)',
-        [u.id, u.login, u.name, u.phone, hashPassword(password), u.super],
+        'INSERT INTO app_users(id,login,name,phone,password_hash,is_super,secret_code_hash) VALUES($1,$2,$3,$4,$5,$6,$7)',
+        [
+          u.id,
+          u.login,
+          u.name,
+          u.phone,
+          hashPassword(password),
+          u.super,
+          u.super ? null : hashPassword(demoPin(password)),
+        ],
       );
     const g = randomUUID();
     const type = randomUUID();

@@ -1,8 +1,11 @@
 import { randomUUID } from 'node:crypto';
 import { hashPassword } from '../../apps/api/dist/auth/password.js';
+import { normalizePhone } from '../../apps/api/dist/common/phone.js';
 
 // Le propriétaire de la connexion gère BEGIN/COMMIT, sauvegarde et choix de cible.
 export async function resetNguith(c, credentials) {
+  const phone = credentials.NGUITH_PHONE ? normalizePhone(credentials.NGUITH_PHONE) : null;
+  if (phone && !/^\+[1-9]\d{7,14}$/.test(phone)) throw new Error('Téléphone Nguith invalide.');
   if (
     !credentials.NGUITH_PASSWORD ||
     credentials.NGUITH_PASSWORD.length < 12 ||
@@ -53,8 +56,8 @@ export async function resetNguith(c, credentials) {
   await c.query("UPDATE campaign_events SET name='Fêtes de Tabaski' WHERE id=$1", [tabaski]);
   await c.query("UPDATE campaign_events SET name='Ramadan' WHERE id=$1", [ramadan]);
   await c.query(
-    "INSERT INTO app_users(id,login,name,password_hash,secret_code_hash) VALUES($1,'awa','Awa',$2,$3)",
-    [user, hashPassword(credentials.NGUITH_PASSWORD), hashPassword(credentials.NGUITH_PIN)],
+    "INSERT INTO app_users(id,login,name,password_hash,secret_code_hash,phone) VALUES($1,'awa','Awa',$2,$3,$4)",
+    [user, hashPassword(credentials.NGUITH_PASSWORD), hashPassword(credentials.NGUITH_PIN), phone],
   );
   await c.query(
     "INSERT INTO groupements(id,name,address,responsible,phone) VALUES($1,'Cabalabasse des Femmes de Nguith','Nguith','Awa','')",
@@ -75,8 +78,8 @@ export async function resetNguith(c, credentials) {
       [group, id, amount],
     );
   await c.query(
-    "INSERT INTO memberships(id,group_id,user_id,name,role,address,gender,function_id) VALUES($1,$2,$3,'Awa','ADMIN','Nguith','F',$4)",
-    [membership, group, user, president],
+    "INSERT INTO memberships(id,group_id,user_id,name,role,address,gender,function_id,phone) VALUES($1,$2,$3,'Awa','ADMIN','Nguith','F',$4,$5)",
+    [membership, group, user, president, phone],
   );
   const campaigns = [
     {

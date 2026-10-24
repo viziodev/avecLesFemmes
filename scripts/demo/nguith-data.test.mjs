@@ -41,6 +41,7 @@ test('remplacement Nguith : ancien jeu supprimé, Super Admin conservé et trois
     const result = await resetNguith(c, {
       NGUITH_PASSWORD: 'Test-only-Nguith-password',
       NGUITH_PIN: '1234',
+      NGUITH_PHONE: '77 000 00 03',
     });
     await c.query('COMMIT');
     assert.deepEqual(
@@ -52,6 +53,7 @@ test('remplacement Nguith : ancien jeu supprimé, Super Admin conservé et trois
     const awa = (await c.query("SELECT * FROM app_users WHERE login='awa'")).rows[0];
     assert(verifyPassword('Test-only-Nguith-password', awa.password_hash));
     assert(verifyPassword('1234', awa.secret_code_hash));
+    assert.equal(awa.phone, '+221770000003');
     const group = (await c.query('SELECT * FROM groupements')).rows[0];
     assert.equal(group.name, 'Cabalabasse des Femmes de Nguith');
     const member = (
@@ -60,6 +62,7 @@ test('remplacement Nguith : ancien jeu supprimé, Super Admin conservé et trois
       )
     ).rows[0];
     assert.equal(member.role, 'ADMIN');
+    assert.equal(member.phone, '+221770000003');
     assert.equal(member.code, 'PRESIDENTE');
     const campaigns = (
       await c.query(

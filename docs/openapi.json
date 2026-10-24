@@ -159,6 +159,63 @@
         ]
       }
     },
+    "/api/v1/auth/login/phone-pin": {
+      "post": {
+        "operationId": "loginPhonePin",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PinLoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActorView"
+                }
+              }
+            }
+          }
+        },
+        "summary": "PWA : téléphone puis PIN personnel existant",
+        "tags": [
+          "Authentification"
+        ]
+      }
+    },
+    "/api/v1/auth/vault/password": {
+      "post": {
+        "operationId": "prepareOfflineVault",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VaultPasswordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "",
+        "tags": [
+          "Authentification"
+        ]
+      }
+    },
     "/api/v1/auth/otp/request": {
       "post": {
         "operationId": "requestOtp",
@@ -279,12 +336,22 @@
       "post": {
         "operationId": "forgetDevice",
         "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginDto"
+              }
+            }
+          }
+        },
         "responses": {
           "201": {
             "description": ""
           }
         },
-        "summary": "",
+        "summary": "Super Admin : oublier cet appareil PWA",
         "tags": [
           "Authentification"
         ]
@@ -676,6 +743,48 @@
         "responses": {
           "200": {
             "description": "Code PIN réinitialisé avec succès"
+          }
+        },
+        "summary": "",
+        "tags": [
+          "Groupements"
+        ]
+      }
+    },
+    "/api/v1/groupements/{groupId}/members/{memberId}/initial-pin": {
+      "post": {
+        "operationId": "initializeMemberPin",
+        "parameters": [
+          {
+            "name": "groupId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "memberId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InitializePinDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "PIN personnel initialisé par le Super Admin"
           }
         },
         "summary": "",
@@ -3064,6 +3173,10 @@
           "hasSecretCode": {
             "type": "boolean"
           },
+          "phone": {
+            "type": "string",
+            "nullable": true
+          },
           "id": {
             "type": "string"
           },
@@ -3127,6 +3240,17 @@
         "required": [
           "phone",
           "pin"
+        ]
+      },
+      "VaultPasswordDto": {
+        "type": "object",
+        "properties": {
+          "password": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "password"
         ]
       },
       "PhoneDto": {
@@ -3401,6 +3525,10 @@
           "password": {
             "type": "string"
           },
+          "initialPin": {
+            "type": "string",
+            "description": "PIN initial personnel, réservé au Super Admin"
+          },
           "address": {
             "type": "string"
           },
@@ -3467,6 +3595,17 @@
       "ResetPinDto": {
         "type": "object",
         "properties": {}
+      },
+      "InitializePinDto": {
+        "type": "object",
+        "properties": {
+          "pin": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "pin"
+        ]
       },
       "GroupFunctionView": {
         "type": "object",

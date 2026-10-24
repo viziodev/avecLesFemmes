@@ -31,6 +31,7 @@ import { Actor, Database } from '../database/database.module';
 import { settings } from '../config';
 import {
   digest,
+  demoPin,
   hashPassword,
   verifyPassword,
   offlineSigningKey,
@@ -46,6 +47,9 @@ export class LoginDto {
 export class CodeLoginDto {
   @ApiProperty() @IsString() @MaxLength(100) login!: string;
   @ApiProperty() @IsString() @Matches(/^\d{4}$/) code!: string;
+}
+export class VaultPasswordDto {
+  @ApiProperty() @IsString() @MinLength(12) @MaxLength(128) password!: string;
 }
 export class SetSecretCodeDto {
   @ApiProperty() @IsString() @MinLength(1) @MaxLength(128) password!: string;
@@ -66,6 +70,13 @@ export class AuthService {
   private readonly dummy = hashPassword(randomBytes(20).toString('hex'));
   constructor(private readonly db: Database) {}
   async login(input: LoginDto) {
+    return this.session(await this.initialAccount(input));
+  }
+  async authorizeDeviceAdministration(input: LoginDto) {
+    const user = await this.initialAccount(input);
+    if (!user.is_super) throw new ForbiddenException('Opération réservée au Super Admin.');
+  }
+  private async initialAccount(input: LoginDto) {
     if (input.password.length < 12)
       throw new UnauthorizedException(
         'Un mot de passe initial d’au moins douze caractères est requis. Contactez le Super Admin pour la récupération d’un ancien accès court.',
@@ -74,8 +85,7 @@ export class AuthService {
       input.login,
     ]);
     const u = r.rows[0];
-    const checked = await this.checkPassword(u, input.password);
-    return this.session(checked);
+    return this.checkPassword(u, input.password);
   }
   private async checkPassword(
     candidate: any,
@@ -120,7 +130,7 @@ export class AuthService {
   async trustedDevice(login: string, token?: string) {
     if (!token || !/^[a-f0-9]{64}$/.test(token))
       throw new ForbiddenException(
-        'Reconnectez cet appareil avec votre identifiant et votre mot de passe initial.',
+        'Appareil non autorisé. Contactez le Super Admin pour rétablir votre accès.',
       );
     const r = await this.db.query(
       `SELECT d.* FROM trusted_devices d JOIN app_users u ON u.id=d.user_id
@@ -128,7 +138,9 @@ export class AuthService {
       [digest(token), login],
     );
     if (!r.rows[0])
-      throw new ForbiddenException('Reconnectez cet appareil avec votre mot de passe initial.');
+      throw new ForbiddenException(
+        'Appareil non autorisé. Contactez le Super Admin pour rétablir votre accès.',
+      );
     return r.rows[0];
   }
   async authorizeOfflineReplay(
@@ -251,6 +263,14 @@ export class AuthService {
       throw new ForbiddenException('Reconnectez cet appareil avec votre mot de passe initial.');
     return this.loginCode({ login: r.rows[0].login, code: input.pin }, token);
   }
+  async loginPhonePin(input: PinLoginDto) {
+    const r = await this.db.query(
+      'SELECT * FROM app_users WHERE phone=$1 AND active AND NOT is_super',
+      [input.phone],
+    );
+    const checked = await this.checkPassword(r.rows[0], input.pin, 'secret_code_hash');
+    return this.session(checked);
+  }
   async session(u: any) {
     const token = randomBytes(32).toString('hex');
     const inserted = await this.db.query(
@@ -270,6 +290,7 @@ export class AuthService {
         name: u.name,
         isSuper: u.is_super,
         hasSecretCode: !!u.secret_code_hash,
+        phone: u.phone || null,
       },
     };
   }
@@ -333,7 +354,7 @@ export class AuthService {
   async actor(token?: string): Promise<Actor> {
     if (!token) throw new UnauthorizedException();
     const r = await this.db.query(
-      `SELECT u.id,u.login,u.name,u.is_super,u.secret_code_hash IS NOT NULL AS has_secret_code FROM sessions s JOIN app_users u ON u.id=s.user_id WHERE s.token_hash=$1 AND s.expires_at>now() AND u.active AND (u.is_super OR s.last_activity_at>now()-interval '5 minutes')`,
+      `SELECT u.id,u.login,u.name,u.phone,u.is_super,u.secret_code_hash IS NOT NULL AS has_secret_code FROM sessions s JOIN app_users u ON u.id=s.user_id WHERE s.token_hash=$1 AND s.expires_at>now() AND u.active AND (u.is_super OR s.last_activity_at>now()-interval '5 minutes')`,
       [digest(token)],
     );
     const u = r.rows[0];
@@ -344,6 +365,7 @@ export class AuthService {
       name: u.name,
       isSuper: u.is_super,
       hasSecretCode: u.has_secret_code,
+      phone: u.phone || null,
     };
   }
   async logout(token?: string, expectedUserId?: string) {
@@ -473,6 +495,40 @@ export class AuthController {
     return s.actor;
   }
   @Public()
+  @Post('login/phone-pin')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
+  @ApiOperation({
+    operationId: 'loginPhonePin',
+    summary: 'PWA : téléphone puis PIN personnel existant',
+  })
+  @ApiCreatedResponse({ type: ActorView })
+  async loginPhonePin(
+    @Body() input: PinLoginDto,
+    @Req() req: AuthRequest,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const s = await this.auth.loginPhonePin(input);
+    await this.auth.logout(req.cookies?.alf_session);
+    this.cookie(res, s.token);
+    await this.device(res, s.actor, req.cookies?.alf_device);
+    return s.actor;
+  }
+  @Post('vault/password')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
+  @ApiOperation({ operationId: 'prepareOfflineVault' })
+  async prepareOfflineVault(
+    @Body() input: VaultPasswordDto,
+    @Req() req: AuthRequest,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    if (req.actor.isSuper) throw new ForbiddenException('Coffre réservé aux espaces PWA.');
+    const device = await this.auth.trustedDevice(req.actor.login, req.cookies?.alf_device);
+    await this.auth.confirm(req.actor, input.password);
+    res.setHeader('X-ALF-Vault-Key', device.vault_secret);
+    res.setHeader('X-ALF-Sync-Key', offlineSigningKey(device.vault_secret));
+    return { ok: true };
+  }
+  @Public()
   @Post('otp/request')
   @Throttle({ default: { limit: 20, ttl: 60000 } })
   @ApiOperation({ operationId: 'requestOtp' })
@@ -509,8 +565,15 @@ export class AuthController {
   }
   @Public()
   @Post('forget-device')
-  @ApiOperation({ operationId: 'forgetDevice' })
-  async forgetDevice(@Req() req: AuthRequest, @Res({ passthrough: true }) res: Response) {
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
+  @ApiOperation({ operationId: 'forgetDevice', summary: 'Super Admin : oublier cet appareil PWA' })
+  async forgetDevice(
+    @Body() input: LoginDto,
+    @Req() req: AuthRequest,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    // Credentials authorize only this action, without opening an admin session on a member's device.
+    await this.auth.authorizeDeviceAdministration(input);
     await this.auth.forgetDevice(req.cookies?.alf_device);
     await this.auth.logout(req.cookies?.alf_session);
     res.clearCookie('alf_device', {
@@ -549,6 +612,7 @@ export class AuthController {
     }
     return {
       demoPassword: process.env.DEMO_PASSWORD,
+      demoPin: demoPin(process.env.DEMO_PASSWORD),
       smsMode: process.env.SMS_MODE || 'development',
       isDemo: true,
     };

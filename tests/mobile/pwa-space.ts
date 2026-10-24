@@ -1,16 +1,19 @@
 import type { Page } from '@playwright/test';
 import { expect } from '@playwright/test';
 import { config } from 'dotenv';
+import { loginPwa } from './fixtures';
 config({ path: '.env', quiet: true });
-export async function unlockMockSpace(page: Page) {
-  await expect(page.getByLabel('Mot de passe', { exact: true })).toBeVisible();
-  const login = page.getByLabel('Identifiant', { exact: true });
-  if (await login.isVisible()) await login.fill('mock.user');
-  await page
-    .getByLabel('Mot de passe', { exact: true })
-    .fill(process.env.DEMO_PASSWORD || 'Test-password-only');
-  await page.getByRole('button', { name: 'Se connecter', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Mon groupement', exact: true })).toBeVisible();
+export async function unlockMockSpace(
+  page: Page,
+  options: { prepareOffline?: boolean; pin?: string } = {},
+) {
+  if (await page.getByLabel('Mot de passe', { exact: true }).isVisible()) {
+    await page
+      .getByLabel('Mot de passe', { exact: true })
+      .fill(process.env.DEMO_PASSWORD || 'Test-password-only');
+    await page.getByRole('button', { name: 'Se connecter', exact: true }).click();
+    await expect(page.getByRole('heading', { name: 'Mon groupement', exact: true })).toBeVisible();
+  } else await loginPwa(page, 'mock.user', options);
 }
 export const savingsId = '11111111-1111-4111-a111-111111111111';
 const tontineId = '22222222-2222-4222-a222-222222222222';
@@ -47,9 +50,12 @@ export async function mockSpace(page: Page, responsible = false, count = 2) {
     });
   await page.route('**/api/v1/**', (route) => {
     const path = new URL(route.request().url()).pathname;
-    if (path.endsWith('/auth/login'))
+    if (path.endsWith('/auth/vault/password'))
+      return route.fulfill({ headers: { 'X-ALF-Vault-Key': 'a'.repeat(64) }, json: { ok: true } });
+    if (path.endsWith('/auth/login') || path.endsWith('/auth/login/phone-pin'))
       return route.fulfill({
         status: 201,
+        headers: { 'X-ALF-Vault-Key': 'a'.repeat(64) },
         json: {
           id: 'actor',
           name: responsible ? 'Ndèye Diop' : 'Awa Fall',

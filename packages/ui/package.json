@@ -1,6 +1,6 @@
 {
   "name": "@aveclesfemmes/ui",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "type": "module",
   "exports": {
@@ -9,7 +9,7 @@
     "./pwa-charter.css": "./src/pwa-charter.css"
   },
   "dependencies": {
-    "@aveclesfemmes/api-client": "1.0.0",
+    "@aveclesfemmes/api-client": "1.1.0",
     "@types/qrcode": "^1.5.6",
     "jsqr": "^1.4.0",
     "lucide-react": "^0.468.0",

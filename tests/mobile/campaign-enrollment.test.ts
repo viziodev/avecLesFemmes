@@ -1,3 +1,4 @@
+import { loginPwa } from './fixtures';
 import { test, expect, unlockReturning } from './fixtures';
 import { config } from 'dotenv';
 config({ path: '.env', quiet: true });
@@ -98,9 +99,7 @@ test('campagnes : raccourcis persistants et ajout recherché, fixe ou libre', as
     return route.fulfill({ json: [] });
   });
   await page.goto('/');
-  await page.getByLabel('Identifiant', { exact: true }).fill('admin.ndeye');
-  await page.getByLabel('Mot de passe', { exact: true }).fill(process.env.DEMO_PASSWORD!);
-  await page.getByRole('button', { name: 'Se connecter', exact: true }).click();
+  await loginPwa(page, 'admin.ndeye');
   const nav = page.getByRole('navigation', { name: 'Navigation principale' });
   await nav.getByRole('button', { name: 'Campagnes', exact: true }).tap();
   const card = (name: string) => page.locator('.campaign-card-entry').filter({ hasText: name });

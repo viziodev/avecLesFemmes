@@ -1,0 +1,41 @@
+{
+  "version": "1.0.0",
+  "environment": "Render gratuit + Neon de recette",
+  "groupements": 1,
+  "campagnes": 3,
+  "membres": 1,
+  "versements": 0,
+  "login": "awa",
+  "groupId": "1b6687f7-1e46-417c-8e3a-3b438ab8004f",
+  "campaigns": [
+    {
+      "name": "Avec",
+      "type": "33ab2da6-a706-442e-92bf-2b6d4837a802",
+      "event": "22222222-2222-4222-8222-222222222203",
+      "amount": 5000,
+      "start": "2026-10-25",
+      "end": "2027-10-24",
+      "monthly": false
+    },
+    {
+      "name": "Sokorou Kor",
+      "type": "33ab2da6-a706-442e-92bf-2b6d4837a802",
+      "event": "22222222-2222-4222-8222-222222222202",
+      "amount": 3000,
+      "start": "2026-11-01",
+      "end": "2027-08-31",
+      "monthly": true
+    },
+    {
+      "name": "Natte-10000",
+      "type": "33333333-3333-4333-8333-333333333301",
+      "event": null,
+      "amount": 1000,
+      "start": "2026-11-01",
+      "end": "2027-08-31",
+      "monthly": true
+    }
+  ],
+  "backupSha256": "6dfe7ae976ed90c71a5365cc78cd7b5930a78a4305c18a90985487850a9ce1c7",
+  "completedAt": "2026-10-24T13:12:17.966Z"
+}

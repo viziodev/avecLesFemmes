@@ -44,7 +44,7 @@ test('réponse 502 incertaine : conservation chiffrée, abandon protégé et rep
   expect(writes).toBe(1);
 });
 
-test('mot de passe à chaque ouverture et après cinq minutes sans activité réelle', async ({
+test('PIN à chaque ouverture et verrouillage après cinq minutes sans activité réelle', async ({
   page,
 }) => {
   await page.clock.install();
@@ -61,7 +61,9 @@ test('mot de passe à chaque ouverture et après cinq minutes sans activité ré
   await expect(page.getByRole('heading', { name: 'Mon groupement', exact: true })).toBeVisible();
   await page.clock.fastForward(61000);
   await expect(page.getByRole('heading', { name: 'Bon retour' })).toBeVisible();
-  await expect(page.getByRole('status')).toContainText('5 minutes');
+  await expect(page.getByRole('region', { name: 'Bon retour', exact: true })).toContainText(
+    '5 minutes',
+  );
   await expect(page.locator('.pwa-day-card')).toHaveCount(0);
 });
 

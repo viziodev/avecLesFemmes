@@ -156,7 +156,7 @@ test('préférence invalide ou stockage bloqué : automatique et choix utilisabl
   }, preferenceKey);
   await mockSpace(page);
   await page.goto('/');
-  await unlockMockSpace(page);
+  await unlockMockSpace(page, { prepareOffline: false });
   await expectTheme(page, 'dark');
   const settings = await openAppearance(page);
   await expect(settings.getByRole('radio', { name: 'Automatique', exact: true })).toBeChecked();

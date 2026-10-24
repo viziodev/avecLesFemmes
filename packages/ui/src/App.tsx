@@ -22,6 +22,7 @@ import { PwaSecurity, usePwaSecurity } from './PwaSecurity';
 import { confirmedPayment, PwaFeedbackProvider, usePwaFeedback } from './PwaFeedback';
 import { PaletteProvider, PlatformColors, useGroupPalette } from './Palette';
 import { PwaLogin } from './PwaLogin';
+import { PwaDeviceAdministration } from './PwaDeviceAdministration';
 import { CampaignChoiceCard, CampaignHomeToggle, CampaignShortcut } from './CampaignNavigation';
 import {
   AlertTriangle,
@@ -1939,9 +1940,13 @@ export function App(props: AppProps) {
       {props.portal === 'member' ? (
         <AppearanceProvider>
           <PwaFeedbackProvider>
-            <PwaSecurity>
-              <AppContent {...props} />
-            </PwaSecurity>
+            {new URLSearchParams(window.location.search).has('administration-appareil') ? (
+              <PwaDeviceAdministration />
+            ) : (
+              <PwaSecurity>
+                <AppContent {...props} />
+              </PwaSecurity>
+            )}
           </PwaFeedbackProvider>
         </AppearanceProvider>
       ) : (
@@ -3031,6 +3036,7 @@ function AppContent({ portal, onUpdateSafetyChange }: AppProps) {
                 ...(v.phone ? { phone: v.phone } : {}),
                 ...(v.login ? { login: v.login } : {}),
                 ...(v.password ? { password: v.password } : {}),
+                ...(superAdmin && v.initialPin ? { initialPin: v.initialPin } : {}),
                 admin: v.admin === 'on',
               },
             })
@@ -3246,7 +3252,18 @@ function AppContent({ portal, onUpdateSafetyChange }: AppProps) {
               body: {},
             })
             .then(unwrap),
-        'Code révoqué. La membre doit se reconnecter avec son mot de passe initial.',
+        'PIN révoqué. Définissez un nouveau PIN personnel avant sa prochaine connexion.',
+      );
+    if (dialog === 'initial-pin')
+      await action(
+        () =>
+          api
+            .POST('/api/v1/groupements/{groupId}/members/{memberId}/initial-pin', {
+              params: { path: { groupId, memberId: resetPinMember!.id } },
+              body: { pin: v.pin },
+            })
+            .then(unwrap),
+        'PIN personnel enregistré. Les anciens accès ont été révoqués.',
       );
 
     if (dialog === 'void')
@@ -3428,6 +3445,21 @@ function AppContent({ portal, onUpdateSafetyChange }: AppProps) {
               </button>
             );
           })}
+          {superAdmin && (
+            <a
+              className="nav-item"
+              href={
+                ['localhost', '127.0.0.1'].includes(window.location.hostname) &&
+                window.location.port === '8085'
+                  ? `http://${window.location.hostname}:8086/?administration-appareil`
+                  : '/?administration-appareil'
+              }
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <ShieldCheck size={19} /> Accès PWA de cet appareil
+            </a>
+          )}
         </nav>
         <div className="sidebar-bottom">
           <span className="round-avatar">{actor.name.slice(0, 1)}</span>
@@ -4014,6 +4046,7 @@ function AppContent({ portal, onUpdateSafetyChange }: AppProps) {
                           <Field label="Du">
                             <input
                               type="date"
+                              aria-label="Du"
                               value={historyFrom}
                               max={historyTo || undefined}
                               onChange={(e) => {
@@ -4025,6 +4058,7 @@ function AppContent({ portal, onUpdateSafetyChange }: AppProps) {
                           <Field label="Au">
                             <input
                               type="date"
+                              aria-label="Au"
                               value={historyTo}
                               min={historyFrom || undefined}
                               onChange={(e) => {
@@ -5953,6 +5987,18 @@ function AppContent({ portal, onUpdateSafetyChange }: AppProps) {
                                       <button
                                         type="button"
                                         className="text-button"
+                                        onClick={() => {
+                                          setResetPinMember({ id: m.id, name: m.name });
+                                          open('initial-pin');
+                                        }}
+                                      >
+                                        <KeyRound size={15} /> Définir le PIN
+                                      </button>
+                                    )}
+                                    {superAdmin && (
+                                      <button
+                                        type="button"
+                                        className="text-button"
                                         title="Révoquer le code secret"
                                         onClick={() => {
                                           setResetPinMember({ id: m.id, name: m.name });
@@ -6106,6 +6152,18 @@ function AppContent({ portal, onUpdateSafetyChange }: AppProps) {
                                   <QrCode size={17} />
                                   QR
                                 </button>
+                                {superAdmin && (
+                                  <button
+                                    type="button"
+                                    className="secondary-btn-sm"
+                                    onClick={() => {
+                                      setResetPinMember({ id: m.id, name: m.name });
+                                      open('initial-pin');
+                                    }}
+                                  >
+                                    <KeyRound size={17} /> Définir le PIN
+                                  </button>
+                                )}
                                 {superAdmin && (
                                   <button
                                     type="button"
@@ -6549,6 +6607,7 @@ function AppContent({ portal, onUpdateSafetyChange }: AppProps) {
               contribution: 'Enregistrer une cotisation',
               grace: 'Accorder un délai de grâce',
               'reset-pin': `Révoquer le code de ${resetPinMember?.name || 'la membre'}`,
+              'initial-pin': `PIN personnel de ${resetPinMember?.name || 'la membre'}`,
               void: 'Annuler une cotisation',
             }[dialog] || ''
           }
@@ -6566,6 +6625,8 @@ function AppContent({ portal, onUpdateSafetyChange }: AppProps) {
               grace: 'Délai de grâce individuel accordé avec motif d’audit.',
               'reset-pin':
                 'Le mot de passe initial est conservé. Toutes les sessions et tous les appareils de ce compte seront révoqués.',
+              'initial-pin':
+                'Cette action est réservée au Super Admin. Communiquez le PIN personnel confidentiellement à sa titulaire.',
               void: 'Annulation exceptionnelle d’une cotisation erronée.',
             }[dialog]
           }
@@ -6721,8 +6782,8 @@ function AppContent({ portal, onUpdateSafetyChange }: AppProps) {
                   </div>
                   <p>
                     Pour créer un accès, renseignez un mot de passe initial d’au moins 12
-                    caractères. La membre choisira elle-même son code secret après sa première
-                    connexion.
+                    caractères. Le téléphone et un PIN personnel défini par le Super Admin seront
+                    utilisés pour sa connexion à la PWA.
                   </p>
                   <details style={{ marginTop: 8, marginBottom: 14 }}>
                     <summary
@@ -6762,6 +6823,19 @@ function AppContent({ portal, onUpdateSafetyChange }: AppProps) {
                           placeholder="••••••••"
                         />
                       </Field>
+                      {superAdmin && (
+                        <Field label="PIN personnel initial (4 chiffres)">
+                          <input
+                            name="initialPin"
+                            type="password"
+                            inputMode="numeric"
+                            pattern="[0-9]{4}"
+                            minLength={4}
+                            maxLength={4}
+                            autoComplete="new-password"
+                          />
+                        </Field>
+                      )}
                     </div>
                   </details>
                   {(superAdmin || admin) && (
@@ -6774,9 +6848,23 @@ function AppContent({ portal, onUpdateSafetyChange }: AppProps) {
               )}
               {dialog === 'reset-pin' && (
                 <p>
-                  La membre devra utiliser son mot de passe initial pour autoriser à nouveau son
-                  appareil et choisir un nouveau code secret.
+                  Le compte ne pourra plus se connecter par PIN avant que le Super Admin lui
+                  attribue un nouveau PIN personnel.
                 </p>
+              )}
+              {dialog === 'initial-pin' && (
+                <Field label="PIN personnel (4 chiffres)">
+                  <input
+                    name="pin"
+                    type="password"
+                    autoComplete="new-password"
+                    inputMode="numeric"
+                    pattern="[0-9]{4}"
+                    minLength={4}
+                    maxLength={4}
+                    required
+                  />
+                </Field>
               )}
               {dialog === 'event' && (
                 <>

@@ -124,7 +124,7 @@ test.describe('polices hors ligne', () => {
     expect(fonts).toHaveLength(2);
     await context.setOffline(true);
     await page.reload({ waitUntil: 'domcontentloaded' });
-    await expect(page.getByLabel('Identifiant', { exact: true })).toBeVisible();
+    await expect(page.getByLabel('Numéro de téléphone', { exact: true })).toBeVisible();
     await page.evaluate(() => document.fonts.load('600 16px "DM Sans"', 'Épargne Ñëw Ŋŋ'));
     expect(
       await page.evaluate(() => document.fonts.check('600 16px "DM Sans"', 'Épargne Ñëw Ŋŋ')),

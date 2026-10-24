@@ -1,3 +1,4 @@
+import { loginPwa } from './fixtures';
 import { test, expect } from './fixtures';
 import QRCode from 'qrcode';
 import { config } from 'dotenv';
@@ -29,9 +30,7 @@ test('scan QR image, membre présélectionnée et historique groupé', async ({ 
     }),
   );
   await page.goto('/');
-  await page.getByLabel('Identifiant', { exact: true }).fill('admin.ndeye');
-  await page.getByLabel('Mot de passe', { exact: true }).fill(process.env.DEMO_PASSWORD!);
-  await page.getByRole('button', { name: 'Se connecter', exact: true }).click();
+  await loginPwa(page, 'admin.ndeye');
   const scan = page.getByRole('button', { name: 'Scanner le QR d’une membre' });
   await expect(scan).toBeVisible();
   await page

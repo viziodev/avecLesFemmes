@@ -1,4 +1,4 @@
-import { test, expect, type Page } from '../mobile/fixtures';
+import { test, expect, loginPwa, type Page } from '../mobile/fixtures';
 import { randomUUID } from 'node:crypto';
 import { config } from 'dotenv';
 config({ path: '.env', quiet: true });
@@ -66,9 +66,7 @@ test.beforeAll(async ({ request }) => {
 });
 async function login(page: Page, user = 'admin.ndeye') {
   await page.goto(pwa);
-  await page.getByLabel('Identifiant', { exact: true }).fill(user);
-  await page.getByLabel('Mot de passe', { exact: true }).fill(password);
-  await page.getByRole('button', { name: 'Se connecter', exact: true }).click();
+  await loginPwa(page, user);
   await expect(page.getByRole('heading', { name: 'Mon groupement', exact: true })).toBeVisible();
   const choice = page.getByRole('button', {
     name: `Choisir la campagne ${campaignName}`,

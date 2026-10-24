@@ -1,4 +1,4 @@
-import { test, expect, type Page } from '../mobile/fixtures';
+import { test, expect, loginPwa, testCode, type Page } from '../mobile/fixtures';
 import { config } from 'dotenv';
 import { randomUUID } from 'node:crypto';
 config({ path: '.env', quiet: true });
@@ -57,7 +57,7 @@ test('super administrateur archive et réactive la même campagne puis crée un 
   await page.getByRole('button', { name: 'Enregistrer', exact: true }).click();
   await expect(page.getByRole('status')).toContainText('Groupement créé');
 });
-test('membre créé avec un secret se connecte par identifiant et affiche son QR code vectoriel', async ({
+test('membre créé avec son PIN personnel se connecte par téléphone et affiche son QR code vectoriel', async ({
   page,
 }) => {
   await login(page, './', 'superadmin');
@@ -76,6 +76,7 @@ test('membre créé avec un secret se connecte par identifiant et affiche son QR
       login: memberLogin,
       phone,
       password: initialPassword,
+      initialPin: testCode,
       gender: 'F',
       address: 'Medina Rue 6',
     },
@@ -100,9 +101,7 @@ test('membre créé avec un secret se connecte par identifiant et affiche son QR
   }
   const forget = page.getByRole('button', { name: 'Changer de compte / oublier cet appareil' });
   if (await forget.isVisible()) await forget.click();
-  await page.getByLabel('Identifiant', { exact: true }).fill(memberLogin);
-  await page.getByLabel('Mot de passe', { exact: true }).fill(initialPassword);
-  await page.getByRole('button', { name: 'Se connecter', exact: true }).click();
+  await loginPwa(page, phone, { pin: testCode, password: initialPassword });
   await expect(
     page.getByRole('heading', { name: /^(Vue d’ensemble|Mon groupement)$/, exact: true }),
   ).toBeVisible();
@@ -307,17 +306,14 @@ test('informations de connexion et préremplissage automatique sur les pages de 
   const pwaDemoCard = page.locator('.pwa-login-demo');
   await expect(pwaDemoCard).toBeVisible();
   await pwaDemoCard.locator('summary').click();
-  await expect(pwaDemoCard).toContainText('admin.ndeye');
-  await expect(pwaDemoCard).toContainText('membre.awa');
-  await pwaDemoCard.getByRole('button', { name: 'Responsable · admin.ndeye' }).click();
-  await expect(page.getByLabel('Identifiant', { exact: true })).toHaveValue('admin.ndeye');
-  if (!(await page.getByLabel('Mot de passe', { exact: true }).inputValue())) {
-    await page.getByLabel('Mot de passe', { exact: true }).fill(password);
-  }
-  await expect(page.getByLabel('Mot de passe', { exact: true })).not.toHaveValue('');
-
-  // Connexion avec les identifiants préremplis
-  await page.getByRole('button', { name: 'Se connecter', exact: true }).click();
+  await expect(pwaDemoCard).toContainText('+221770000002');
+  await expect(pwaDemoCard).toContainText('+221770000003');
+  await pwaDemoCard.getByRole('button', { name: 'Responsable · +221770000002' }).click();
+  await expect(page.getByLabel('Numéro de téléphone', { exact: true })).toHaveValue(
+    '+221770000002',
+  );
+  await page.getByRole('button', { name: 'Continuer', exact: true }).click();
+  await page.getByLabel('Code secret', { exact: true }).fill(testCode);
   await expect(
     page.getByRole('heading', { name: /^(Vue d’ensemble|Mon groupement)$/, exact: true }),
   ).toBeVisible();
