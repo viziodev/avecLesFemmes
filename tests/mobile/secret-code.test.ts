@@ -1,3 +1,4 @@
+import { expectEncryptedVault } from './vault-assertions';
 import { test, expect, type Page } from './fixtures';
 import { mockSpace } from './pwa-space';
 const password = process.env.DEMO_PASSWORD || 'Test-password-only';
@@ -204,15 +205,7 @@ test('code : hors ligne, conservation du brouillon après récupération et sync
   await page.getByRole('button', { name: 'Réinitialiser mon code', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Choisissez votre code secret' })).toBeVisible();
   await chooseCode(page, '1357');
-  const encrypted = await page.evaluate(() =>
-    Object.keys(localStorage)
-      .filter((k) => k.startsWith('alf:pwa:vault:'))
-      .map((k) => localStorage.getItem(k))
-      .join(''),
-  );
-  expect(encrypted).not.toContain(password);
-  expect(encrypted).not.toContain('Awa');
-  expect(encrypted).not.toContain('pending');
+  await expectEncryptedVault(page);
   await page.getByRole('button', { name: /1 saisie\(s\) en attente/ }).click();
   await page.getByRole('button', { name: 'Synchroniser cette saisie', exact: true }).click();
   await page.getByLabel('Code secret de confirmation').fill('1357');

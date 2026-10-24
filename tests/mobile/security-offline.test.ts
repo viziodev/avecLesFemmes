@@ -1,3 +1,4 @@
+import { expectEncryptedVault } from './vault-assertions';
 import { test, expect } from './fixtures';
 import { mockSpace, unlockMockSpace } from './pwa-space';
 import { config } from 'dotenv';
@@ -26,7 +27,9 @@ test('réponse 502 incertaine : conservation chiffrée, abandon protégé et rep
   await page.getByRole('dialog').getByRole('button', { name: 'Fermer', exact: true }).click();
   await page.getByRole('button', { name: /1 saisie\(s\) en attente/ }).click();
   await page.getByRole('button', { name: 'Abandonner cette saisie locale' }).click();
-  await confirm.getByLabel('Mot de passe de confirmation').fill('incorrect');
+  await confirm
+    .getByLabel('Mot de passe de confirmation')
+    .fill('Incorrect-password-for-this-vault');
   await confirm.getByRole('button', { name: 'Confirmer l’opération' }).click();
   await expect(page.getByRole('alert')).toContainText('incorrect');
   await page.getByRole('button', { name: 'Abandonner cette saisie locale' }).click();
@@ -189,15 +192,7 @@ test('hors ligne : brouillon chiffré, verrouillage, réouverture puis synchroni
   await expect(page.getByRole('alert').filter({ hasText: 'Saisie conservée' })).toBeVisible();
   expect(writes).toBe(0);
   await page.getByRole('dialog').getByRole('button', { name: 'Fermer', exact: true }).click();
-  const raw = await page.evaluate(() =>
-    Object.keys(localStorage)
-      .filter((k) => k.startsWith('alf:pwa:vault:'))
-      .map((k) => localStorage.getItem(k))
-      .join(''),
-  );
-  expect(raw).not.toContain('Awa');
-  expect(raw).not.toContain('pending');
-  expect(raw).not.toContain(password);
+  await expectEncryptedVault(page);
   await page.getByRole('button', { name: 'Se déconnecter', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Bon retour' })).toBeVisible();
   // Reload the app shell online; unlock offline from the encrypted snapshot.
@@ -206,7 +201,7 @@ test('hors ligne : brouillon chiffré, verrouillage, réouverture puis synchroni
   await page.reload();
   await context.setOffline(true);
   await expect(page.getByRole('heading', { name: 'Bon retour' })).toBeVisible();
-  await page.getByLabel('Mot de passe', { exact: true }).fill('incorrect');
+  await page.getByLabel('Mot de passe', { exact: true }).fill('Incorrect-password-for-this-vault');
   await page.getByRole('button', { name: 'Se connecter', exact: true }).click();
   await expect(page.getByRole('alert')).toContainText('incorrect');
   await page.getByLabel('Mot de passe', { exact: true }).fill(password);
