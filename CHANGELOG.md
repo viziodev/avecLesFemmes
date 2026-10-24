@@ -1,5 +1,11 @@
 # Journal des versions
 
+## 1.1.1 — Coffre hors ligne protégé par PIN
+
+- Le PIN personnel protège l’ouverture et les confirmations des opérations hors ligne dans la PWA.
+- Activation du coffre hors ligne par PIN ; le mot de passe initial reste accepté pour les anciens coffres déjà chiffrés.
+- Réutilisation de la clé de synchronisation et conservation des brouillons existants lors de la migration.
+
 ## 1.1.0 — Connexion PWA par téléphone et PIN personnel
 
 - Première connexion des membres et administratrices par téléphone puis PIN existant ; ouvertures suivantes par PIN seul sur l’appareil mémorisé.

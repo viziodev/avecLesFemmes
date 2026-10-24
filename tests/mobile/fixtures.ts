@@ -8,14 +8,13 @@ export const testCode =
 export type { Page, Locator } from '@playwright/test';
 export async function prepareOfflineForTest(
   page: import('@playwright/test').Page,
-  password = process.env.DEMO_PASSWORD || 'Test-password-only',
+  _password = process.env.DEMO_PASSWORD || 'Test-password-only',
 ) {
   const prepare = page.getByRole('button', { name: 'Activer l’accès hors ligne', exact: true });
   if (!(await prepare.isVisible())) return;
   await prepare.click();
-  const dialog = page.getByRole('dialog', { name: 'Préparer le mode hors ligne', exact: true });
-  await dialog.getByLabel('Mot de passe personnel', { exact: true }).fill(password);
-  await dialog.getByRole('button', { name: 'Activer le coffre', exact: true }).click();
+  const dialog = page.getByRole('dialog', { name: 'Confirmer avec mon code secret', exact: true });
+  await dialog.getByLabel('Code PIN de confirmation', { exact: true }).fill(testCode);
   await expect(dialog).toHaveCount(0);
 }
 export async function loginPwa(
@@ -78,7 +77,9 @@ export const test = base.extend<{ autoConfirmSensitive: boolean; autoSetupSecret
       await page.addLocatorHandler(
         page.getByRole('dialog', { name: /^Confirmer avec mon (mot de passe|code secret)$/ }),
         async (dialog) => {
-          const code = dialog.getByLabel('Code secret de confirmation', { exact: true });
+          const code = dialog
+            .getByLabel('Code PIN de confirmation', { exact: true })
+            .or(dialog.getByLabel('Code secret de confirmation', { exact: true }));
           if (await code.isVisible()) {
             await code.fill(testCode);
             return;

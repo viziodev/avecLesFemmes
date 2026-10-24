@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, testCode } from './fixtures';
 import { mockSpace, unlockMockSpace } from './pwa-space';
 test.use({ serviceWorkers: 'block', autoConfirmSensitive: false });
 
@@ -55,9 +55,7 @@ test('campagne mensuelle : premier dimanche, épargne et tontine sans événemen
       .selectOption('1');
     await expect(dialog.getByLabel('Intervalle en semaines', { exact: true })).toHaveCount(0);
     await dialog.getByRole('button', { name: 'Enregistrer', exact: true }).click();
-    await page
-      .getByLabel('Mot de passe de confirmation', { exact: true })
-      .fill(process.env.DEMO_PASSWORD || 'Test-password-only');
+    await page.getByLabel('Code secret de confirmation', { exact: true }).fill(testCode);
     await page.getByRole('button', { name: 'Confirmer l’opération', exact: true }).click();
     await expect.poll(() => saved.length).toBe(index + 1);
     expect(saved[index]).toMatchObject({

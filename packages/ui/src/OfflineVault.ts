@@ -28,6 +28,7 @@ type CodeEnvelope = {
   code?: WrappedKey;
   online?: WrappedKey;
   recovery?: WrappedKey;
+  recoveryPin?: WrappedKey;
   iv: string;
   ciphertext: string;
 };
@@ -87,14 +88,14 @@ export class OfflineVault {
   private tail: Promise<void> = Promise.resolve();
   private active = true;
   get hasOfflineAccess() {
-    return !this.codeEnvelope || !!this.codeEnvelope.recovery;
+    return !this.codeEnvelope || !!this.codeEnvelope.recovery || !!this.codeEnvelope.recoveryPin;
   }
   private constructor(
     readonly login: string,
     private key: CryptoKey,
     private salt: Uint8Array,
     readonly data: VaultData,
-    private codeEnvelope?: Pick<CodeEnvelope, 'online' | 'recovery'>,
+    private codeEnvelope?: Pick<CodeEnvelope, 'online' | 'recovery' | 'recoveryPin'>,
   ) {}
   static async open(login: string, password: string, actor?: Actor) {
     if (password.length < 12)
@@ -120,6 +121,7 @@ export class OfflineVault {
           if (actor) data.actor = actor;
           const opened = new OfflineVault(login, key, new Uint8Array(), data, {
             recovery: codeEnvelope.recovery,
+            recoveryPin: codeEnvelope.recoveryPin,
             online: codeEnvelope.version === 3 ? codeEnvelope.online : undefined,
           });
           // Remove the legacy PIN wrapper on the first successful password unlock.
@@ -164,21 +166,36 @@ export class OfflineVault {
       pending: [],
     });
   }
-  static async openCode(
-    _login: string,
-    _code: string,
-    _actor?: Actor,
-    _recoveryPassword?: string,
-  ): Promise<OfflineVault> {
-    throw new Error(
-      'Hors ligne, utilisez votre mot de passe initial. Le code secret nécessite une connexion et un appareil autorisé.',
-    );
+  static async openCode(login: string, code: string, actor?: Actor): Promise<OfflineVault> {
+    const raw = localStorage.getItem(slot(login));
+    if (!raw) throw new Error('Aucun coffre hors ligne préparé sur cet appareil.');
+    try {
+      const envelope = JSON.parse(raw) as CodeEnvelope;
+      if (envelope.version !== 3 || !envelope.recoveryPin) throw new Error();
+      const key = await unwrapKey(envelope.recoveryPin, code);
+      const clear = await crypto.subtle.decrypt(
+        { name: 'AES-GCM', iv: bytes(envelope.iv) },
+        key,
+        bytes(envelope.ciphertext),
+      );
+      const data = JSON.parse(new TextDecoder().decode(clear)) as VaultData;
+      if (data.actor.login !== login || (actor && data.actor.id !== actor.id)) throw new Error();
+      if (actor) data.actor = actor;
+      return new OfflineVault(login, key, new Uint8Array(), data, {
+        online: envelope.online,
+        recovery: envelope.recovery,
+        recoveryPin: envelope.recoveryPin,
+      });
+    } catch {
+      throw new Error('PIN incorrect ou coffre hors ligne indisponible.');
+    }
   }
   static async openOnline(
     login: string,
     serverKey: string,
     actor: Actor,
     recoveryPassword?: string,
+    recoveryPin?: string,
   ) {
     if (!/^[a-f0-9]{64}$/.test(serverKey))
       throw new Error(
@@ -198,16 +215,20 @@ export class OfflineVault {
           const data = JSON.parse(new TextDecoder().decode(clear)) as VaultData;
           if (data.actor.login !== login || data.actor.id !== actor.id) throw new Error();
           data.actor = actor;
-          return new OfflineVault(login, key, new Uint8Array(), data, {
+          const opened = new OfflineVault(login, key, new Uint8Array(), data, {
             online: envelope.online,
             recovery: envelope.recovery,
+            recoveryPin: envelope.recoveryPin,
           });
+          if (recoveryPin && !envelope.recoveryPin)
+            return opened.withOnlineKey(serverKey, recoveryPin, 'pin');
+          return opened;
         } catch {
           // Device rotation requires the original password, never a destructive reset.
         }
       }
     }
-    if (!raw && !recoveryPassword) {
+    if (!raw && !recoveryPassword && !recoveryPin) {
       const secret = crypto.getRandomValues(new Uint8Array(32));
       const online = await wrap(secret, serverKey);
       const key = await crypto.subtle.importKey('raw', secret, 'AES-GCM', false, [
@@ -222,25 +243,52 @@ export class OfflineVault {
         { online },
       );
     }
+    if (!raw && recoveryPin) {
+      const secret = crypto.getRandomValues(new Uint8Array(32));
+      const online = await wrap(secret, serverKey);
+      const recovery = await wrap(secret, recoveryPin);
+      const key = await crypto.subtle.importKey('raw', secret, 'AES-GCM', false, [
+        'encrypt',
+        'decrypt',
+      ]);
+      return new OfflineVault(
+        login,
+        key,
+        new Uint8Array(),
+        { actor, entries: {}, pending: [] },
+        { online, recoveryPin: recovery },
+      );
+    }
     if (!recoveryPassword)
       throw new Error(
-        'Activez l’accès hors ligne avec votre mot de passe personnel pour retrouver le coffre existant. Les saisies locales sont conservées.',
+        'Activez l’accès hors ligne avec votre PIN personnel ou votre mot de passe initial. Les saisies locales sont conservées.',
       );
     const previous = await OfflineVault.open(login, recoveryPassword, actor);
-    return previous.withOnlineKey(serverKey, recoveryPassword);
+    return previous.withOnlineKey(serverKey, recoveryPassword, 'password');
   }
-  async withOnlineKey(serverKey: string, recoveryPassword: string) {
-    if (!/^[a-f0-9]{64}$/.test(serverKey) || recoveryPassword.length < 12)
+  async withOnlineKey(
+    serverKey: string,
+    recoverySecret: string,
+    kind: 'password' | 'pin' = 'password',
+  ) {
+    if (
+      !/^[a-f0-9]{64}$/.test(serverKey) ||
+      (kind === 'password' ? recoverySecret.length < 12 : !/^\d{4}$/.test(recoverySecret))
+    )
       throw new Error(
-        'Un mot de passe initial d’au moins douze caractères est nécessaire pour préparer le mode hors ligne.',
+        kind === 'pin'
+          ? 'Un PIN à quatre chiffres est nécessaire pour préparer le mode hors ligne.'
+          : 'Un mot de passe initial d’au moins douze caractères est nécessaire pour préparer le mode hors ligne.',
       );
     const raw = crypto.getRandomValues(new Uint8Array(32));
     const online = await wrap(raw, serverKey);
-    const recovery = await wrap(raw, recoveryPassword);
+    const recovery = kind === 'password' ? await wrap(raw, recoverySecret) : undefined;
+    const recoveryPin = kind === 'pin' ? await wrap(raw, recoverySecret) : undefined;
     const key = await crypto.subtle.importKey('raw', raw, 'AES-GCM', false, ['encrypt', 'decrypt']);
     const next = new OfflineVault(this.login, key, new Uint8Array(), this.data, {
       online,
       recovery,
+      recoveryPin,
     });
     await next.persist();
     this.close();
@@ -274,6 +322,7 @@ export class OfflineVault {
                   version: 3,
                   online: this.codeEnvelope.online,
                   recovery: this.codeEnvelope.recovery,
+                  recoveryPin: this.codeEnvelope.recoveryPin,
                   iv: base64(iv),
                   ciphertext: btoa(binary),
                 } satisfies CodeEnvelope)
@@ -403,6 +452,11 @@ export class OfflineVault {
   async verify(password: string) {
     await this.tail;
     const other = await OfflineVault.open(this.login, password);
+    other.close();
+  }
+  async verifyPin(pin: string) {
+    await this.tail;
+    const other = await OfflineVault.openCode(this.login, pin, this.data.actor);
     other.close();
   }
   async discard(id: string) {

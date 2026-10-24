@@ -47,7 +47,7 @@ test('admin : reçu après acquittement serveur uniquement, détails et fermetur
   await page.getByRole('button', { name: 'Vérifier la cotisation', exact: true }).click();
   await page.getByRole('button', { name: 'Confirmer la cotisation', exact: true }).click();
   await expect(
-    page.getByRole('dialog', { name: 'Confirmer avec mon mot de passe', exact: true }),
+    page.getByRole('dialog', { name: 'Confirmer avec mon code secret', exact: true }),
   ).toHaveCount(0);
   await expect.poll(() => writes).toBe(1);
   const confirmation = page.getByRole('dialog', { name: 'Encaissement confirmé', exact: true });
