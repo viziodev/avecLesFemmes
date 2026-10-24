@@ -86,6 +86,9 @@ async function derive(password: string, salt: Uint8Array) {
 export class OfflineVault {
   private tail: Promise<void> = Promise.resolve();
   private active = true;
+  get hasOfflineAccess() {
+    return !this.codeEnvelope || !!this.codeEnvelope.recovery;
+  }
   private constructor(
     readonly login: string,
     private key: CryptoKey,
@@ -204,9 +207,24 @@ export class OfflineVault {
         }
       }
     }
+    if (!raw && !recoveryPassword) {
+      const secret = crypto.getRandomValues(new Uint8Array(32));
+      const online = await wrap(secret, serverKey);
+      const key = await crypto.subtle.importKey('raw', secret, 'AES-GCM', false, [
+        'encrypt',
+        'decrypt',
+      ]);
+      return new OfflineVault(
+        login,
+        key,
+        new Uint8Array(),
+        { actor, entries: {}, pending: [] },
+        { online },
+      );
+    }
     if (!recoveryPassword)
       throw new Error(
-        'Reconnectez-vous avec votre mot de passe initial pour sécuriser le coffre existant. Aucune saisie locale n’a été effacée.',
+        'Activez l’accès hors ligne avec votre mot de passe personnel pour retrouver le coffre existant. Les saisies locales sont conservées.',
       );
     const previous = await OfflineVault.open(login, recoveryPassword, actor);
     return previous.withOnlineKey(serverKey, recoveryPassword);

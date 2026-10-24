@@ -1,3 +1,4 @@
+import { loginPwa } from './fixtures';
 import { mockSpace } from './pwa-space';
 import { chooseCampaign } from './campaign-choice';
 import { test, expect } from './fixtures';
@@ -45,9 +46,7 @@ test('accueil : épargne par défaut, QR et encaissement dans la campagne choisi
     }),
   );
   await page.goto('/');
-  await page.getByLabel('Identifiant', { exact: true }).fill('admin.ndeye');
-  await page.getByLabel('Mot de passe', { exact: true }).fill(process.env.DEMO_PASSWORD);
-  await page.getByRole('button', { name: 'Se connecter', exact: true }).click();
+  await loginPwa(page, 'admin.ndeye');
   const hero = page.locator('.pwa-action-home');
   const nav = page.getByRole('navigation', { name: 'Navigation principale' });
   await expect(nav.getByRole('button')).toHaveCount(4);

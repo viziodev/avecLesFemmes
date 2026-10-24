@@ -6,7 +6,7 @@ import { resolve } from 'node:path';
 import { PGlite } from '@electric-sql/pglite';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
-import { hashPassword } from '../src/auth/password';
+import { digest, hashPassword } from '../src/auth/password';
 process.env.SMS_MODE = 'development';
 process.env.OTP_SECRET = 'test-only-otp-secret-with-at-least-32-characters';
 let app: any, pg: PGlite;
@@ -2722,7 +2722,7 @@ test('synchronisation signée : sans session, portée exacte, validations métie
     .post('/api/v1/auth/forget-device')
     .set(headers)
     .set('Cookie', device)
-    .send({})
+    .send({ login: 'super', password: testPassword })
     .expect(201);
   await request(server)
     .post('/api/v1/auth/offline-replay')
@@ -2859,4 +2859,285 @@ test('démonstration : aucun ancien raccourci ni secret par défaut sans configu
     if (before === undefined) delete process.env.DEMO_PASSWORD;
     else process.env.DEMO_PASSWORD = before;
   }
+});
+
+test('assistance appareil : identifiants Super Admin obligatoires, aucune session administrative créée', async () => {
+  const server = app.getHttpServer();
+  const before = await pg.query<{ count: number }>(
+    "SELECT count(*)::int AS count FROM sessions s JOIN app_users u ON u.id=s.user_id WHERE u.login='super'",
+  );
+  const forget = () => request(server).post('/api/v1/auth/forget-device').set(headers);
+  await forget().send({}).expect(400);
+  await forget()
+    .send({ login: 'super', password: 'Incorrect-password-for-assistance' })
+    .expect(401);
+  for (const login of ['admin', 'member'])
+    await forget().send({ login, password: testPassword }).expect(403);
+  const initial = await request(server)
+    .post('/api/v1/auth/login')
+    .set(headers)
+    .send({ login: 'admin', password: testPassword })
+    .expect(201);
+  const device = initial.headers['set-cookie']
+    .find((value: string) => value.startsWith('alf_device='))
+    .split(';')[0];
+  const result = await forget()
+    .set('Cookie', device)
+    .send({ login: 'super', password: testPassword })
+    .expect(201);
+  assert.ok(
+    result.headers['set-cookie'].every((value: string) => !/^alf_session=[^;]+/.test(value)),
+  );
+  const after = await pg.query<{ count: number }>(
+    "SELECT count(*)::int AS count FROM sessions s JOIN app_users u ON u.id=s.user_id WHERE u.login='super'",
+  );
+  assert.equal(after.rows[0].count, before.rows[0].count);
+  assert.equal(
+    (
+      await pg.query('SELECT 1 FROM trusted_devices WHERE token_hash=$1', [
+        digest(device.slice('alf_device='.length)),
+      ])
+    ).rows.length,
+    0,
+  );
+});
+
+async function phoneTestSuper() {
+  const r = await request(app.getHttpServer())
+    .post('/api/v1/auth/login')
+    .set(headers)
+    .send({ login: 'super', password: testPassword })
+    .expect(201);
+  return r.headers['set-cookie'].find((s: string) => s.startsWith('alf_session=')).split(';')[0];
+}
+async function phoneTestMember(suffix: string, pin?: string, admin = false) {
+  const server = app.getHttpServer(),
+    cookie = await phoneTestSuper();
+  const group = (
+    await request(server)
+      .post('/api/v1/groupements')
+      .set(headers)
+      .set('Cookie', cookie)
+      .send({
+        name: 'Téléphone test ' + suffix,
+        address: 'Données synthétiques',
+        phone: '+221770000099',
+      })
+      .expect(201)
+  ).body;
+  const phone = '+22177988' + suffix,
+    login = 'telephone.' + suffix;
+  const password = 'Personal-password-only-' + suffix;
+  const member = (
+    await request(server)
+      .post(`/api/v1/groupements/${group.id}/members`)
+      .set(headers)
+      .set('Cookie', cookie)
+      .send({
+        name: 'Membre téléphone ' + suffix,
+        phone,
+        login,
+        password,
+        admin,
+        ...(pin ? { initialPin: pin } : {}),
+      })
+      .expect(201)
+  ).body;
+  return { cookie, group: group.id, member: member.id, phone, login, password };
+}
+function phoneCookies(response: any) {
+  return response.headers['set-cookie']
+    .filter((s: string) => /^alf_(session|device)=/.test(s))
+    .map((s: string) => s.split(';')[0]);
+}
+
+test('téléphone puis PIN existant : membre et responsable, normalisation, appareil et mot de passe personnel conservé', async () => {
+  const server = app.getHttpServer();
+  for (const [suffix, pin, admin] of [
+    ['1001', '1379', true],
+    ['1002', '8642', false],
+  ] as const) {
+    const u = await phoneTestMember(suffix, pin, admin);
+    await request(server)
+      .post('/api/v1/auth/login/phone-pin')
+      .set(headers)
+      .send({ phone: u.phone })
+      .expect(400);
+    const result = await request(server)
+      .post('/api/v1/auth/login/phone-pin')
+      .set(headers)
+      .send({ phone: u.phone.slice(4), pin })
+      .expect(201);
+    assert.equal(result.body.login, u.login);
+    assert.equal(result.body.phone, u.phone);
+    assert.equal(result.body.isSuper, false);
+    assert.equal(result.body.hasSecretCode, true);
+    assert.equal(result.body.pin, undefined);
+    assert.equal(result.body.password, undefined);
+    assert.match(result.headers['x-alf-vault-key'], /^[a-f0-9]{64}$/);
+    const cookies = phoneCookies(result);
+    const list = (
+      await request(server).get('/api/v1/groupements').set('Cookie', cookies).expect(200)
+    ).body;
+    assert.equal(list.items.find((g: any) => g.id === u.group).my_role, admin ? 'ADMIN' : 'MEMBER');
+    const repeat = await request(server)
+      .post('/api/v1/auth/login/phone-pin')
+      .set(headers)
+      .set('Cookie', cookies)
+      .send({ phone: '00' + u.phone.slice(1), pin })
+      .expect(201);
+    assert.equal(repeat.headers['x-alf-vault-key'], result.headers['x-alf-vault-key']);
+    await request(server)
+      .post('/api/v1/auth/vault/password')
+      .set(headers)
+      .set(
+        'Cookie',
+        phoneCookies(repeat).filter((c: string) => c.startsWith('alf_session=')),
+      )
+      .send({ password: u.password })
+      .expect(403);
+    const recovery = await request(server)
+      .post('/api/v1/auth/vault/password')
+      .set(headers)
+      .set('Cookie', phoneCookies(repeat))
+      .send({ password: u.password })
+      .expect(201);
+    assert.equal(recovery.headers['x-alf-vault-key'], repeat.headers['x-alf-vault-key']);
+    assert.deepEqual(recovery.body, { ok: true });
+    const row = (await pg.query('SELECT password_hash FROM app_users WHERE login=$1', [u.login]))
+      .rows[0];
+    const { verifyPassword } = require('../src/auth/password');
+    assert.ok(verifyPassword(u.password, row.password_hash));
+    assert.equal(verifyPassword(pin, row.password_hash), false);
+  }
+});
+
+test('PIN téléphone : cinq erreurs partagées entre première connexion et appareil mémorisé', async () => {
+  const server = app.getHttpServer(),
+    u = await phoneTestMember('1003', '1597');
+  const first = await request(server)
+    .post('/api/v1/auth/login/phone-pin')
+    .set(headers)
+    .send({ phone: u.phone, pin: '1597' })
+    .expect(201);
+  const device = phoneCookies(first).find((c: string) => c.startsWith('alf_device='));
+  for (let n = 0; n < 3; n++)
+    await request(server)
+      .post('/api/v1/auth/login/phone-pin')
+      .set(headers)
+      .send({ phone: n % 2 ? u.phone : u.phone.slice(4), pin: '0000' })
+      .expect(401);
+  for (let n = 0; n < 2; n++)
+    await request(server)
+      .post('/api/v1/auth/login/secret-code')
+      .set(headers)
+      .set('Cookie', device)
+      .send({ login: u.login, code: '0000' })
+      .expect(401);
+  await request(server)
+    .post('/api/v1/auth/login/phone-pin')
+    .set(headers)
+    .send({ phone: u.phone, pin: '1597' })
+    .expect(401);
+  const row = (
+    await pg.query('SELECT failed_attempts,locked_until FROM app_users WHERE login=$1', [u.login])
+  ).rows[0];
+  assert.equal(row.failed_attempts, 5);
+  assert.ok(new Date(row.locked_until).getTime() > Date.now());
+});
+
+test('PIN personnel : initialisation par Super Admin, révocation effective et téléphone de connexion protégé', async () => {
+  const server = app.getHttpServer(),
+    u = await phoneTestMember('1004');
+  const path = `/api/v1/groupements/${u.group}/members/${u.member}`;
+  await request(server)
+    .post('/api/v1/auth/login/phone-pin')
+    .set(headers)
+    .send({ phone: u.phone, pin: '1379' })
+    .expect(401);
+  const admin = await request(server)
+    .post('/api/v1/auth/login')
+    .set(headers)
+    .send({ login: 'admin', password: testPassword })
+    .expect(201);
+  await request(server)
+    .post(path + '/initial-pin')
+    .set(headers)
+    .set('Cookie', phoneCookies(admin))
+    .send({ pin: '1379' })
+    .expect(403);
+  await request(server)
+    .post(path + '/initial-pin')
+    .set(headers)
+    .set('Cookie', u.cookie)
+    .send({ pin: '1379' })
+    .expect(201);
+  const first = await request(server)
+    .post('/api/v1/auth/login/phone-pin')
+    .set(headers)
+    .send({ phone: u.phone, pin: '1379' })
+    .expect(201);
+  await request(server)
+    .post(path + '/initial-pin')
+    .set(headers)
+    .set('Cookie', u.cookie)
+    .send({ pin: '2468' })
+    .expect(201);
+  await request(server).get('/api/v1/auth/me').set('Cookie', phoneCookies(first)).expect(401);
+  await request(server)
+    .post('/api/v1/auth/login/phone-pin')
+    .set(headers)
+    .send({ phone: u.phone, pin: '1379' })
+    .expect(401);
+  await request(server)
+    .post('/api/v1/auth/login/phone-pin')
+    .set(headers)
+    .send({ phone: u.phone, pin: '2468' })
+    .expect(201);
+  await pg.exec('RESET ROLE');
+  let audit;
+  try {
+    audit = (
+      await pg.query(
+        "SELECT payload FROM audit_events WHERE entity_id=$1 AND action='MEMBER_PIN_INITIALIZED' ORDER BY created_at DESC LIMIT 1",
+        [u.member],
+      )
+    ).rows[0];
+  } finally {
+    await pg.exec('SET ROLE aveclesfemmes_app');
+  }
+  assert.deepEqual(audit.payload, {});
+  await request(server)
+    .patch(path)
+    .set(headers)
+    .set('Cookie', u.cookie)
+    .send({ phone: '779881005' })
+    .expect(200);
+  await request(server)
+    .post('/api/v1/auth/login/phone-pin')
+    .set(headers)
+    .send({ phone: u.phone, pin: '2468' })
+    .expect(401);
+  await request(server)
+    .post('/api/v1/auth/login/phone-pin')
+    .set(headers)
+    .send({ phone: '779881005', pin: '2468' })
+    .expect(201);
+});
+
+test('PIN téléphone : numéro inconnu, PIN absent et compte Super Admin ne donnent aucun accès', async () => {
+  const server = app.getHttpServer(),
+    id = randomUUID();
+  await pg.exec('RESET ROLE');
+  await pg.query(
+    'INSERT INTO app_users(id,login,name,phone,password_hash,secret_code_hash,is_super) VALUES($1,$2,$2,$3,$4,$5,true)',
+    [id, 'super.phone-only', '+221779881006', hashPassword(testPassword), hashPassword('1379')],
+  );
+  await pg.exec('SET ROLE aveclesfemmes_app');
+  for (const phone of ['+221779881006', '+221779881007'])
+    await request(server)
+      .post('/api/v1/auth/login/phone-pin')
+      .set(headers)
+      .send({ phone, pin: '1379' })
+      .expect(401);
 });

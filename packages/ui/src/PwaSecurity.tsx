@@ -52,6 +52,10 @@ export function PwaSecurity({ children }: { children: ReactNode }) {
   const vault = useRef<OfflineVault | null>(null);
   const actorRef = useRef<Actor | null>(null);
   const [warning, setWarning] = useState('');
+  const [vaultSetup, setVaultSetup] = useState(false);
+  const [vaultPassword, setVaultPassword] = useState('');
+  const [vaultError, setVaultError] = useState('');
+  const [vaultBusy, setVaultBusy] = useState(false);
   const [reason, setReason] = useState('');
   const [offline, setOffline] = useState(!navigator.onLine);
   const down = useRef(!navigator.onLine);
@@ -92,6 +96,10 @@ export function PwaSecurity({ children }: { children: ReactNode }) {
     setFirstCode('');
     setAccessError('');
     setAccessBusy(false);
+    setVaultSetup(false);
+    setVaultPassword('');
+    setVaultError('');
+    setVaultBusy(false);
     accessInFlight.current = false;
     feedback.clear();
     document.documentElement.dataset.pwaLocked = 'true';
@@ -138,7 +146,7 @@ export function PwaSecurity({ children }: { children: ReactNode }) {
     setPassword('');
     setPrompt(null);
   }
-  async function authenticate(login: string, secret: string, numeric = false) {
+  async function authenticate(login: string, secret: string, numeric = false, phoneLogin = false) {
     authenticatedByCode.current = numeric;
     if (!numeric) initialPassword.current = secret;
     const generation = sessionGeneration.current;
@@ -147,13 +155,26 @@ export function PwaSecurity({ children }: { children: ReactNode }) {
     if (online) {
       let response: Response;
       try {
-        response = await fetch(numeric ? '/api/v1/auth/login/secret-code' : '/api/v1/auth/login', {
-          method: 'POST',
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'AvecLesFemmes' },
-          body: JSON.stringify(numeric ? { login, code: secret } : { login, password: secret }),
-          signal: AbortSignal.timeout(10000),
-        });
+        response = await fetch(
+          numeric
+            ? phoneLogin
+              ? '/api/v1/auth/login/phone-pin'
+              : '/api/v1/auth/login/secret-code'
+            : '/api/v1/auth/login',
+          {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'AvecLesFemmes' },
+            body: JSON.stringify(
+              numeric
+                ? phoneLogin
+                  ? { phone: login, pin: secret }
+                  : { login, code: secret }
+                : { login, password: secret },
+            ),
+            signal: AbortSignal.timeout(10000),
+          },
+        );
       } catch {
         online = false;
         response = json({});
@@ -164,7 +185,7 @@ export function PwaSecurity({ children }: { children: ReactNode }) {
           throw new Error(typeof data.message === 'string' ? data.message : 'Connexion refusée.');
         if (generation !== sessionGeneration.current)
           throw new Error('Connexion interrompue. Réessayez.');
-        actor = data;
+        actor = { ...data, ...(phoneLogin && !data.phone ? { phone: login } : {}) };
         if (actor.isSuper) throw new Error('Ce compte utilise l’espace web Super Admin.');
         actorRef.current = actor;
         try {
@@ -263,6 +284,52 @@ export function PwaSecurity({ children }: { children: ReactNode }) {
     setUnlocked(true);
     queueMicrotask(() => autoWake.current());
     setReason('');
+  }
+  async function prepareOffline() {
+    if (vaultBusy || !actorRef.current || !open.current) return;
+    const actor = actorRef.current,
+      generation = sessionGeneration.current;
+    setVaultBusy(true);
+    setVaultError('');
+    try {
+      const response = await fetch('/api/v1/auth/vault/password', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Requested-With': 'AvecLesFemmes',
+          'X-PWA-Actor': actor.id,
+        },
+        body: JSON.stringify({ password: vaultPassword }),
+        signal: AbortSignal.timeout(10000),
+      });
+      const data = await response.json();
+      if (!response.ok)
+        throw new Error(
+          typeof data.message === 'string' ? data.message : 'Mot de passe personnel refusé.',
+        );
+      if (generation !== sessionGeneration.current || !open.current) return;
+      const key = response.headers.get('X-ALF-Vault-Key');
+      if (!key) throw new Error('Clé du coffre indisponible. Réessayez.');
+      const previous =
+        vault.current || (await OfflineVault.open(actor.login, vaultPassword, actor));
+      const prepared = await previous.withOnlineKey(key, vaultPassword);
+      if (generation !== sessionGeneration.current || !open.current) {
+        prepared.close();
+        return;
+      }
+      vault.current = prepared;
+      await prepared.prepareSync(response.headers.get('X-ALF-Sync-Key'));
+      setPending([...prepared.data.pending]);
+      setWarning('');
+      setVaultSetup(false);
+      feedback.notify('Accès hors ligne activé avec votre mot de passe personnel.', 'success');
+    } catch (error) {
+      if (generation === sessionGeneration.current) setVaultError(errorText(error));
+    } finally {
+      setVaultPassword('');
+      if (generation === sessionGeneration.current) setVaultBusy(false);
+    }
   }
   async function completeAccess(value: string) {
     if (!accessStep || accessInFlight.current) return;
@@ -388,7 +455,7 @@ export function PwaSecurity({ children }: { children: ReactNode }) {
     return json(entry.data, 200, { 'X-ALF-Offline': '1', 'X-ALF-Saved-At': entry.savedAt });
   };
   async function queue(request: Request) {
-    if (!vault.current)
+    if (!vault.current?.hasOfflineAccess)
       return json(
         { message: 'Le stockage chiffré est indisponible. Reconnectez-vous pour enregistrer.' },
         503,
@@ -914,9 +981,9 @@ export function PwaSecurity({ children }: { children: ReactNode }) {
   return (
     <SecurityContext.Provider
       value={{
-        offlineDrafts: !!vault.current,
+        offlineDrafts: !!vault.current?.hasOfflineAccess,
         offline,
-        busy: !!prompt || syncing || feedback.receiptOpen,
+        busy: !!prompt || syncing || vaultSetup || feedback.receiptOpen,
         lock: () => lock(),
       }}
     >
@@ -942,6 +1009,24 @@ export function PwaSecurity({ children }: { children: ReactNode }) {
               </button>
             )}
             {warning && <p role="status">{warning}</p>}
+            {!offline && !vault.current?.hasOfflineAccess && (
+              <div>
+                <p>
+                  Le PIN ouvre votre espace. Pour protéger aussi l’accès hors ligne, activez le
+                  coffre avec votre mot de passe personnel.
+                </p>
+                <button
+                  className="secondary"
+                  onClick={() => {
+                    setVaultPassword('');
+                    setVaultError('');
+                    setVaultSetup(true);
+                  }}
+                >
+                  Activer l’accès hors ligne
+                </button>
+              </div>
+            )}
             {pending.length > 0 && (
               <button className="secondary" disabled={syncing} onClick={() => setShowPending(true)}>
                 {pending.length} saisie(s) en attente · Synchronisation
@@ -1011,9 +1096,7 @@ export function PwaSecurity({ children }: { children: ReactNode }) {
             className="text-button"
             disabled={accessBusy}
             onClick={() =>
-              lock(
-                'Connectez-vous avec votre identifiant et votre mot de passe initial si vous avez oublié votre code.',
-              )
+              lock('Code oublié ou appareil à reconnecter ? Contactez le Super Admin.')
             }
           >
             Revenir à la connexion
@@ -1074,6 +1157,46 @@ export function PwaSecurity({ children }: { children: ReactNode }) {
             </article>
           ))}
           {!pending.length && <p>Aucune saisie en attente.</p>}
+        </Dialog>
+      )}
+      {unlocked && vaultSetup && (
+        <Dialog
+          title="Préparer le mode hors ligne"
+          busy={vaultBusy}
+          onClose={() => {
+            setVaultSetup(false);
+            setVaultPassword('');
+          }}
+        >
+          <p>
+            Votre mot de passe personnel chiffre l’accès hors ligne. Il n’est pas mémorisé. Les
+            prochaines connexions en ligne restent par PIN.
+          </p>
+          <form
+            onSubmit={(event) => {
+              event.preventDefault();
+              void prepareOffline();
+            }}
+          >
+            <label className="field">
+              Mot de passe personnel
+              <input
+                autoFocus
+                type="password"
+                autoComplete="current-password"
+                minLength={12}
+                maxLength={128}
+                required
+                value={vaultPassword}
+                disabled={vaultBusy}
+                onChange={(event) => setVaultPassword(event.target.value)}
+              />
+            </label>
+            {vaultError && <p role="alert">{vaultError}</p>}
+            <button className="primary" disabled={vaultBusy}>
+              {vaultBusy ? 'Activation…' : 'Activer le coffre'}
+            </button>
+          </form>
         </Dialog>
       )}
       {prompt && (

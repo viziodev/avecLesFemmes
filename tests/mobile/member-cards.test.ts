@@ -1,3 +1,4 @@
+import { loginPwa } from './fixtures';
 import { test, expect } from './fixtures';
 import { config } from 'dotenv';
 config({ path: '.env', quiet: true });
@@ -70,9 +71,7 @@ test('membres : cartes trois lignes, inscriptions et montants épargne', async (
     return route.fulfill({ json: { items, total: items.length } });
   });
   await page.goto('/');
-  await page.getByLabel('Identifiant', { exact: true }).fill('admin.ndeye');
-  await page.getByLabel('Mot de passe', { exact: true }).fill(process.env.DEMO_PASSWORD!);
-  await page.getByRole('button', { name: 'Se connecter', exact: true }).click();
+  await loginPwa(page, 'admin.ndeye');
   await page
     .getByRole('navigation', { name: 'Navigation principale' })
     .getByRole('button', { name: 'Membres', exact: true })

@@ -100,6 +100,39 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/auth/login/phone-pin": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** PWA : téléphone puis PIN personnel existant */
+        post: operations["loginPhonePin"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/vault/password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["prepareOfflineVault"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/otp/request": {
         parameters: {
             query?: never;
@@ -189,6 +222,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** Super Admin : oublier cet appareil PWA */
         post: operations["forgetDevice"];
         delete?: never;
         options?: never;
@@ -302,6 +336,22 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["resetMemberPin"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/groupements/{groupId}/members/{memberId}/initial-pin": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["initializeMemberPin"];
         delete?: never;
         options?: never;
         head?: never;
@@ -911,6 +961,7 @@ export interface components {
         };
         ActorView: {
             hasSecretCode?: boolean;
+            phone?: string | null;
             id: string;
             login: string;
             name: string;
@@ -927,6 +978,9 @@ export interface components {
         PinLoginDto: {
             phone: string;
             pin: string;
+        };
+        VaultPasswordDto: {
+            password: string;
         };
         PhoneDto: {
             phone: string;
@@ -999,6 +1053,8 @@ export interface components {
             phone?: string;
             login?: string;
             password?: string;
+            /** @description PIN initial personnel, réservé au Super Admin */
+            initialPin?: string;
             address?: string;
             /**
              * @default F
@@ -1024,6 +1080,9 @@ export interface components {
             blocked: boolean;
         };
         ResetPinDto: Record<string, never>;
+        InitializePinDto: {
+            pin: string;
+        };
         GroupFunctionView: {
             id: string;
             code: string;
@@ -1580,6 +1639,50 @@ export interface operations {
             };
         };
     };
+    loginPhonePin: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PinLoginDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ActorView"];
+                };
+            };
+        };
+    };
+    prepareOfflineVault: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VaultPasswordDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     requestOtp: {
         parameters: {
             query?: never;
@@ -1686,7 +1789,11 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LoginDto"];
+            };
+        };
         responses: {
             201: {
                 headers: {
@@ -1901,6 +2008,31 @@ export interface operations {
         };
         responses: {
             /** @description Code PIN réinitialisé avec succès */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    initializeMemberPin: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                groupId: string;
+                memberId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["InitializePinDto"];
+            };
+        };
+        responses: {
+            /** @description PIN personnel initialisé par le Super Admin */
             200: {
                 headers: {
                     [name: string]: unknown;

@@ -2,6 +2,14 @@
 
 ## État et périmètre
 
+### Téléphone et PIN personnel — 1.1.0
+
+La première connexion PWA demande le téléphone personnel, puis le PIN existant. Les suivantes demandent uniquement le PIN sur l’appareil mémorisé. Le nouveau parcours vérifie les deux éléments côté serveur ; les anciens clients conservent leur route liée à l’appareil. Le Super Admin peut préparer ou remplacer le PIN d’un compte non administratif global et renseigner son téléphone de connexion. Les mots de passe personnels sont conservés ; ils restent nécessaires à l’activation volontaire du coffre et à son ouverture hors ligne. Un PIN ne sert jamais de clé de chiffrement. Les refus, le blocage après cinq erreurs, la révocation et la conservation des anciens brouillons sont testés. Voir [ADR 025](adr/025-connexion-telephone-pin.md), qui remplace les anciennes règles de première connexion des sections historiques ci-dessous.
+
+### Accès PWA et dates mobiles — 1.0.1
+
+L’écran habituel ne propose plus la reconnexion par mot de passe, le changement de compte ou l’oubli d’appareil. Le Super Admin dispose du lien « Accès PWA de cet appareil » dans son espace web ; il ouvre le parcours `/?administration-appareil` sur l’origine PWA. Son identifiant et son mot de passe sont nécessaires pour révoquer l’appareil avant l’effacement de l’identité mémorisée. Les brouillons chiffrés restent conservés. Un code oublié se révoque au préalable depuis la fiche membre. Les dates « Du / Au » de l’historique utilisent deux colonnes réductibles, puis une seule sur les très petits écrans. Voir [ADR 024](adr/024-assistance-acces-pwa.md). Aucun changement des données de Nguith ni déploiement distant par ces correctifs locaux.
+
 ### Calendrier mensuel et Nguith — 0.28.0
 
 Les rencontres mensuelles par jour de semaine (dont le premier dimanche) sont calculées sur les mois civils, dans les vues admin/membre et les contrôles de séance/tour. Migration additive 017, anciens rythmes conservés, formulaire et libellés adaptés. Le jeu local a été remplacé après sauvegarde par le groupement de Nguith, Awa présidente et trois campagnes sans versement. [Paramètres et recette](recette/nguith-2026-10-23/README.md), [ADR 023](adr/023-calendrier-mensuel.md).

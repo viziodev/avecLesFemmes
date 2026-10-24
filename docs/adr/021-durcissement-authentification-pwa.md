@@ -1,5 +1,9 @@
 # ADR 021 — Authentification, appareils autorisés et coffre hors ligne
 
+> En 1.1.0, [ADR 025](025-connexion-telephone-pin.md) remplace l’enrôlement initial par mot de passe par le parcours téléphone/PIN existant, autorise l’attribution du PIN par le Super Admin et rend la préparation du coffre hors ligne volontaire. Les limites de tentatives et le chiffrement hors ligne par mot de passe restent applicables.
+
+> À partir de 1.0.1, les actions de récupération et d’oubli depuis l’interface sont réservées au parcours d’assistance Super Admin : voir [ADR 024](024-assistance-acces-pwa.md). Les anciens boutons décrits ci-dessous sont retirés de la connexion habituelle.
+
 > La synchronisation exclusivement manuelle décrite ici est remplacée en 0.27.0 par [ADR 022](022-synchronisation-automatique.md) : rejeu signé des saisies préalablement confirmées, sans stockage du code ou du mot de passe. Les autres protections restent applicables.
 
 Statut : correction de l’audit du 23 octobre 2026, produit 0.26.0. Remplace les décisions de récupération administrative, de connexion par code sans preuve d’appareil et de chiffrement par code de l’ADR 019. Complète les ADR 009, 013, 016 et 018.

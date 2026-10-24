@@ -1,5 +1,6 @@
+import { forgetDeviceAsSuperAdmin } from '../mobile/device-administration';
 import { existsSync, mkdirSync } from 'node:fs';
-import { test } from '../mobile/fixtures';
+import { test, loginPwa } from '../mobile/fixtures';
 import { config } from 'dotenv';
 config({ path: '.env', quiet: true });
 
@@ -18,9 +19,7 @@ test('capture des interfaces Wave Membre et Admin Groupement', async ({ page }) 
   // 1. Connexion Membre (Wave Particulier)
   await page.goto(pwa);
 
-  await page.getByLabel('Identifiant', { exact: true }).fill('membre.awa');
-  await page.getByLabel('Mot de passe', { exact: true }).fill(password);
-  await page.getByRole('button', { name: 'Se connecter', exact: true }).click();
+  await loginPwa(page, 'membre.awa');
   await page.waitForTimeout(1000);
 
   // Capture Membre Home (Wave Particulier)
@@ -30,9 +29,8 @@ test('capture des interfaces Wave Membre et Admin Groupement', async ({ page }) 
   await page.getByRole('button', { name: 'Se déconnecter', exact: true }).click();
   await page.waitForTimeout(500);
 
-  await page.getByLabel('Identifiant', { exact: true }).fill('admin.ndeye');
-  await page.getByLabel('Mot de passe', { exact: true }).fill(password);
-  await page.getByRole('button', { name: 'Se connecter', exact: true }).click();
+  await forgetDeviceAsSuperAdmin(page, password);
+  await loginPwa(page, 'admin.ndeye');
   await page.waitForTimeout(1000);
 
   // Capture Admin Home (Wave Business)

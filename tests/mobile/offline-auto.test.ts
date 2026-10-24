@@ -37,11 +37,20 @@ async function fixture(page: Page, mode: 'ok' | 'reject' | 'lost' = 'ok') {
     const path = new URL(r.request().url()).pathname;
     if (path.endsWith('/demo')) return r.fulfill({ json: { isDemo: false } });
     if (path.endsWith('/me')) return r.fulfill({ json: actor });
-    if (path.endsWith('/login') || path.endsWith('/login/secret-code'))
+    if (
+      path.endsWith('/login') ||
+      path.endsWith('/login/secret-code') ||
+      path.endsWith('/login/phone-pin')
+    )
       return r.fulfill({
         status: 201,
         headers: { 'X-ALF-Vault-Key': 'a'.repeat(64), 'X-ALF-Sync-Key': signingKey },
         json: actor,
+      });
+    if (path.endsWith('/vault/password'))
+      return r.fulfill({
+        headers: { 'X-ALF-Vault-Key': 'a'.repeat(64), 'X-ALF-Sync-Key': signingKey },
+        json: { ok: true },
       });
     if (path.endsWith('/offline-replay')) {
       const body = r.request().postDataJSON();
@@ -72,7 +81,7 @@ async function fixture(page: Page, mode: 'ok' | 'reject' | 'lost' = 'ok') {
     return r.fulfill({ status: 201, json: receipt(body) });
   });
   await page.goto('/');
-  await unlockMockSpace(page);
+  await unlockMockSpace(page, { pin: '2468' });
   // Do not cut the network until the session data has reached the encrypted cache.
   await expect(page.getByRole('button', { name: 'Faire un versement', exact: true })).toBeEnabled();
   return state;

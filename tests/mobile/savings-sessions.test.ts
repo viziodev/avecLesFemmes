@@ -1,3 +1,4 @@
+import { loginPwa } from './fixtures';
 import { test, expect, unlockReturning } from './fixtures';
 import { config } from 'dotenv';
 config({ path: '.env', quiet: true });
@@ -50,9 +51,7 @@ test('épargne : cinq séances, voir plus et recherche de tous les membres', asy
     }),
   );
   await page.goto('/');
-  await page.getByLabel('Identifiant', { exact: true }).fill('admin.ndeye');
-  await page.getByLabel('Mot de passe', { exact: true }).fill(process.env.DEMO_PASSWORD);
-  await page.getByRole('button', { name: 'Se connecter', exact: true }).click();
+  await loginPwa(page, 'admin.ndeye');
   const section = page.getByRole('region', { name: 'Cahiers de séance d’épargne' });
   const summaries = section.locator('summary');
   await expect(summaries).toHaveCount(5);
@@ -136,9 +135,7 @@ test('épargne : ouverture de séance avant encaissement, hors jour bloqué', as
     });
   });
   await page.goto('/');
-  await page.getByLabel('Identifiant', { exact: true }).fill('admin.ndeye');
-  await page.getByLabel('Mot de passe', { exact: true }).fill(process.env.DEMO_PASSWORD!);
-  await page.getByRole('button', { name: 'Se connecter', exact: true }).click();
+  await loginPwa(page, 'admin.ndeye');
   const hero = page.locator('.pwa-action-home');
   const open = hero.getByRole('button', { name: 'Ouvrir la séance d’épargne' });
   await expect(open).toBeDisabled();

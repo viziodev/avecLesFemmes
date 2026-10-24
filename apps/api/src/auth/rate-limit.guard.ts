@@ -2,6 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { AuthService } from './auth.module';
 import { digest } from './password';
+import { normalizePhone } from '../common/phone';
 
 @Injectable()
 export class AccountThrottlerGuard extends ThrottlerGuard {
@@ -15,7 +16,7 @@ export class AccountThrottlerGuard extends ThrottlerGuard {
       }
     }
     if (req.path.startsWith('/api/v1/auth/login') || req.path === '/api/v1/auth/offline-replay') {
-      const login = req.body?.login || req.body?.phone;
+      const login = req.body?.login || normalizePhone(req.body?.phone);
       if (typeof login === 'string' && login.length <= 100) return `login:${digest(login)}`;
     }
     return req.ip;

@@ -40,6 +40,7 @@ import {
   MemberView,
   PageDto,
   ResetPinDto,
+  InitializePinDto,
   ScopedPageDto,
   TypeView,
   UpdateCampaignEventDto,
@@ -203,13 +204,27 @@ export class GroupementsService {
       let userId: string | null = null;
       const credential = input.password;
       const login = input.login || input.phone;
+      if (input.initialPin) {
+        requireSuper(actor);
+        if (!credential || !input.phone)
+          throw new BadRequestException(
+            'Le téléphone et le mot de passe personnel sont requis avec le PIN initial.',
+          );
+      }
 
       if (credential) {
         userId = randomUUID();
         const userLogin = login || `membre.${userId.slice(0, 8)}`;
         await c.query(
           'INSERT INTO app_users(id,login,name,phone,password_hash,secret_code_hash) VALUES($1,$2,$3,$4,$5,$6)',
-          [userId, userLogin, input.name, input.phone || null, hashPassword(credential), null],
+          [
+            userId,
+            userLogin,
+            input.name,
+            input.phone || null,
+            hashPassword(credential),
+            input.initialPin ? hashPassword(input.initialPin) : null,
+          ],
         );
       } else if (input.login) {
         throw new BadRequestException(
@@ -255,6 +270,27 @@ export class GroupementsService {
         groupId,
       ]);
       if (!existing.rows[0]) throw new NotFoundException('Membre introuvable.');
+      if (input.phone && existing.rows[0].user_id) {
+        const current = await c.query(
+          'SELECT phone,is_super FROM app_users WHERE id=$1 FOR UPDATE',
+          [existing.rows[0].user_id],
+        );
+        if (current.rows[0]?.phone !== input.phone) {
+          requireSuper(actor);
+          if (current.rows[0]?.is_super)
+            throw new ForbiddenException('Le compte Super Admin utilise son espace dédié.');
+          await c.query('UPDATE app_users SET phone=$2 WHERE id=$1', [
+            existing.rows[0].user_id,
+            input.phone,
+          ]);
+          await c.query('UPDATE memberships SET phone=$2 WHERE user_id=$1', [
+            existing.rows[0].user_id,
+            input.phone,
+          ]);
+          await c.query('DELETE FROM sessions WHERE user_id=$1', [existing.rows[0].user_id]);
+          await c.query('DELETE FROM trusted_devices WHERE user_id=$1', [existing.rows[0].user_id]);
+        }
+      }
 
       let role = existing.rows[0].role;
       let functionId =
@@ -328,6 +364,12 @@ export class GroupementsService {
   }
 
   resetPin(actor: Actor, groupId: string, memberId: string, _input: ResetPinDto) {
+    return this.updatePin(actor, groupId, memberId);
+  }
+  initializePin(actor: Actor, groupId: string, memberId: string, input: InitializePinDto) {
+    return this.updatePin(actor, groupId, memberId, input.pin);
+  }
+  private updatePin(actor: Actor, groupId: string, memberId: string, pin?: string) {
     requireSuper(actor);
     return this.db.run(actor, async (c) => {
       await requireGroup(c, groupId, true);
@@ -341,19 +383,26 @@ export class GroupementsService {
         throw new BadRequestException(
           'Ce membre ne possède pas de compte. Créez son accès séparément.',
         );
-      const target = await c.query('SELECT is_super FROM app_users WHERE id=$1 FOR UPDATE', [
+      const target = await c.query('SELECT is_super,phone FROM app_users WHERE id=$1 FOR UPDATE', [
         member.user_id,
       ]);
       if (target.rows[0]?.is_super)
         throw new ForbiddenException('Utilisez la récupération du compte Super Admin.');
-      // Recovery never installs a credential chosen by another person.
+      if (pin && !target.rows[0]?.phone)
+        throw new BadRequestException('Renseignez d’abord le téléphone personnel du compte.');
       await c.query(
-        'UPDATE app_users SET secret_code_hash=NULL,failed_attempts=0,locked_until=NULL WHERE id=$1',
-        [member.user_id],
+        'UPDATE app_users SET secret_code_hash=$2,failed_attempts=0,locked_until=NULL WHERE id=$1',
+        [member.user_id, pin ? hashPassword(pin) : null],
       );
       await c.query('DELETE FROM sessions WHERE user_id=$1', [member.user_id]);
       await c.query('DELETE FROM trusted_devices WHERE user_id=$1', [member.user_id]);
-      await audit(c, actor, groupId, 'MEMBER_CODE_REVOKED', memberId);
+      await audit(
+        c,
+        actor,
+        groupId,
+        pin ? 'MEMBER_PIN_INITIALIZED' : 'MEMBER_CODE_REVOKED',
+        memberId,
+      );
       return { id: memberId, pinReset: true };
     });
   }
@@ -652,6 +701,17 @@ export class GroupementsController {
     @Body() input: ResetPinDto,
   ) {
     return this.service.resetPin(r.actor, groupId, memberId, input);
+  }
+  @Post(':groupId/members/:memberId/initial-pin')
+  @ApiOperation({ operationId: 'initializeMemberPin' })
+  @ApiOkResponse({ description: 'PIN personnel initialisé par le Super Admin' })
+  initializePin(
+    @Req() r: AuthRequest,
+    @Param('groupId', ParseUUIDPipe) groupId: string,
+    @Param('memberId', ParseUUIDPipe) memberId: string,
+    @Body() input: InitializePinDto,
+  ) {
+    return this.service.initializePin(r.actor, groupId, memberId, input);
   }
 
   @Get(':groupId/functions')

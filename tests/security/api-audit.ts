@@ -413,7 +413,9 @@ test('contrôle positif : les confirmations refusées traversent le limiteur ava
   }
 });
 
-test('SEC-06 : un code court ne peut pas contourner l’enrôlement via le mot de passe initial', async () => {
+// Legacy password/device endpoints only. ADR 025 deliberately adds first-device
+// phone + existing PIN authentication; its role, lockout and vault checks are in integration.test.ts.
+test('SEC-06 historique : un PIN ne peut pas servir de mot de passe initial', async () => {
   const server = app.getHttpServer();
   await request(server)
     .post('/api/v1/auth/login')
@@ -439,7 +441,7 @@ test('SEC-06 : un code court ne peut pas contourner l’enrôlement via le mot d
   };
 });
 
-test('SEC-06 : code seul refusé, appareil enrôlé accepté, preuve non réutilisable pour un autre compte et révocation', async () => {
+test('SEC-06 historique : route secret-code liée à l’appareil, portée et révocation', async () => {
   const server = app.getHttpServer();
   const loginCode = () =>
     request(server).post('/api/v1/auth/login/secret-code').set('X-Requested-With', 'AvecLesFemmes');
@@ -468,6 +470,25 @@ test('SEC-06 : code seul refusé, appareil enrôlé accepté, preuve non réutil
     .set(headers)
     .set('Cookie', device)
     .send({})
+    .expect(400);
+  for (const name of ['member', 'admin'])
+    await request(server)
+      .post('/api/v1/auth/forget-device')
+      .set(headers)
+      .set('Cookie', device)
+      .send({ login: 'audit.' + name, password: secret })
+      .expect(403);
+  await request(server)
+    .post('/api/v1/auth/forget-device')
+    .set(headers)
+    .set('Cookie', device)
+    .send({ login: 'audit.super', password: 'Incorrect-password-for-assistance' })
+    .expect(401);
+  await request(server)
+    .post('/api/v1/auth/forget-device')
+    .set(headers)
+    .set('Cookie', device)
+    .send({ login: 'audit.super', password: secret })
     .expect(201);
   await loginCode().set('Cookie', device).send({ login: 'audit.device', code: '7914' }).expect(403);
   evidence['SEC-06'] = {
@@ -477,5 +498,6 @@ test('SEC-06 : code seul refusé, appareil enrôlé accepté, preuve non réutil
     revokedDevice: 403,
     deviceCookieHttpOnlySecureStrict: true,
     vaultKeyInActor: false,
+    deviceAdministration: 'Super Admin credentials for this action only, no admin session created',
   };
 });

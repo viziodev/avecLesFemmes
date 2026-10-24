@@ -16,6 +16,7 @@ import {
   ArrayUnique,
 } from 'class-validator';
 import { Type, Transform } from 'class-transformer';
+import { normalizePhone } from './phone';
 
 export class PageDto {
   @ApiPropertyOptional({ default: 1 })
@@ -95,13 +96,23 @@ export class CreateGroupDto {
 
 export class CreateMemberDto {
   @ApiProperty() @IsString() @MinLength(2) @MaxLength(120) name!: string;
-  @ApiPropertyOptional() @IsOptional() @IsString() @Matches(/^\+[1-9]\d{7,14}$/) phone?: string;
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Transform(({ value }) => normalizePhone(value))
+  @IsString()
+  @Matches(/^\+[1-9]\d{7,14}$/)
+  phone?: string;
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()
   @Matches(/^[a-zA-Z0-9._-]{3,80}$/)
   login?: string;
   @ApiPropertyOptional() @IsOptional() @IsString() @MinLength(12) @MaxLength(128) password?: string;
+  @ApiPropertyOptional({ description: 'PIN initial personnel, réservé au Super Admin' })
+  @IsOptional()
+  @IsString()
+  @Matches(/^\d{4}$/)
+  initialPin?: string;
   @ApiPropertyOptional() @IsOptional() @IsString() @MaxLength(250) address?: string;
   @ApiPropertyOptional({ enum: ['F', 'M'], default: 'F' })
   @IsOptional()
@@ -113,7 +124,12 @@ export class CreateMemberDto {
 
 export class UpdateMemberDto {
   @ApiPropertyOptional() @IsOptional() @IsString() @MinLength(2) @MaxLength(120) name?: string;
-  @ApiPropertyOptional() @IsOptional() @IsString() @Matches(/^\+[1-9]\d{7,14}$/) phone?: string;
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Transform(({ value }) => normalizePhone(value))
+  @IsString()
+  @Matches(/^\+[1-9]\d{7,14}$/)
+  phone?: string;
   @ApiPropertyOptional() @IsOptional() @IsString() @MaxLength(250) address?: string;
   @ApiPropertyOptional({ enum: ['F', 'M'] }) @IsOptional() @IsIn(['F', 'M']) gender?: 'F' | 'M';
   @ApiPropertyOptional({ format: 'uuid' }) @IsOptional() @IsUUID() functionId?: string;
@@ -125,9 +141,16 @@ export class BlockMemberDto {
 }
 
 export class ResetPinDto {}
+export class InitializePinDto {
+  @ApiProperty() @IsString() @Matches(/^\d{4}$/) pin!: string;
+}
 
 export class PinLoginDto {
-  @ApiProperty() @IsString() @Matches(/^\+[1-9]\d{7,14}$/) phone!: string;
+  @ApiProperty()
+  @Transform(({ value }) => normalizePhone(value))
+  @IsString()
+  @Matches(/^\+[1-9]\d{7,14}$/)
+  phone!: string;
   @ApiProperty() @IsString() @Matches(/^\d{4}$/) pin!: string;
 }
 
@@ -298,6 +321,7 @@ export class TontineReorderDto {
 
 export class ActorView {
   @ApiPropertyOptional() hasSecretCode?: boolean;
+  @ApiPropertyOptional({ type: String, nullable: true }) phone?: string | null;
   @ApiProperty() id!: string;
   @ApiProperty() login!: string;
   @ApiProperty() name!: string;

@@ -1,18 +1,21 @@
 import { expectEncryptedVault } from './vault-assertions';
-import { test, expect, type Page } from './fixtures';
+import { test, expect, prepareOfflineForTest, loginPwa, type Page } from './fixtures';
 import { mockSpace } from './pwa-space';
+import { forgetDeviceAsSuperAdmin } from './device-administration';
 const password = process.env.DEMO_PASSWORD || 'Test-password-only';
 const initialCode = '2468';
-const vaultHeaders = { 'X-ALF-Vault-Key': 'a'.repeat(64) };
 test.use({ serviceWorkers: 'block', autoSetupSecretCode: false, autoConfirmSensitive: false });
 async function codeServer(page: Page) {
   await mockSpace(page);
-  let code = '',
+  let code = initialCode,
     configurations = 0,
     codeLogins = 0;
+  let vaultKey = 'a'.repeat(64);
+  const currentHeaders = () => ({ 'X-ALF-Vault-Key': vaultKey });
   const actor = () => ({
     id: 'actor',
     login: 'mock.user',
+    phone: '+221770000003',
     name: 'Awa Fall',
     isSuper: false,
     hasSecretCode: !!code,
@@ -29,10 +32,14 @@ async function codeServer(page: Page) {
     )
       return r.fulfill({ status: 201, json: { ok: true } });
     const body = r.request().postDataJSON();
-    if (path.endsWith('/login/secret-code')) {
+    if (path.endsWith('/vault/password'))
+      return body.password === password
+        ? r.fulfill({ headers: currentHeaders(), json: { ok: true } })
+        : r.fulfill({ status: 403, json: { message: 'Mot de passe refusé.' } });
+    if (path.endsWith('/login/phone-pin') || path.endsWith('/login/secret-code')) {
       codeLogins++;
-      return body.code === code && code
-        ? r.fulfill({ status: 201, headers: vaultHeaders, json: actor() })
+      return (body.pin || body.code) === code && code
+        ? r.fulfill({ status: 201, headers: currentHeaders(), json: actor() })
         : r.fulfill({ status: 401, json: { message: 'Code secret incorrect.' } });
     }
     if (path.endsWith('/secret-code')) {
@@ -40,28 +47,33 @@ async function codeServer(page: Page) {
         return r.fulfill({ status: 401, json: { message: 'Mot de passe initial incorrect.' } });
       code = body.code;
       configurations++;
-      return r.fulfill({ status: 201, headers: vaultHeaders, json: actor() });
+      return r.fulfill({ status: 201, headers: currentHeaders(), json: actor() });
     }
     if (path.endsWith('/login'))
       return body.password === password
-        ? r.fulfill({ status: 201, headers: vaultHeaders, json: actor() })
+        ? r.fulfill({ status: 201, headers: currentHeaders(), json: actor() })
         : r.fulfill({ status: 401, json: { message: 'Mot de passe incorrect.' } });
     return r.abort();
   });
-  return { configurations: () => configurations, codeLogins: () => codeLogins };
+  return {
+    configurations: () => configurations,
+    codeLogins: () => codeLogins,
+    replaceCodeByAdmin: () => {
+      code = '1357';
+      vaultKey = 'b'.repeat(64);
+    },
+  };
 }
 async function firstConnection(page: Page) {
   await page.goto('/');
-  await page.getByLabel('Identifiant', { exact: true }).fill('mock.user');
-  await page.getByLabel('Mot de passe', { exact: true }).fill(password);
-  await page.getByRole('button', { name: 'Se connecter', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Choisissez votre code secret' })).toBeVisible();
+  await page.getByLabel('Numéro de téléphone', { exact: true }).fill('77 000 00 03');
+  await page.getByRole('button', { name: 'Continuer', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Votre PIN', exact: true })).toBeVisible();
 }
-async function chooseCode(page: Page, code = initialCode) {
-  await page.getByLabel('Code secret', { exact: true }).fill(code);
-  await expect(page.getByRole('heading', { name: 'Confirmez votre code secret' })).toBeVisible();
+async function enterPin(page: Page, code = initialCode) {
   await page.getByLabel('Code secret', { exact: true }).fill(code);
   await expect(page.getByRole('heading', { name: 'Mon groupement', exact: true })).toBeVisible();
+  await prepareOfflineForTest(page, password);
 }
 async function payment(page: Page) {
   await page.getByRole('button', { name: 'Faire un versement', exact: true }).click();
@@ -69,34 +81,35 @@ async function payment(page: Page) {
   await page.getByRole('button', { name: 'Confirmer mon versement', exact: true }).click();
 }
 
-test('code : choix confirmé, pavé, retour arrière et réouverture par code seul', async ({
+test('PIN existant : pavé, retour arrière, erreurs et réouverture par PIN seul', async ({
   page,
 }) => {
   const server = await codeServer(page);
   await page.setViewportSize({ width: 360, height: 800 });
   await firstConnection(page);
-  await page.getByLabel('Code secret', { exact: true }).fill(initialCode);
   await page.getByLabel('Code secret', { exact: true }).fill('1357');
-  await expect(page.getByRole('alert')).toContainText('différents');
+  await expect(page.getByRole('alert')).toContainText('incorrect');
   expect(server.configurations()).toBe(0);
-  await page.getByLabel('Code secret', { exact: true }).fill(initialCode);
-  await expect(page.getByRole('heading', { name: 'Mon groupement', exact: true })).toBeVisible();
-  expect(server.configurations()).toBe(1);
+  await enterPin(page);
+  expect(server.configurations()).toBe(0);
   await page.reload();
   await expect(page.getByRole('heading', { name: 'Bon retour' })).toBeVisible();
   await expect(page.getByLabel('Identifiant', { exact: true })).toHaveCount(0);
   await expect(page.getByLabel('Mot de passe', { exact: true })).toHaveCount(0);
+  const beforePartial = server.codeLogins();
   const pad = page.getByLabel('Pavé numérique', { exact: true });
   await pad.getByRole('button', { name: '2', exact: true }).tap();
   await pad.getByRole('button', { name: '4', exact: true }).tap();
   await expect(page.locator('.secret-code-dots .filled')).toHaveCount(2);
-  expect(server.codeLogins()).toBe(0);
+  expect(server.codeLogins()).toBe(beforePartial);
   await pad.getByRole('button', { name: 'Effacer le dernier chiffre' }).tap();
   await expect(page.getByLabel('Code secret', { exact: true })).toHaveValue('2');
-  const help = await page
-    .getByRole('button', { name: 'Code secret oublié ?', exact: true })
-    .boundingBox();
-  expect(help!.y + help!.height).toBeLessThanOrEqual(800);
+  await expect(page.locator('.pwa-login-help')).toBeVisible();
+  await expect(
+    page.getByRole('button', {
+      name: /Reconnecter cet appareil|Changer de compte|Code secret oublié/,
+    }),
+  ).toHaveCount(0);
   await page.screenshot({ path: test.info().outputPath('connexion-code-clair.png') });
   await page.getByLabel('Code secret', { exact: true }).fill('0000');
   await expect(page.getByRole('alert')).toContainText('incorrect');
@@ -129,7 +142,7 @@ test('code : confirmation sensible annulable, code seul transmis et reçu après
     });
   });
   await firstConnection(page);
-  await chooseCode(page);
+  await enterPin(page);
   await payment(page);
   const confirm = page.getByRole('dialog', { name: 'Confirmer avec mon code secret', exact: true });
   await expect(confirm).toBeVisible();
@@ -167,7 +180,7 @@ test('code : hors ligne, conservation du brouillon après récupération et sync
   context,
 }) => {
   test.setTimeout(60000);
-  await codeServer(page);
+  const server = await codeServer(page);
   let syncedCode = '';
   await page.route('**/contributions/self', (r) => {
     syncedCode = r.request().headers()['x-confirm-secret-code'];
@@ -184,7 +197,7 @@ test('code : hors ligne, conservation du brouillon après récupération et sync
     });
   });
   await firstConnection(page);
-  await chooseCode(page);
+  await enterPin(page);
   await expect(page.getByRole('button', { name: 'Faire un versement', exact: true })).toBeEnabled();
   await context.setOffline(true);
   await payment(page);
@@ -200,11 +213,9 @@ test('code : hors ligne, conservation du brouillon après récupération et sync
   await expect(page.getByRole('button', { name: /1 saisie\(s\) en attente/ })).toBeVisible();
   await context.setOffline(false);
   await page.evaluate(() => window.dispatchEvent(new Event('pagehide')));
-  await page.getByRole('button', { name: 'Code secret oublié ?', exact: true }).click();
-  await page.getByLabel('Mot de passe', { exact: true }).fill(password);
-  await page.getByRole('button', { name: 'Réinitialiser mon code', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Choisissez votre code secret' })).toBeVisible();
-  await chooseCode(page, '1357');
+  server.replaceCodeByAdmin();
+  await forgetDeviceAsSuperAdmin(page, password);
+  await loginPwa(page, '+221770000003', { pin: '1357', password });
   await expectEncryptedVault(page);
   await page.getByRole('button', { name: /1 saisie\(s\) en attente/ }).click();
   await page.getByRole('button', { name: 'Synchroniser cette saisie', exact: true }).click();
@@ -221,7 +232,7 @@ test('hors ligne : mot de passe initial requis, le PIN ne déchiffre pas le coff
 }) => {
   await codeServer(page);
   await firstConnection(page);
-  await chooseCode(page);
+  await enterPin(page);
   await context.setOffline(true);
   await page.evaluate(() => window.dispatchEvent(new Event('pagehide')));
   await expect(page.getByLabel('Code secret', { exact: true })).toHaveCount(0);
@@ -237,7 +248,7 @@ test('code : verrouillage après cinq minutes et saisie effacée', async ({ page
   await page.clock.install();
   await codeServer(page);
   await firstConnection(page);
-  await chooseCode(page);
+  await enterPin(page);
   await page.clock.fastForward(5 * 60 * 1000 + 1000);
   await expect(page.getByRole('heading', { name: 'Bon retour' })).toBeVisible();
   await expect(page.getByLabel('Code secret', { exact: true })).toBeEmpty();

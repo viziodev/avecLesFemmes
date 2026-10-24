@@ -5034,12 +5034,33 @@ textarea {
 }
 .history-date-range {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
+}
+.history-date-range > .field {
+  min-width: 0;
+  margin: 0 0 18px;
 }
 .history-date-range input {
   min-width: 0;
   width: 100%;
+  max-width: 100%;
+  min-height: 48px;
+  display: block;
+  padding-inline: 10px;
+}
+.history-date-range input::-webkit-date-and-time-value {
+  min-width: 0;
+  text-align: left;
+}
+.history-date-range input::-webkit-datetime-edit {
+  min-width: 0;
+  padding: 0;
+}
+@media (max-width: 359px) {
+  .history-date-range {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 .history-day h3 {
   font-size: 1rem;
